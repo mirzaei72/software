@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Image selector</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<script type='text/cse' line='7'>
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  apiNode as document.getElementById("api-node");
+
+  apiNode.setHook("setCloseState", super(isOk):
+    hostWin as window.hostWin();
+    hostWin->closeState = isOk? 1: 2;
+    if isOk:
+      hostWin->imgUrls = JSB(document)..getImgUrls();
+      hostWin->isResizing = JSB(document)..ImageIsResizing;
+    end;
+  end);
+end;
+
+end;
+</script>
+
+<script type="text/javascript">
+var ImageIsResizing = false;
+var CURR_USR_PATH = '';
+
+function location__(href) {
+  var location = document.createElement('a');
+  location.href = href;
+  if (location.host == '')
+    location.href = location.href;
+  return location;
+}
+
+function clearImgSrc(event) {
+  var node = event.target;
+  while (node) {
+    if (node.nodeType == 1 && node.nodeName == 'DIV' && node.classList.contains('image-holder')) {
+      node.innerHTML = "<img style='width:100%' />";
+      break;
+    }
+    node = node.previousSibling;
+  }
+}
+
+function adjustImgUrl(sUrl) {
+  if (sUrl.indexOf('://') > 0 || sUrl[0] == '/')
+    return sUrl;
+  else if (CURR_USR_PATH)
+    return location__(CURR_USR_PATH + sUrl).pathname;
+  else return sUrl;
+}
+
+function cloneEmptyImgNode(lastNode,sUrl) {
+  var newNode = lastNode.cloneNode(true);
+  var imgNode = newNode.querySelector('img');
+  if (imgNode) {
+    if (sUrl)
+      imgNode.src = adjustImgUrl(sUrl);
+    else imgNode.parentNode.innerHTML = "<img style='width:100%' />"; // reset img node
+  }
+  
+  if (sUrl) {
+    var clearBtn = document.createElement('input');
+    clearBtn.setAttribute('type','button');
+    clearBtn.setAttribute('value','clear');
+    clearBtn.onclick = clearImgSrc;
+    newNode.appendChild(clearBtn);
+  }
+  else {  // clone node not copy onclick event
+    var clearBtn = newNode.querySelector('input');
+    if (clearBtn && clearBtn.value == 'clear')
+      clearBtn.onclick = clearImgSrc;
+  }
+  
+  return newNode;
+}
+
+function checkImageResizing() {
+  var nodes = document.querySelectorAll('#all-image > div.resizing');
+  if (!nodes.length) return;
+  
+  var lastNode = nodes[nodes.length-1];
+  var imgNodes = lastNode.getElementsByTagName('img');
+  if (imgNodes.length) {
+    var imgNode = imgNodes[0];
+    if (imgNode.src) {
+      var newNode = cloneEmptyImgNode(lastNode,''); // copy more one for adding
+      document.querySelector('#all-image').appendChild(newNode);
+    }
+  }
+}
+
+function ImageDragOver(event) {
+  event.preventDefault();
+}
+
+function ImageDrop(event) {
+  event.stopPropagation();
+  event.preventDefault();
+
+  var s = event.dataTransfer.getData("text/args");
+  var b = s.split(',');
+  if (b.length == 3 && b[0] == 'image') {
+    var node = event.target;
+    while (node) {
+      if (node.nodeName == 'DIV' && node.classList.contains('image-holder'))
+        break;
+      else node = node.parentNode;
+    }
+    
+    if (node) {
+      node.querySelector("img").src = b[2];
+      if (ImageIsResizing) checkImageResizing();
+    }
+  }
+}
+
+function initImgEditor(_widget,bDefault,sPrjRoot) {
+  CURR_USR_PATH = sPrjRoot || '';
+  
+  var imgs,configs, widget=window.eval(_widget || "[]");
+  if (widget instanceof Array && widget.length > 0) {
+    imgs = widget[0];
+    configs = widget[1] || [];
+    ImageIsResizing = widget[2] || false;
+    if (!(imgs instanceof Array) || !(configs instanceof Array))
+      return;
+  }
+  else return;
+  bDefault = bDefault || [];
+  
+  var ownerNode = document.getElementById('all-image');
+  ownerNode.innerHTML = '';
+  
+  var iNum=0, lastNode=null, iMax=imgs.length-1;
+  for (var i = 0; i <= iMax; i++) {
+    var bInfo = imgs[i];
+    if (!(bInfo instanceof Array)) continue;
+    
+    var bHead = bInfo[0];
+    var sTitle = bHead[0] || '';
+    var sDesc = bHead[1] || '';
+    var sStyle = bInfo[1] || 'width:300px; min-height:100px;';
+    var sUrl = bDefault[iNum] || '';
+    if (!sUrl) sUrl = bInfo[2] || '';
+    
+    var sHtml = "";
+    if (sTitle) sHtml += '<h3>' + sTitle + '</h3>';
+    if (sDesc) sHtml += '<p>' + sDesc + '</p>';
+    sHtml += "<div class='image-holder' style='" + sStyle + "' ondragover='ImageDragOver(event)' ondrop='ImageDrop(event)'><img";
+    if (sUrl) {
+      // if (sUrl.indexOf('%') < 0) sUrl = encodeURI(sUrl);
+      sHtml += ' src="' + adjustImgUrl(sUrl) + '"';
+    }
+    sHtml += " style='width:100%' /></div>";
+    
+    var sClass = (ImageIsResizing && i == iMax)? 'image-item resizing': 'image-item';
+    var node = document.createElement('div');
+    node.className = sClass;
+    node.innerHTML = sHtml;
+    ownerNode.appendChild(node);
+    
+    lastNode = node;
+    iNum++;
+  }
+  
+  if (ImageIsResizing) {
+    if (lastNode) {
+      while (iNum < bDefault.length) {
+        var newNode = cloneEmptyImgNode(lastNode,bDefault[iNum]);
+        ownerNode.appendChild(newNode);
+        iNum++;
+      }
+    }
+    checkImageResizing();
+  }
+}
+
+function getImgUrls() {
+  var bRet = [];
+  var nodes = document.querySelectorAll('div.image-holder > img');
+  for (var i=0, item; item = nodes[i]; i++) {
+    var sUrl = item.src || '';
+    if (!sUrl) continue;
+    
+    var location = location__(sUrl);
+    if (location.host == window.location.host) {
+      sUrl = location.pathname;
+      if (CURR_USR_PATH && sUrl.indexOf(CURR_USR_PATH) == 0 && sUrl.length > CURR_USR_PATH.length)
+        sUrl = sUrl.slice(CURR_USR_PATH.length);
+    }
+    else sUrl = location.href;
+    bRet.push(sUrl);
+  }
+  return bRet;
+}
+
+function getImgProps() {
+  return [];
+}
+
+function finishEditing(isOk) {
+  var apiNode = document.getElementById('api-node');
+  apiNode.setCloseState(isOk);
+  window.close();
+}
+</script>
+
+<style>
+body div {
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  overflow: auto;
+}
+div.image-holder {
+  border: 1px solid gray;
+}
+</style>
+</head>
+
+<body>
+<div id='api-node' style='display:none; visibility:hidden;'></div>
+
+<p style='text-align:right'>
+  <input type='button' style='width:60px' value='OK' onclick='finishEditing(true)' />
+  <input type='button' style='width:70px' value='Cancel' onclick='finishEditing(false)' />
+</p>
+
+<p>Drag picture and drop to following box.</p>
+<div id='all-image'>
+</div>
+
+</body>
+</html>

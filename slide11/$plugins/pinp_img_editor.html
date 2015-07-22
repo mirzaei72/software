@@ -1,0 +1,731 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>PINP image editor</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<script type='text/cse' line='7'>
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  apiNode as document.getElementById("api-node");
+
+  apiNode.setHook("setCloseState", super(isOk):
+    hostWin as window.hostWin();
+    hostWin->closeState = isOk? 1: 2;
+    if isOk:
+      hostWin->maskData = JSB(document)..getMaskData();
+    end;
+  end);
+end;
+
+end;
+</script>
+
+<script type="text/javascript">
+var hasInit = false;
+var hasBorder = false;
+
+var styleRet = '';
+var styleRet2 = '';
+var bkgClrRet = '';
+var borderRet = '';
+
+var currentUseBkgClr = false;
+var currentFlipCfg = 0;
+
+var CURR_USR_PATH = '';
+
+function hslToRgb(h,s,l) {
+  var r, g, b;
+
+  if (s == 0) {
+    r = g = b = l; // achromatic
+  } else {
+    function hue2rgb(p,q,t) {
+      if (t < 0)
+        t += 1;
+      else if (t > 1)
+        t -= 1;
+        
+      if (t < 1/6)
+        return p + (q - p) * 6 * t;
+      else if (t < 1/2)
+        return q;
+      else if (t < 2/3)
+        return p + (q - p) * (2/3 - t) * 6;
+      else return p;
+    }
+
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+    h /= 360;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+
+  return [Math.floor(r*255+0.5),Math.floor(g*255+0.5),Math.floor(b*255+0.5)];
+}
+
+function rgbToHsl(r,g,b) {
+  r /= 255, g /= 255, b /= 255;
+  var max=Math.max(r,g,b), min=Math.min(r,g,b);
+  var h, s, l = (max + min) / 2;
+  
+  if (max == min) {
+    h = s = 0; // achromatic
+  } else {
+    var d = max - min;
+    s = l >= 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max == r)
+      h = (g - b) / d;
+    else if (max == g)
+      h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+
+  return [Math.floor(h+0.5), s, l];
+}
+
+function setColorPos(node,r,g,b,a,bHsl) {
+  var sSlider = node.querySelector('div.s-slider');
+  var lSlider = node.querySelector('div.l-slider');
+  var aSlider = node.querySelector('div.a-slider');
+
+  var hNode = node.querySelector('div.h-slider > div.handle');
+  var sNode = node.querySelector('div.s-slider > div.handle');
+  var lNode = node.querySelector('div.l-slider > div.handle');
+  var aNode = node.querySelector('div.a-slider > div.handle');
+
+  var htNode = node.querySelector('div.h-slider > p');
+  var stNode = node.querySelector('div.s-slider > p');
+  var ltNode = node.querySelector('div.l-slider > p');
+  var atNode = node.querySelector('div.a-slider > p');
+  
+  var h=bHsl[0], s=bHsl[1], l=bHsl[2], S=Math.floor(s*100+0.5);
+  hNode.style.left = h + 'px';
+  htNode.innerHTML = 'H=' + h;
+  
+  sNode.style.left = parseInt(s * 360 + 0.5) + 'px';
+  sSlider.style.background = '-webkit-linear-gradient(0deg,rgb(128,128,128),hsl(' + h + ',20%,50%),hsl(' + h + ',40%,50%),hsl(' + h + ',60%,50%),hsl(' + h + ',80%,50%),hsl(' + h + ',100%,50%))';
+  stNode.innerHTML = 'S=' + (s + '').slice(0,4);
+  
+  lNode.style.left = parseInt(l * 360 + 0.5) + 'px';
+  lSlider.style.background = '-webkit-linear-gradient(0deg,rgb(0,0,0),hsl(' + h + ',' + S + '%,20%),hsl(' + h + ',' + S + '%,40%),hsl(' + h + ',' + S + '%,60%),hsl(' + h + ',' + S + '%,80%),rgb(255,255,255))';
+  ltNode.innerHTML = 'L=' + (l + '').slice(0,4);
+  
+  aNode.style.left = parseInt(a * 360 + 0.5) + 'px';
+  var sTmp = 'rgba(' + r + ',' + g + ',' + b + ',';
+  aSlider.style.background = '-webkit-linear-gradient(0deg,' + sTmp + '0),' + sTmp + '0.2),' + sTmp + '0.4),' + sTmp + '0.6),' +  sTmp + '0.8),' + sTmp + '1))';
+  atNode.innerHTML = 'A=' + ((a + 0.005) + '').slice(0,4);
+}
+
+function initColorPos(node,sColor) {
+  var r=128, g=128, b=128, a=1;
+  rgb = sColor.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/);
+  if (rgb) {
+    r = parseInt(rgb[1]);
+    g = parseInt(rgb[2]);
+    b = parseInt(rgb[3]);
+  }
+  else {
+    rgba = sColor.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([.0-9]+)\s*\)$/);
+    if (rgba) {
+      r = parseInt(rgba[1]);
+      g = parseInt(rgba[2]);
+      b = parseInt(rgba[3]);
+      a = parseFloat(rgba[4]);
+    }
+  }
+  
+  setColorPos(node,r,g,b,a,rgbToHsl(r,g,b));
+  return [r,g,b,a];
+}
+
+function makeRgbColor(bColor) {
+  var r=bColor[0], g=bColor[1], b=bColor[2], a=bColor[3];
+  if (typeof a != 'number') a = 1;
+  
+  if (Math.floor(a * 100 + 0.5) == 100)
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  else return 'rgba(' + r + ',' + g + ',' + b + ',' + (a + '').slice(0,4) + ')';
+}
+
+var regExprRotate = /\brotate\s*\(\s*([-0-9]+)\s*deg\s*\)/m;
+var regExprFlipX  = /\bscaleX\s*\(\s*-1\s*\)/m;
+var regExprFlipY  = /\bscaleY\s*\(\s*-1\s*\)/m;
+
+function getRotateFromCss(sStyle,checkFlip) {
+  if (checkFlip) {
+    var bb = regExprFlipX.exec(sStyle);
+    if (bb)
+      currentFlipCfg = 1;
+    else {
+      bb = regExprFlipY.exec(sStyle);
+      if (bb) currentFlipCfg = 2;
+    }
+    
+    var nodes = document.querySelectorAll('#flip-cfg > input');
+    for (var i=0,item; item=nodes[i]; i++) {
+      item.checked = (currentFlipCfg == i);
+    }
+  }
+  
+  var b = regExprRotate.exec(sStyle);
+  if (b) {
+    var i = parseInt(b[1]);
+    if (i < 0) i += 360;
+    return i;
+  }
+  return 0;
+}
+
+function location__(href) {
+  var location = document.createElement('a');
+  location.href = href;
+  if (location.host == '')
+    location.href = location.href;
+  return location;
+}
+
+function adjustImgUrl(sUrl) {
+  if (sUrl.indexOf('://') > 0 || sUrl[0] == '/')
+    return sUrl;
+  else if (CURR_USR_PATH)
+    return location__(CURR_USR_PATH + sUrl).pathname;
+  else return sUrl;
+}
+
+function initMask(bCfg) {  // bCfg = [sCls,sImgSrc,sImgStyle,sTxtStyle,sBkgColor,sBorderColor,sPrjRoot]
+  if (hasInit) return;
+  hasInit = true;
+  
+  var node = document.getElementById('designed-mask');
+  var sCls = bCfg[0] || '';
+  var sSrc = bCfg[1] || '';
+  var sStyle = bCfg[2] || '';
+  var sStyle2 = bCfg[3] || '';
+  var sColor = bCfg[4] || '';
+  var sColor2 = bCfg[5] || '';
+  
+  CURR_USR_PATH = bCfg[6] || '';
+  
+  if (sCls) {
+    node.className = sCls;
+    if ( node.classList.contains('thin-medium-thick-default') || 
+         node.classList.contains('medium-thick-default-thin') ||
+         node.classList.contains('thick-default-thin-medium') )
+      hasBorder = true;
+  }
+  
+  var imgNode = node.querySelector('img');
+  var txtNode = node.querySelector('div.rotate-txt');
+  if (sSrc)
+    imgNode.src = adjustImgUrl(sSrc);
+  var bNames = sSrc.split('.');
+  if (bNames[bNames.length-1].toUpperCase() == 'PNG') {
+    currentUseBkgClr = true;
+    document.getElementById('bkg-clr').style.display = 'block';
+  }
+  
+  var iRotate=0;
+  if (sStyle) iRotate = getRotateFromCss(sStyle,true);
+  var rotateNode = document.getElementById('img-rotate');
+  rotateNode.querySelector('div.handle').style.left = iRotate + 'px';
+  rotateNode.querySelector('p').innerHTML = 'IMG R=' + iRotate;
+  var sScale = '';
+  if (currentFlipCfg == 1)
+    sScale = " scaleX(-1)";
+  else if (currentFlipCfg == 2)
+    sScale = " scaleY(-1)";
+  if (iRotate != 0) {
+    styleRet = 'rotate(' + iRotate + 'deg)' + sScale;
+    imgNode.setAttribute('style','-webkit-transform:' + styleRet);
+  }
+  else {
+    if (sScale) {
+      styleRet = sScale.trim();
+      imgNode.setAttribute('style','-webkit-transform:' + styleRet);
+    }
+  }
+  
+  var iRotate2=0;
+  if (sStyle2) iRotate2 = getRotateFromCss(sStyle2,false);
+  var rotateNode2 = document.getElementById('txt-rotate');
+  rotateNode2.querySelector('div.handle').style.left = iRotate2 + 'px';
+  rotateNode2.querySelector('p').innerHTML = 'TXT R=' + iRotate2;
+  if (iRotate2 != 0) {
+    styleRet2 = 'rotate(' + iRotate2 + 'deg)';
+    txtNode.setAttribute('style','-webkit-transform:' + styleRet2);
+  }
+  
+  if (sColor && currentUseBkgClr) {
+    var bkgNode = document.getElementById('bkg-clr');
+    imgNode.style.backgroundColor = sColor;
+    var b = initColorPos(bkgNode,sColor);
+    bkgClrRet = makeRgbColor(b);
+  }
+  
+  var brdNode = document.getElementById('border-clr');
+  if (sColor2 && hasBorder) {
+    node.style.borderColor = sColor2;
+    var b = initColorPos(brdNode,sColor2);
+    borderRet = makeRgbColor(b);
+  }
+  else {
+    brdNode.style.display = 'none';
+  }
+}
+
+function getMaskData() {
+  return [styleRet,styleRet2,bkgClrRet,borderRet];
+}
+
+function finishEditing(isOk) {
+  var apiNode = document.getElementById('api-node');
+  apiNode.setCloseState(isOk);
+  window.close();
+}
+
+var currMovedNode = null;
+var currMoveLastX = 0;
+var currMoveChanged = false;
+function sliderMouseDn(event) {
+  if (!event.ctrlKey && !event.altKey) {
+    currMovedNode = event.target;
+    currMoveLastX = event.clientX;
+    currMoveChanged = false;
+    event.preventDefault();
+  }
+}
+
+function updateColorTxt(handleNode) {
+  var sliderNode = handleNode.parentNode;
+  var s = sliderNode.className;
+  var sid = 0;
+  if (s.indexOf('h-slider') >= 0)
+    sid = 1;
+  else if (s.indexOf('s-slider') >= 0)
+    sid = 2;
+  else if (s.indexOf('l-slider') >= 0)
+    sid = 3;
+  else if (s.indexOf('a-slider') >= 0)
+    sid = 4;
+  else if (s.indexOf('r-slider') >= 0)
+    sid = 5;
+    
+  if (sid) {
+    var txtNode = sliderNode.querySelector('p');
+    if (txtNode) {
+      if (sid == 1)
+        txtNode.innerHTML = 'H=' + handleNode.offsetLeft;
+      else if (sid == 5) {
+        if (sliderNode.id == 'img-rotate')
+          txtNode.innerHTML = 'IMG R=' + handleNode.offsetLeft;
+        else txtNode.innerHTML = 'TXT R=' + handleNode.offsetLeft;
+      } else {
+        var ss = ((handleNode.offsetLeft / 360) + '').slice(0,4);
+        if (sid == 2)
+          txtNode.innerHTML = 'S=' + ss;
+        else if (sid == 3)
+          txtNode.innerHTML = 'L=' + ss;
+        else txtNode.innerHTML = 'A=' + ss;
+      }
+    }
+  }
+  return sid;
+}
+
+function sliderMouseMove(event) {
+  if (!event.ctrlKey && !event.altKey && currMovedNode) {
+    var detaX = event.clientX - currMoveLastX;
+    if (detaX != 0) {
+      var x = currMovedNode.offsetLeft + detaX;
+      if (x < 0)
+        x = 0;
+      else if (x > 360)
+        x = 360;
+      currMovedNode.style.left = x + 'px';
+      currMoveLastX += detaX;
+      currMoveChanged = true;
+      
+      updateColorTxt(currMovedNode);
+    }
+  }
+}
+
+function updateColor(handleNode) {
+  var sliderNode = handleNode.parentNode;
+  var ownerNode = sliderNode.parentNode;
+  var blockNode = ownerNode.parentNode;
+  
+  var sid = updateColorTxt(handleNode);
+  if (sid) {
+    var hNode = blockNode.querySelector('div.h-slider > div.handle');
+    var sNode = blockNode.querySelector('div.s-slider > div.handle');
+    var lNode = blockNode.querySelector('div.l-slider > div.handle');
+    var aNode = blockNode.querySelector('div.a-slider > div.handle');
+    
+    var h = hNode.offsetLeft;
+    var s = sNode.offsetLeft / 360;
+    var l = lNode.offsetLeft / 360;
+    var a = aNode.offsetLeft / 360;
+    
+    var rgb = hslToRgb(h,s,l);
+    setColorPos(blockNode,rgb[0],rgb[1],rgb[2],a,[h,s,l]);
+    
+    var maskNode = document.getElementById('designed-mask');
+    var sColor;
+    if (Math.floor(a * 100 + 0.5) == 100)
+      sColor = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+    else sColor = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + (a + '').slice(0,4) + ')';
+    
+    if (blockNode.id == 'bkg-clr') {
+      if (currentUseBkgClr) {
+        maskNode.style.backgroundColor = sColor;
+        bkgClrRet = sColor;
+      }
+    }
+    else {
+      maskNode.style.borderColor = sColor;
+      borderRet = sColor;
+    }
+  }
+}
+
+function updateRotate(iOffset,id) {
+  if (iOffset >= 360) iOffset -= 360;
+  var node = document.getElementById('designed-mask');
+  if (id == 'img-rotate') {
+    var sScale = '';
+    if (currentFlipCfg == 1)
+      sScale = " scaleX(-1)";
+    else if (currentFlipCfg == 2)
+      sScale = " scaleY(-1)";
+
+    node = node.querySelector('img');
+    if (iOffset == 0) {
+      styleRet = sScale.trim();
+      if (styleRet)
+        node.setAttribute('style','-webkit-transform:' + styleRet);
+      else node.setAttribute('style','');
+    } else {
+      styleRet = 'rotate(' + iOffset + 'deg)' + sScale;
+      node.setAttribute('style','-webkit-transform:' + styleRet);
+    }
+    
+    if (currentUseBkgClr && bkgClrRet)
+      node.style.backgroundColor = bkgClrRet;
+  }
+  else if (id == 'txt-rotate') {
+    node = node.querySelector('div.rotate-txt');
+    if (iOffset == 0) {
+      styleRet2 = '';
+      node.setAttribute('style','');
+    } else {
+      styleRet2 = 'rotate(' + iOffset + 'deg)';
+      node.setAttribute('style','-webkit-transform:' + styleRet2);
+    }
+  }
+}
+
+function sliderMouseUp(event) {
+  if (currMovedNode && currMoveChanged) {
+    currMoveChanged = false;
+    
+    var sliderNode = currMovedNode.parentNode;
+    if (sliderNode.className.indexOf('r-slider') >= 0)
+      updateRotate(currMovedNode.offsetLeft,sliderNode.id);
+    else updateColor(currMovedNode);
+  }
+  currMovedNode = null;
+  currMoveLastX = 0;
+}
+
+function setFlipConfig(id) {
+  currentFlipCfg = id;
+  var radios = document.querySelectorAll('#flip-cfg > input');
+  for (var i=0,item; item=radios[i]; i++) {
+    item.checked = (i == id);
+  }
+  
+  var sScale = '';
+  if (currentFlipCfg == 1)
+    sScale = " scaleX(-1)";
+  else if (currentFlipCfg == 2)
+    sScale = " scaleY(-1)";
+
+  imgNode = document.querySelector('#designed-mask > img');
+  handleNode = document.querySelector('#img-rotate > div.handle');
+  var iOffset = handleNode.offsetLeft;
+  
+  if (iOffset == 0) {
+    styleRet = sScale.trim();
+    if (styleRet)
+      imgNode.setAttribute('style','-webkit-transform:' + styleRet);
+    else imgNode.setAttribute('style','');
+  } else {
+    styleRet = 'rotate(' + iOffset + 'deg)' + sScale;
+    imgNode.setAttribute('style','-webkit-transform:' + styleRet);
+  }
+  
+  if (currentUseBkgClr && bkgClrRet)
+    imgNode.style.backgroundColor = bkgClrRet;
+}
+
+function maskEditorInit() {
+  var nodes = document.querySelectorAll('div.handle');
+  for (var i=0,item; item=nodes[i]; i++) {
+    item.onmousedown = sliderMouseDn;
+  }
+  document.body.onmousemove = sliderMouseMove;
+  document.body.onmouseup = sliderMouseUp;
+}
+</script>
+<style>
+body {
+  margin: 0px;
+  padding: 0px;
+  overflow: auto;
+}
+.noselect-txt {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+div.pinp-image {
+  border: 0px solid gray;
+  -o-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+
+  border-radius: 4px;
+  -o-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+}
+div.pinp-image > img {
+  width: 100%;
+  height: 100%;
+  
+  -o-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  
+  border-radius: 4px;
+  -o-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+}
+div.rotate-txt {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  top: -100%;
+  left: 0px;
+  
+  text-align: center;
+  font-size: 20px;
+  color: #800000;
+  padding: 64px 0px 0px 0px;
+}
+
+div.pinp-image.round0-default-round2-round3 > img {
+  border-radius: 0px;
+  -o-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+}
+div.pinp-image.round2-round3-round0-default > img {
+  border-radius: 10px;
+  -o-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+}
+div.pinp-image.round3-round0-default-round2 > img {
+  border-radius: 16px;
+  -o-border-radius: 16px;
+  -moz-border-radius: 16px;
+  -webkit-border-radius: 16px;
+}
+
+div.shadow-default {
+  box-shadow:10px 10px 5px #888888;
+}
+
+div.round0-default-round2-round3 {
+  border-radius: 0px;
+  -o-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+}
+div.round2-round3-round0-default {
+  border-radius: 10px;
+  -o-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+}
+div.round3-round0-default-round2 {
+  border-radius: 16px;
+  -o-border-radius: 16px;
+  -moz-border-radius: 16px;
+  -webkit-border-radius: 16px;
+}
+
+div.thin-medium-thick-default {border-width: thin;}
+div.medium-thick-default-thin {border-width: medium;}
+div.thick-default-thin-medium {border-width: thick;}
+
+div.solid-dotted-dashed {border-style: solid;}
+div.dotted-dashed-solid {border-style: dotted;}
+div.dashed-solid-dotted {border-style: dashed;}
+
+div.sliders {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+
+  position: relative;
+  padding: 8px 0px 8px 0px;
+  left: 10%;
+  width: 85%;
+  cursor: pointer;
+  overflow: hidden;
+}
+div.slider {
+  width: 450px;
+  height: 30px;
+}
+div.h-slider,div.s-slider,div.l-slider,div.a-slider,div.r-slider {
+  position: relative;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+
+  left: 2px;
+  top: 2px;
+  width: 370px;  /* 360 + 10 */
+  height: 20px;
+  box-shadow: 0px 1px 2px 1px rgba(255,255,255,0.1) inset, 0px 1px rgba(255,255,255,0.2) inset, 0px -1px 1px rgba(0,0,0,0.4) inset, 0px 1px 1px rgba(0,0,0,0.4), 0px 0px 2px 1px rgb(0,0,0);
+}
+
+div.handle {
+  cursor: pointer;
+  position: relative;
+  top: -1px;
+  width: 10px;
+  height: 22px;
+  background-color: rgb(221,221,221);
+  transition: background-color 0.4s ease 0s;
+  background-image: radial-gradient(circle at center top,rgba(255,255,255,0.9),rgba(255,255,255,0.2) 15px);
+  box-shadow: 0px 1px 1px rgb(255,255,255) inset, 0px -1px 1px rgba(0,0,0,0.4) inset, 0px 1px 4px 0px rgba(0,0,0,0.4), 0px 0px 2px rgba(0,0,0,0.6);
+}
+div.slider:hover .handle {
+  background-color: rgba(255,255,255,0.1);
+}
+
+div.h-slider > p,div.s-slider > p,div.l-slider > p,div.a-slider > p,div.r-slider > p {
+  cursor: pointer;
+  position: relative;
+  left: 375px;
+  top: -30px;
+  font-size: 12px;
+}
+
+div.h-slider {
+ background: -webkit-linear-gradient(0deg,rgb(255,0,0),rgb(255,42,0),rgb(255,85,0),rgb(255,127,0),rgb(255,170,0),rgb(255,212,0),rgb(255,255,0),rgb(212,255,0),rgb(169,255,0),rgb(127,255,0),rgb(84,255,0),rgb(42,255,0),rgb(0,255,0),rgb(0,255,42),rgb(0,255,84),rgb(0,255,127),rgb(0,255,169),rgb(0,255,212),rgb(0,255,254),rgb(0,212,255),rgb(0,169,255),rgb(0,127,255),rgb(0,85,255),rgb(0,42,255),rgb(0,0,255),rgb(42,0,255),rgb(85,0,255),rgb(127,0,255),rgb(170,0,255),rgb(212,0,255),rgb(254,0,255),rgb(255,0,212),rgb(255,0,169),rgb(255,0,127),rgb(255,0,85),rgb(255,0,42),rgb(255,0,0));
+ background: -o-linear-gradient(0deg,rgb(255,0,0),rgb(255,42,0),rgb(255,85,0),rgb(255,127,0),rgb(255,170,0),rgb(255,212,0),rgb(255,255,0),rgb(212,255,0),rgb(169,255,0),rgb(127,255,0),rgb(84,255,0),rgb(42,255,0),rgb(0,255,0),rgb(0,255,42),rgb(0,255,84),rgb(0,255,127),rgb(0,255,169),rgb(0,255,212),rgb(0,255,254),rgb(0,212,255),rgb(0,169,255),rgb(0,127,255),rgb(0,85,255),rgb(0,42,255),rgb(0,0,255),rgb(42,0,255),rgb(85,0,255),rgb(127,0,255),rgb(170,0,255),rgb(212,0,255),rgb(254,0,255),rgb(255,0,212),rgb(255,0,169),rgb(255,0,127),rgb(255,0,85),rgb(255,0,42),rgb(255,0,0));
+ background: -ms-linear-gradient(0deg,rgb(255,0,0),rgb(255,42,0),rgb(255,85,0),rgb(255,127,0),rgb(255,170,0),rgb(255,212,0),rgb(255,255,0),rgb(212,255,0),rgb(169,255,0),rgb(127,255,0),rgb(84,255,0),rgb(42,255,0),rgb(0,255,0),rgb(0,255,42),rgb(0,255,84),rgb(0,255,127),rgb(0,255,169),rgb(0,255,212),rgb(0,255,254),rgb(0,212,255),rgb(0,169,255),rgb(0,127,255),rgb(0,85,255),rgb(0,42,255),rgb(0,0,255),rgb(42,0,255),rgb(85,0,255),rgb(127,0,255),rgb(170,0,255),rgb(212,0,255),rgb(254,0,255),rgb(255,0,212),rgb(255,0,169),rgb(255,0,127),rgb(255,0,85),rgb(255,0,42),rgb(255,0,0));
+ background: -moz-linear-gradient(0deg,rgb(255,0,0),rgb(255,42,0),rgb(255,85,0),rgb(255,127,0),rgb(255,170,0),rgb(255,212,0),rgb(255,255,0),rgb(212,255,0),rgb(169,255,0),rgb(127,255,0),rgb(84,255,0),rgb(42,255,0),rgb(0,255,0),rgb(0,255,42),rgb(0,255,84),rgb(0,255,127),rgb(0,255,169),rgb(0,255,212),rgb(0,255,254),rgb(0,212,255),rgb(0,169,255),rgb(0,127,255),rgb(0,85,255),rgb(0,42,255),rgb(0,0,255),rgb(42,0,255),rgb(85,0,255),rgb(127,0,255),rgb(170,0,255),rgb(212,0,255),rgb(254,0,255),rgb(255,0,212),rgb(255,0,169),rgb(255,0,127),rgb(255,0,85),rgb(255,0,42),rgb(255,0,0));
+}
+div.s-slider {
+  background: -webkit-linear-gradient(0deg,rgb(128,128,128),rgb(101,134,153),rgb(76,141,178),rgb(50,147,204),rgb(25,154,229),rgb(0,161,255));
+  background: -o-linear-gradient(0deg,rgb(128,128,128),rgb(101,134,153),rgb(76,141,178),rgb(50,147,204),rgb(25,154,229),rgb(0,161,255));
+  background: -ms-linear-gradient(0deg,rgb(128,128,128),rgb(101,134,153),rgb(76,141,178),rgb(50,147,204),rgb(25,154,229),rgb(0,161,255));
+  background: -moz-linear-gradient(0deg,rgb(128,128,128),rgb(101,134,153),rgb(76,141,178),rgb(50,147,204),rgb(25,154,229),rgb(0,161,255));
+}
+div.l-slider {
+  background: -webkit-linear-gradient(0deg,rgb(0,0,0),rgb(23,58,78),rgb(47,116,156),rgb(98,167,207),rgb(176,211,231),rgb(255,255,255));
+  background: -o-linear-gradient(0deg,rgb(0,0,0),rgb(23,58,78),rgb(47,116,156),rgb(98,167,207),rgb(176,211,231),rgb(255,255,255));
+  background: -ms-linear-gradient(0deg,rgb(0,0,0),rgb(23,58,78),rgb(47,116,156),rgb(98,167,207),rgb(176,211,231),rgb(255,255,255));
+  background: -moz-linear-gradient(0deg,rgb(0,0,0),rgb(23,58,78),rgb(47,116,156),rgb(98,167,207),rgb(176,211,231),rgb(255,255,255));
+}
+div.a-slider {
+  background: -webkit-linear-gradient(0deg,rgba(59,145,195,0),rgba(59,145,195,0.2),rgba(59,145,195,0.4),rgba(59,145,195,0.6),rgba(59,145,195,0.8),rgb(59,145,195));
+  background: -o-linear-gradient(0deg,rgba(59,145,195,0),rgba(59,145,195,0.2),rgba(59,145,195,0.4),rgba(59,145,195,0.6),rgba(59,145,195,0.8),rgb(59,145,195));
+  background: -ms-linear-gradient(0deg,rgba(59,145,195,0),rgba(59,145,195,0.2),rgba(59,145,195,0.4),rgba(59,145,195,0.6),rgba(59,145,195,0.8),rgb(59,145,195));
+  background: -moz-linear-gradient(0deg,rgba(59,145,195,0),rgba(59,145,195,0.2),rgba(59,145,195,0.4),rgba(59,145,195,0.6),rgba(59,145,195,0.8),rgb(59,145,195));
+}
+
+#bkg-clr {
+  display: none;
+}
+#designed-mask {
+  position: relative;
+  left: 100px;
+  width: 260px;
+  height: 224px;
+}
+</style>
+</head>
+
+<body class='noselect-txt' onload='maskEditorInit()'>
+<div id='api-node' style='display:none; visibility:hidden;'></div>
+
+<table style='width:100%; margin:0px; padding:2px; border:1px solid gray; border-spacing:0px;'>
+<tr><td><p id='hint-text'>Set angle of rotation and background/border color, H stand for Hue, S for Saturation, L for Lightness, A for Alpha, R for rotate.</p></td>
+<td style='min-width:150px'>
+  <p style='text-align:right'>
+    <input type='button' style='width:60px' value='OK' onclick='finishEditing(true)' />
+    <input type='button' style='width:70px' value='Cancel' onclick='finishEditing(false)' />
+  </p>
+</td></tr>
+</table>
+
+<div id='flip-cfg' style='position:relative; width:300px; left:150px; padding:10px 0px 2px 0px'>
+  <input type='checkbox' checked='checked' onclick='setFlipConfig(0)' /><span onclick='setFlipConfig(0)'>None&nbsp;&nbsp;</span>
+  <input type='checkbox' onclick='setFlipConfig(1)' /><span onclick='setFlipConfig(1)'>Flip X&nbsp;&nbsp;</span>
+  <input type='checkbox' onclick='setFlipConfig(2)' /><span onclick='setFlipConfig(2)'>Flip Y</span>
+</div>
+
+<div class='sliders'>
+  <div class="slider"><div id='img-rotate' class='r-slider'><div class='handle' style='left:0px'></div><p></p></div></div>
+  <div class="slider"><div id='txt-rotate' class='r-slider'><div class='handle' style='left:0px'></div><p></p></div></div>
+</div>
+
+<div style='border:0px dotted gray; border-width:1px 0px'>
+<div id='bkg-clr' class='sliders'>
+  <div class="slider"><div class='h-slider'><div class='handle' style='left:201px'></div><p></p></div></div>
+  <div class="slider"><div class='s-slider'><div class='handle' style='left:190px'></div><p></p></div></div>
+  <div class="slider"><div class='l-slider'><div class='handle' style='left:180px'></div><p></p></div></div>
+  <div class="slider" style='background:url(rgba_bk.png) no-repeat'><div class='a-slider'><div class='handle' style='left:130px'></div><p></p></div></div>
+</div>
+</div>
+
+<div style='padding:26px 0px 26px 0px; width:100%'>
+  <div id='designed-mask' class='pinp-image'><img draggable='false' src='../$images/empty.png' /><div class='rotate-txt'><p><span style='font-weight:600; background-color:rgba(255,255,255,0.3)'>&nbsp;Sample text&nbsp;</span></p></div></div>
+</div>
+
+<div id='border-clr' class='sliders'>
+  <div class="slider"><div class='h-slider'><div class='handle' style='left:201px'></div><p></p></div></div>
+  <div class="slider"><div class='s-slider'><div class='handle' style='left:190px'></div><p></p></div></div>
+  <div class="slider"><div class='l-slider'><div class='handle' style='left:180px'></div><p></p></div></div>
+  <div class="slider" style='background:url(rgba_bk.png) no-repeat'><div class='a-slider'><div class='handle' style='left:130px'></div><p></p></div></div>
+</div>
+
+</body>
+</html>

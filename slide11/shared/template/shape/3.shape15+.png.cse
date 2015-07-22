@@ -1,0 +1,41 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  sHtml as SStr = "<div class='svg-shape' _config='small-default-large default-looser-impacted p1-p2-p3-p0 center-right-default' _widget=\"['rgb(51,51,51)','rgba(51,51,51,0.1)',0,3,['']]\" _zindex='998' _left='%1' _top='%2' _width='40' _height='40'><div class='shape-canvas'></div><div class='rotate-txt S5 txt-center'>1</div><div class='img-resource'><link rel='bookmark' type='text/xml' href='/software/slide11/$images/shape/ellipse.svg.json' /></div></div>\n";
+  sHtml = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+  
+  if taskConfig->svgTool == true:
+    apiNode->innerHTML = sHtml;
+    JSB(document)..apiNode.addSvgWidget();
+    window.bringToTop(true);
+  end else:
+    currNode as H5Element();
+    currId as SStr = JSB(document)..apiNode.currSlideId();
+    if currId.size():
+      currNode = document.getElementById(currId);
+    end;
+    
+    if currNode != dummyElement:
+      apiNode->innerHTML = sHtml;
+      
+      currNode.appendChild(apiNode->childNodes[0]);
+      apiNode->innerHTML = "";
+      
+      JSB(document)..apiNode.initPagePos(currId);
+      JSB(document)..apiNode.renewCurrSlide();
+      JSB(document)..apiNode.selectLastAdded();
+      JSB(document)..apiNode.loadSvgRes();
+      
+      window.bringToTop(true);
+      JSB(document)..apiNode.setPageModified(currId);
+    end;
+  end;
+end;
+
+end;  ## end of namespace H5

@@ -1,0 +1,33 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='frame-build' _zindex='995' _left='%1' _top='%2' _width='680' _height='320'><iframe class='echarts-linebar build' frameborder='0' border='0' _widget=\"[['title=','Lowest cost of living at ShenZhen (RMB/Month)'],['desc=','From ExcelHome'],['legend=','top'],['HideFirstRow=','true'],['table=',,,,'Total','HouseRent','WaterElectri','TrafficFee','BoardExpenses','Others'],[,'bar','<total>','assist','0','1700','1400','1200','300','0'],[,,,'CostOfLiving','2900','1200','300','200','900','300']]\" _src='/software/slide11/$plugins/echarts_linebar3.html' src='/software/slide11/$plugins/echarts_linebar3.html'></iframe></div>\n";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.addDepends("frame-build","","/software/slide11/$plugins/echarts.js","text/javascript","");
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

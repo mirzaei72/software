@@ -1,0 +1,72 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='slideshow-frame read-only' _zindex='996' _left='%1' _top='%2' _width='500' _height='280'><iframe frameborder='0' border='0' src='/software/slide11/$ext/3rd-slideshow/ad.sshow/?size=0x0&autoplay=3&background-color=rgb(255,255,255)&no-frame=1'></iframe><div style='display:block'></div></div>\n";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.addPlugCode("slideshow-frame","<script type='text/javascript'>\n" +
+"(function(){\n" +
+"  var dMod = pluginOf('slideshow-frame');\n" +
+"  if (!dMod.title) {\n" +
+"    dMod.title = 'slideshow frame';\n" +
+"    dMod.remake = function(node) {\n" +
+"      if (startByReadonly_) return;\n" +
+"      var divNode = node.querySelector('div.slideshow-frame > div');\n" +
+"      if (divNode) divNode.style.display = 'block';\n" +
+"    };\n" +
+
+"    dMod.oncreated = function(event) {\n" +
+"      if (event.target) pluginOf('slideshow-frame').remake(event.target);\n" +
+"    };\n" +
+
+"    dMod.getPluginMenu = function(node) {\n" +
+"      return [['bind URL',function(node) {\n" +
+"        var frmNode = node.querySelector('div.slideshow-frame > iframe');\n" +
+"        if (frmNode) {\n" +
+"          var s = prompt('Input URL',frmNode.getAttribute('src')||'');\n" +
+"          if (typeof s == 'string') {\n" +
+"            frmNode.setAttribute('src',s);\n" +
+"            apiNode.setPageModified();\n" +
+"          }\n" +
+"        }\n" +
+"      }]];\n" +
+"    };\n" +
+"  };\n" +
+
+"  document.addEventListener('DOMContentLoaded', function(event) {\n" +
+"    var sShow = startByReadonly_?'none':'block';\n" +
+"    var nodes = document.querySelectorAll('div.slideshow-frame > div');\n" +
+"    for (var i=0,item; item=nodes[i]; i++) {item.style.display = sShow;}\n" +
+"  },false);\n" +
+"})();\n" +
+"</script><style>\n" +
+".slideshow-frame {overflow:hidden}\n" +
+".slideshow-frame > div {display:none; position:relative; left:0px; top:-100%; width:100%; height:100%;}\n" +
+"</style>" );
+    
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    ## JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

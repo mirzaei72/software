@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Text editor</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script src="/software/ckeditor421/ckeditor.js"></script>
+<link rel="stylesheet" href="/software/slide11/$script/styles.css">
+
+<script type='text/cse' line='9'>
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  apiNode as document.getElementById("api-node");
+
+  apiNode.setHook("setCloseState", super(isOk):
+    hostWin as window.hostWin();
+    hostWin->closeState = isOk? 1: 2;
+    if isOk:
+      hostWin->resultHtml = JSB(document)..getEditorHtml();
+    end;
+  end);
+end;
+
+end;
+</script>
+
+<script type="text/javascript">
+var nativeDoc = null;
+var externStyle = '';
+var initContent = '';
+
+var CURR_USR_PATH = '';
+
+function location__(href) {
+  var location = document.createElement('a');
+  location.href = href;
+  if (location.host == '')
+    location.href = location.href;
+  return location;
+}
+
+CKEDITOR.on('dialogDefinition', function(ev) {
+  if (ev.data.name == 'image' || ev.data.name == 'imagebutton') {
+    var dialogDefinition = ev.data.definition;
+    
+    setTimeout( function() {
+      var dialog = CKEDITOR.dialog.getCurrent();
+      if (!dialog) return;
+      
+      var contentEle = dialog.getContentElement('info','txtUrl');
+      var inputNode = contentEle.getElement().$;
+      inputNode = inputNode.querySelector('input.cke_dialog_ui_input_text');
+      if (inputNode) {
+        inputNode.ondragover = function(event) {
+          event.preventDefault();
+        };
+        
+        inputNode.ondrop = function(event) {
+          event.stopPropagation();
+          event.preventDefault();
+          
+          var s = event.dataTransfer.getData("text/args");
+          var b = s.split(',');
+          if (b.length == 3 && b[0] == 'image') {
+            var sUrl,location = location__(b[2]);
+            if (location.host == window.location.host) {
+              sUrl = location.pathname;
+              if (CURR_USR_PATH && sUrl.indexOf(CURR_USR_PATH) == 0 && sUrl.length > CURR_USR_PATH.length)
+                sUrl = sUrl.slice(CURR_USR_PATH.length);
+            }
+            else sUrl = location.href;
+            contentEle.setValue(decodeURI(sUrl));
+          }
+        };
+      }
+    }, 1500);
+  }
+});
+
+function trySetExternStyle() {
+  if (nativeDoc && externStyle) {
+    var el = nativeDoc.querySelector('#extern-style');
+    if (el) return;
+    
+    el = nativeDoc.createElement('style');
+    el.id = 'extern-style';
+    el.innerHTML = externStyle;
+    nativeDoc.head.appendChild(el);
+    
+    CKEDITOR.instances.editor.on('mode', function(e) {
+      var editor = e.editor;
+      if (editor.mode == 'wysiwyg') {
+        nativeDoc = editor.document.$; // editor recreated after switch back to wysiwyg mode
+        trySetExternStyle();
+      }
+    });
+  }
+}
+
+CKEDITOR.on('instanceReady', function(e) {
+  var editor = e.editor;
+  if (editor.element.getName() == 'textarea') {
+    if (initContent) {
+      editor.setData(initContent);
+      initContent = '';
+    }
+    nativeDoc = editor.document.$;
+
+    var checkStyle = 0;
+    var checkIt = function() {
+      checkStyle += 1;
+      if (checkStyle <= 40) {  // max wait 4 seconds
+        if (!externStyle)
+          setTimeout(checkIt,100);
+        else {
+          trySetExternStyle();
+          
+          setTimeout( function() {
+            var doc = CKEDITOR.instances.editor.document.$;
+            doc.body.focus();
+            if (doc.getSelection) {
+              doc.getSelection().selectAllChildren(doc.body);
+            }
+          },0);
+        }
+      }
+    };
+    setTimeout(checkIt,100);
+  }
+});
+
+function getEditorHtml() {
+  return CKEDITOR.instances.editor.getData();
+}
+
+function setEditorHtml(sInput,PreFont,SlideFont,EditorFont,ExtendStyle,fontSize,sPrjRoot) {
+  var editNode = document.querySelector('textarea[name="editor"]');
+  if (!editNode) return;
+  editNode.style.visibility = '';  // show editor
+  
+  CURR_USR_PATH = sPrjRoot || '';
+  
+  var cfg = { height: '400px',
+    contentsCss: '/software/slide11/$script/styles.css',
+    toolbarGroups: [
+      { name: 'tools' },
+      { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+      { name: 'editing',     groups: [ 'find', 'spellchecker' ] },
+      { name: 'forms' },  // '/',
+      { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+      { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align' ] },
+      { name: 'links',       groups: [ 'links', 'mode' ] },  // '/',
+      { name: 'styles' }, { name: 'colors' }, { name: 'insert' } ],
+  };
+  if (EditorFont) cfg.font_names = EditorFont;
+  CKEDITOR.replace('editor',cfg);
+  
+  var sStyle = '';
+  if (ExtendStyle) sStyle = ExtendStyle;
+  sStyle += ".cke_editable > pre {font-family:" + PreFont + ";} .cke_editable {font-family:" + SlideFont + ";} ";
+  sStyle += '.cke_editable {font-size:' + (fontSize || '30px') + ';} ';
+  sStyle += 'img[id^="ch-"],img[id^="se-"],img[id^="wd-"] {outline:gray dotted 1px; padding:6px; content:""; overflow:hidden;} ';
+  sStyle += 'img[id^="ch-"]:after,img[id^="se-"]:after,img[id^="wd-"]:after {content:attr(id) ": " attr(title);}';
+  externStyle = sStyle;
+  
+  setTimeout( function() {
+    try {
+      CKEDITOR.instances.editor.setData(sInput);
+    }
+    catch(e) {  // maybe CKEDITOR.instances.editor not ready
+      initContent = sInput;
+    }
+  },0);
+}
+
+function finishEditing(isOk) {
+  var apiNode = document.getElementById('api-node');
+  apiNode.setCloseState(isOk);
+  window.close();
+}
+</script>
+</head>
+
+<body>
+<div id='api-node' style='display:none; visibility:hidden;'></div>
+
+<p style='text-align:right'>
+  <input type='button' style='width:60px' value='OK' onclick='finishEditing(true)' />
+  <input type='button' style='width:70px' value='Cancel' onclick='finishEditing(false)' />
+</p>
+
+<div>
+  <textarea name='editor' style='visibility:hidden'></textarea>
+</div>
+
+</body>
+</html>

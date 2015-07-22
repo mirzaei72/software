@@ -1,0 +1,542 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECharts</title>
+  <script type="text/javascript" src="esl.js"></script>
+  
+<script type="text/javascript">
+// pinpcharts.js
+
+var PINP_CHART_ID = 'echarts-linebar';
+var currInPresent = true;
+
+function getOwnerFrameNode() {
+  var ownerDoc = window.parent.document;
+  if (ownerDoc && ownerDoc !== document) {
+    var ownerFrames=ownerDoc.querySelectorAll('iframe.' + PINP_CHART_ID), i=ownerFrames.length-1;
+    while (i >= 0) {
+      var frameNode = ownerFrames[i];
+      if (frameNode.contentWindow.window === window)
+        return frameNode;
+      i -= 1;
+    }
+  }
+  return null;
+}
+
+function slideInPresent() {
+  try {
+    var ownerWin = window.parent.window;
+    if (ownerWin && ownerWin !== window)
+      return ownerWin.apiNode.beenReadonly();
+    else return true;
+  } catch (e) {
+    return true;
+  }
+}
+
+function GetMouseOffset(object,off) {
+  if (!object) return;
+  off.x += object.offsetLeft + object.clientLeft;
+  off.y += object.offsetTop + object.clientTop;
+  GetMouseOffset(object.offsetParent,off);
+}
+
+function docOnClick(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode && compnNode.onclick) {
+      event._target = frameNode;
+      compnNode.onclick(event);
+    }
+  }
+}
+
+function docOnDragOver(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && currSlide.ondragover)
+        currSlide.ondragover(event);
+    }
+  }
+}
+
+function docOnDragDrop(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && currSlide.ondrop) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        currSlide.ondrop(event);
+      }
+    }
+  }
+}
+
+function docOnMouseDn(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      var ownerWin = window.parent.window;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && ownerWin.handleDomMouseDown) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._target = compnNode;
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.handleDomMouseDown(event);
+      }
+    }
+  }
+}
+
+function docOnMouseMv(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      var ownerWin = window.parent.window;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && ownerWin.handleDomMouseMove) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.handleDomMouseMove(event);
+      }
+    }
+  }
+}
+
+function docOnMouseUp(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      var ownerWin = window.parent.window;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && ownerWin.handleDomMouseUp) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.handleDomMouseUp(event);
+      }
+    }
+  }
+}
+
+// left/up/right/down/enter/esc/space/pgup/pgdn/end/home
+var RsvdKeyEventCode_ = [37,38,39,40,13,27,32,33,34,35,36];
+
+function docOnKeyDown(event) {
+  var ownerWin = window.parent.window;
+  if (ownerWin.handleDocKeyDown) {
+    var canPass = false;
+    if (event.ctrlKey || event.altKey)
+      canPass = true;
+    else if (event.keyCode >= 112 && event.keyCode <= 123)  // F1 ~ F12
+      canPass = true;
+    else if (RsvdKeyEventCode_.indexOf(event.keyCode) >= 0)
+      canPass = true;
+    
+    if (canPass) // only ctr+xx / alt+xx / F1~F12 can pass to owner window
+      ownerWin.handleDocKeyDown(event);
+  }
+}
+
+function docOnLoad() {
+  document.addEventListener('keydown',docOnKeyDown,false);
+  
+  currInPresent = slideInPresent();
+  if (!currInPresent) {
+    document.addEventListener('click',docOnClick,false);
+    document.addEventListener('dragover',docOnDragOver,false);
+    document.addEventListener('drop',docOnDragDrop,false);
+    document.addEventListener('mousedown',docOnMouseDn,false);
+    document.addEventListener('mousemove',docOnMouseMv,false);
+    document.addEventListener('mouseup',docOnMouseUp,false);
+    
+    document.body.onresize = function(event) {
+      var now = (new Date()).valueOf();
+      if (lastHasWaiting)
+        lastOwnerResizeTm = now;
+      else {
+        lastHasWaiting = true;
+        
+        var ownerFrameResizing = function() {
+          if ((new Date).valueOf() - lastOwnerResizeTm > 1500)
+            performBuild();
+          else setTimeout(ownerFrameResizing,1000); // wait next loop
+        }
+        setTimeout(ownerFrameResizing,1000);
+      }
+    }
+  }
+}
+
+function copyConfig(cfg) {
+  if (cfg instanceof Array) {
+    var ret=[], iLen=cfg.length;
+    for (var i=0; i < iLen; i++)
+      ret.push(copyConfig(cfg[i]));
+    return ret;
+  }
+  else if (cfg instanceof Object) {
+    var item, ret={};
+    for (item in cfg) {  // item of cfg only can be: Number/String/Array/Object/undefined/null
+      ret[item] = copyConfig(cfg[item]);
+    }
+    return ret;
+  }
+  else return cfg;
+}
+
+function getChartSizeCfg() {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var ownerNode = frameNode.parentNode;
+    if (ownerNode.classList.contains('large-small-default'))
+      return 1;
+    else if (ownerNode.classList.contains('small-default-large'))
+      return 2;
+  }
+  return 0;
+}
+//-----------------------------------
+
+PINP_CHART_ID = 'echarts-gauge';
+
+var lastOwnerResizeTm = 0;
+var lastHasWaiting = false;
+
+var defaultOption = {
+  tooltip : {
+    formatter: "{a} <br/>{b} : {c}%"
+  },
+  toolbox: {
+    show : false,
+    feature : {
+      mark : {show: true},
+      restore : {show: true},
+      saveAsImage : {show: true}
+    }
+  },
+  series : [
+    {
+      name:'Business indicator',
+      type:'gauge',
+      center: ['50%','50%'],
+      radius: '75%',
+      min: 0,
+      max: 100,
+      startAngle: 225,  // -360 ~ 360
+      endAngle: -45,    // -360 ~ 360
+      splitNumber: 10,
+      detail : {formatter:'{value}%'},
+      data:[{value: 50, name: 'completion'}]
+    }
+  ]
+};
+
+var themeDict_ = {macarons:"macarons",infographic:"infographic",shine:"shine",dark:"dark",
+                  blue:"blue",green:"green",red:"red",gray:"gray",default:"default"};
+
+var myChart = null;
+var myChartTheme = 'default';
+var myChartValue = [50,10];
+var myOption = defaultOption;
+
+var tmTicket = setInterval( function(){
+  if (!myChart || !currInPresent) return;
+  
+  var mainNode = document.getElementById('main');
+  var r = mainNode.getBoundingClientRect();
+  if (r.width <= 0 || r.height <= 0) return;  // out of visible range
+  if (!myChart) return;
+  
+  var i1=myChartValue[0], i2=myChartValue[1];
+  if (i2 == 0) return;
+  
+  var iMin = myOption.series[0].min;
+  var iMax = myOption.series[0].max;
+  var i3 = i1 - i2 * 0.5 + Math.random() * i2;
+  i3 = Math.min(iMax,Math.max(iMin,parseFloat(i3.toFixed(2))));
+  
+  myOption.series[0].data[0].value = i3;
+  myChart.setOption(myOption,true);
+}, 2000);
+
+function performBuild(noReset) {
+  if (!myChart) {
+    InitPinpChart();
+    return;
+  }
+  
+  if (myChart && myOption) {
+    if (noReset) {
+      myChart.clear();
+      myChart.setOption(myOption,true);
+    }
+    else {
+      myChart.dispose();
+      require(['echarts','echarts/chart/gauge'], function(ec){
+        var mainNode = document.getElementById('main');
+        var iframeNode = getOwnerFrameNode();
+        if (iframeNode)
+          mainNode.style.height = Math.max(iframeNode.clientHeight,200) + 'px';
+          
+        myChart = ec.init(mainNode);
+        if (myChartTheme && myChartTheme != 'default') {
+          require.config({paths:{theme:'./theme'}});
+          require(['theme/' + myChartTheme], function(tarTheme) {
+            myChart.setTheme(tarTheme);
+            myChart.setOption(myOption,true);
+          });
+        }
+        else myChart.setOption(myOption,true);
+      });
+    }
+  }
+  
+  lastOwnerResizeTm = 0;
+  lastHasWaiting = false;
+}
+
+function convertCfg(bCfg) {
+  var iStartAng=225, iEndAng=-45, iMin=0, iMax=100, iSplitNum=10, iRange=0, iFrom=-1;
+  for (var i=0,item; item=bCfg[i]; i++) {
+    var s = item[0];
+    if (typeof s == 'string') {
+      if (s == 'theme=')
+        myChartTheme = themeDict_[item[1]] || 'default';
+      else if (s == 'StartAngle=')
+        iStartAng = parseFloat(item[1] || '225');
+      else if (s == 'EndAngle=')
+        iEndAng = parseFloat(item[1] || '-45');
+      else if (s == 'min=')
+        iMin = parseFloat(item[1] || '0');
+      else if (s == 'max=')
+        iMax = parseFloat(item[1] || '100');
+      else if (s == 'SplitNumber=')
+        iSplitNum = parseInt(item[1] || '10');
+      else if (s == 'FloatRange=')
+        iRange = parseFloat(item[1] || '0');
+      else if (s == 'table=') {
+        iFrom = i;
+        break;
+      }
+    }
+  }
+  if (iFrom < 0) {
+    alert("token not defined: 'table='");
+    return null;
+  }
+  if (iMin >= iMax) {
+    alert("invalid data range (min/max) defined");
+    return null;
+  }
+  if (iSplitNum < 2) {
+    alert("invalid value: 'SplitNumber='" + iSplitNum);
+    return null;
+  }
+  if (iRange < 0) {
+    alert("invalid value: iRange=" + iRange);
+    return null;
+  }
+  if (iStartAng < -360 || iStartAng > 360)
+    iStartAng = iStartAng % 360;
+  if (iEndAng < -360 || iEndAng > 360)
+    iEndAng = iEndAng % 360;
+  
+  var iValue=100, bSeries=[];
+  for (var i=iFrom+1,item; item=bCfg[i]; i++) {
+    if (!item[3] && !item[4]) continue;
+    
+    var sGroup = (item[2] || '').trim();
+    var sName = item[3] || '';
+    iValue = parseFloat(item[4] || '100');
+    var dItem = { name:sGroup,type:'gauge',center:['50%','50%'],radius:'75%',detail:{formatter:'{value}%'},
+                  min:iMin,max:iMax,startAngle:iStartAng,endAngle:iEndAng,splitNumber:iSplitNum,
+                  data:[{value:iValue,name:sName}] };
+    bSeries.push(dItem);
+    break;
+  }
+  if (bSeries.length != 1) {
+    alert("no series data defined");
+    return null;
+  }
+  if (iValue > iMax || iValue < iMin) {
+    alert("value out of range: " + iValue);
+    return null;
+  }
+  
+  var defaultOpt = copyConfig(defaultOption);
+  defaultOpt.series = bSeries;
+  
+  if (!currInPresent)
+    defaultOpt.tooltip['show'] = false;
+  
+  myOption = defaultOpt;
+  myChartValue = [iValue,iRange];
+  return myOption;
+}
+
+function getHintText() {
+  var s = 'Hint:';
+  s += '<br>&nbsp;&nbsp;theme = default/macarons/infographic/shine/dark/blue/green/red/gray';
+  return s;
+}
+
+function getContent() {
+  var item = myOption.series[0];
+  var iStartAng=item.startAngle, iEndAng=item.endAngle, iMin=item.min, iMax=item.max;
+  var iSplitNum=item.splitNumber, iValue=myChartValue[0], iRange=myChartValue[1];
+  
+  var rows = [];
+  rows.push(['theme=',myChartTheme]);
+  rows.push(['FloatRange=',iRange+'']);
+  rows.push(['min=',iMin+'']);
+  rows.push(['max=',iMax+'']);
+  rows.push(['StartAngle=',iStartAng+'']);
+  rows.push(['EndAngle=',iEndAng+'']);
+  rows.push(['SplitNumber=',iSplitNum+'']);
+  rows.push(['table=','gauge',null,null,'value']);
+  
+  for (var i=0,item; item=myOption.series[i]; i++) {
+    var item2 = item.data[0];
+    rows.push([null,null,item.name,item2.name,iValue+'']);
+    break;  // only add one row
+  }
+  return rows;
+}
+
+function setContent(bCfg) {
+  if (!myChart) return false;
+  
+  var oldTheme = myChartTheme;
+  var dOpt = convertCfg(bCfg);
+  if (dOpt) {
+    myOption = dOpt;
+    if (oldTheme != myChartTheme) {
+      require.config({
+        paths:{ 
+          theme: './theme',
+        }
+      });
+      require(['theme/' + myChartTheme], function(tarTheme) {
+        myChart.setTheme(tarTheme);
+        myChart.clear();
+        myChart.setOption(myOption,true);
+      });
+    }
+    else {
+      myChart.clear();
+      myChart.setOption(myOption,true);
+    }
+    return true;
+  }
+  else return false;
+}
+
+function buildContent(noReset) {
+  performBuild(noReset);
+}
+</script>
+
+<style>
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.noselect-txt {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#main {
+  tap-highlight-color: transparent;
+  -o-tap-highlight-color: transparent;
+  -moz-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+</style>
+</head>
+
+<body class='noselect-txt' onload='docOnLoad()'>
+  <div class="container">
+    <div class="row">
+      <div id="graphic" class="span12">
+        <div id="main" style="height:400px"></div>
+      </div><!--/span-->
+    </div><!--/row-->
+  </div>
+
+  <script type="text/javascript">
+    require.config({
+      paths:{ 
+        echarts: './echarts',
+        'echarts/chart/gauge' : './echarts',
+      }
+    });
+    
+    currInPresent = slideInPresent();
+    
+    var InitPinpChart = function() {
+      require(
+        [
+          'echarts',
+          'echarts/chart/gauge'
+        ],
+        function(ec) {
+          var opt = null;
+          var mainNode = document.getElementById('main');
+          var iframeNode = getOwnerFrameNode();
+          if (iframeNode) {
+            mainNode.style.height = Math.max(iframeNode.clientHeight,200) + 'px';
+            
+            var sCfg = iframeNode.getAttribute('_widget') || '';
+            if (sCfg)
+              opt = convertCfg(window.eval(sCfg));
+          }
+          if (!opt) opt = myOption;
+          
+          myChart = ec.init(mainNode);
+          if (myChartTheme && myChartTheme != 'default') {
+            require.config({
+              paths:{
+                theme: './theme',
+              }
+            });
+            require(['theme/' + myChartTheme], function(tarTheme) {
+              myChart.setTheme(tarTheme);
+              myChart.setOption(opt,true);
+            });
+          }
+          else myChart.setOption(opt,true);
+        }
+      );
+    };
+    
+    var rect = document.getElementById('main').getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0)  // current in visible range
+      InitPinpChart();
+  </script>
+</body>
+</html>

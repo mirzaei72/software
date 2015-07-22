@@ -1,0 +1,61 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='pinp-mask slideshow-info ebook-abstract' _config='small-default-large round0-default-round2-round3 default-looser-impacted p1-p2-p3-p0' _zindex='998' _prepost='0-3-3-1-0' _left='-450' _top='210' _width='900' _height='140' style='background-color: rgba(0,0,0,0.5); border-color: rgb(128,128,128); border-width: 0px;'><p>Information</p></div>\n";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.addPlugCode("slideshow-info","<script type='text/javascript'>\n" +
+"(function() {\n" +
+"  var refreshWdgt = function() {\n" +
+"    var nodes = document.querySelectorAll('article > div.slideshow-info');\n" +
+"    for (var i=0,owner; owner=nodes[i]; i++) {\n" +
+"      var iHi = parseInt(owner.getAttribute('_height') || 140);\n" +
+"      iHi = Math.min(iHi,SLIDE_HALF_HEIGHT+SLIDE_HALF_HEIGHT);\n" +
+"      owner.setAttribute('_left','-'+SLIDE_HALF_WIDTH);\n" +
+"      owner.setAttribute('_top',(SLIDE_HALF_HEIGHT-iHi)+'');\n" +
+"      owner.setAttribute('_width',(SLIDE_HALF_WIDTH+SLIDE_HALF_WIDTH)+'');\n" +
+"      owner.setAttribute('_height',iHi+'');\n" +
+"      owner.style.left   = '0px';\n" +
+"      owner.style.top    = (SLIDE_HALF_HEIGHT + SLIDE_HALF_HEIGHT - iHi) + 'px';\n" +
+"      owner.style.width  = (SLIDE_HALF_WIDTH+SLIDE_HALF_WIDTH) + 'px';\n" +
+"      owner.style.height = iHi + 'px';\n" +
+"    }\n" +
+"  };\n" +
+"  document.addEventListener('DOMContentLoaded', function(event){\n" +
+"    refreshWdgt();\n" +
+"  },false);\n" +
+"  window.addEventListener('resize', function(event){\n" +
+"    if (PINP_FIX_FIT_X || PINP_FIX_FIT_Y) setTimeout(refreshWdgt,0);\n" +
+"  },false);\n" +
+"})();\n" +
+"</script><style>\n" +
+"div.slideshow-info {color:#fff; overflow:hidden;}\n" +
+"div.slideshow-info > p {padding-left:10px; padding-right:10px;}\n" +
+"</style>" );
+    
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

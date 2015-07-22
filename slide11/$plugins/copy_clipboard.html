@@ -1,0 +1,83 @@
+﻿<html>
+<head>
+<title>Zero Clipboard Test</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="ZeroClipboard.min.js"></script>
+<script type="text/javascript">
+function newClipboard(name,onDataRequest) {
+  var node = document.getElementById(name);
+  if (node) {
+    if (!newClipboard._ready) {
+      var sOrigin = window.location.protocol + "//" + window.location.host;
+      newClipboard._ready = true;
+      ZeroClipboard.setDefaults( {
+        trustedOrigins: [sOrigin],
+        moviePath: "ZeroClipboard.swf",
+        allowScriptAccess: "always"
+      });
+    }
+    
+    var clip = new ZeroClipboard(node);
+    clip.name = name;
+    clip.on('dataRequested',onDataRequest);
+    return clip;
+  }
+}
+
+newClipboard._ready = false;
+
+function tryHideThisWindow(event) {
+  if (window.parent) {
+    var ownerWin = window.parent.window;
+    if (ownerWin && ownerWin.hideMaskArea) {
+      setTimeout( function() {
+        ownerWin.hideMaskArea();
+      },0);
+    }
+  }
+}
+
+function initClipboard() {
+  document.onclick = tryHideThisWindow;
+  
+  newClipboard('clip-btn', function(client,args) {
+    if (window.parent) {
+      var ownerWin = window.parent.window;
+      if (ownerWin && ownerWin.hideMaskArea) {
+        var areaMask = ownerWin.document.getElementById('dialog-mask');
+        if (areaMask) {
+          var s = areaMask.clipString || '';
+          client.setText(s);
+        }
+      }
+    }
+  });
+}
+</script>
+<style>
+.tool-btn {
+  border:1px solid grey;
+  padding: 10px;
+  width: 140px;
+  background-color: #cccccc;
+  text-align: center;
+  cursor: default;
+}
+.tool-btn:hover {
+  background-color: #e0e0e0;
+  border:1px solid #eeeeee;
+}
+</style>
+</head>
+
+<body onload='initClipboard()' style='background:rgba(54,54,54,0.95); overflow:hidden'>
+
+<div class='tool-btn' id='clip-btn'>
+  Click to copy
+</div><br>
+<div class='tool-btn'>
+  Cancel
+</div>
+
+</body>
+</html>

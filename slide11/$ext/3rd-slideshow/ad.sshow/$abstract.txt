@@ -1,0 +1,4 @@
+PINP slideshow
+
+<>
+{"images":[["1.jpg","http://www.pinp.me/www/www/"],["2.jpg","http://www.pinp.me/www/www/"],["3.jpg","http://www.pinp.me/www/www/"]]}

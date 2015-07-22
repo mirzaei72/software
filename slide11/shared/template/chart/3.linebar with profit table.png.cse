@@ -1,0 +1,33 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='frame-build' _zindex='995' _left='%1' _top='%2' _width='680' _height='380'><iframe class='echarts-linebar build' frameborder='0' border='0' _widget=\"[['title=',''],['desc=',''],['legend=','top'],['InOut=','true'],['table=',,,,'Monday','Tuesday','Wednesday','Thurday','Friday','Saturday','Sunday'],[,'bar','<none:>','Profit','200','170','240','244','200','220','210'],[,,'<Amount>','Income','320','302','341','374','390','450','420'],[,,,'Outgo','-120','-132','-101','-134','-190','-230','-210']]\" _src='/software/slide11/$plugins/echarts_linebar2.html' src='/software/slide11/$plugins/echarts_linebar2.html'></iframe></div>\n";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.addDepends("frame-build","","/software/slide11/$plugins/echarts.js","text/javascript","");
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

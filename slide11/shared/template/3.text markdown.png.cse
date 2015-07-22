@@ -1,0 +1,32 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='pinp-make pinp-mark' _zindex='997' _config='small-normal-large default-looser-impacted p1-p2-p3-p0 fixed-fullsize scroll-hidden-default' _left='%1' _top='%2' _width='500' _height='340'>\n<div class='pinp-maked'><h1>Header 1</h1><h2>Header 2</h2><p>This is <em>regular</em> paragraph.</p><h3>Header 3</h3><blockquote><p>This is a <strong>blockquote</strong> paragraph.</p></blockquote><p>Ordered list:</p><ol><li>foo</li><li>bar</li></ol><p>Unordered list:</p><ul><li>foo</li><li>bar</li></ul></div><div class='rotate-txt'><pre>Header 1\n========\n\nHeader 2\n--------\n\nThis is *regular* paragraph.\n\n### Header 3\n\n&gt; This is a **blockquote** paragraph.\n\nOrdered list:\n\n 1. foo\n 2. bar\n\nUnordered list:\n\n - foo\n - bar\n\n</pre></div></div>";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

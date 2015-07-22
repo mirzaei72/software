@@ -1,0 +1,33 @@
+﻿#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='frame-build' _zindex='995' _left='%1' _top='%2' _width='680' _height='380'><iframe class='echarts-linebar build' frameborder='0' border='0' _widget=\"[['title=',''],['desc=',''],['legend=','top'],['ItalicAxis=','false'],['table=',,,,'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],[,'bar','<left:ml>','Evaporation','2','4.9','7','23.2','25.6','76.7','135.6','162.2','32.6','20','6.4','3.3'],[,,,'Precipitation','2.6','5.9','9','26.4','28.7','70.7','175.6','182.2','48.7','18.8','6','2.3'],[,'line','<right:°C>','min-temperature','2','2.2','3.3','4.5','6.3','10.2','20.3','23.4','23','16.5','12','6.2'],[,,,'max-temperature','12','12.2','13.3','14.5','16.3','18.2','28.3','33.4','31','24.5','18','16.2']]\" _src='/software/slide11/$plugins/echarts_linebar.html' src='/software/slide11/$plugins/echarts_linebar.html'></iframe></div>\n";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.addDepends("frame-build","","/software/slide11/$plugins/echarts.js","text/javascript","");
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

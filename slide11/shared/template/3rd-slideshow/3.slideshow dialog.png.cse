@@ -1,0 +1,185 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='pinp-make slideshow-dlg' _zindex='999' _config='small-normal-large default-looser-impacted fullsize-fixed' _left='-450' _top='-350' _width='900' _height='700'>\n<div class='slideshow-rblk pinp-maked'><table class='slideshow-rdlg'><tr><td></td><td></td><td></td></tr><tr><td></td><td><p><span class='slideshow-title'>Wayne 7:12</span><br>Hello</p></td><td></td></tr><tr><td></td><td></td><td></td></tr></table></div><div class='rotate-txt'><pre>Wayne 7:11\nHello</pre></div></div>";
+    apiNode->innerHTML = sHtml;
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.addPlugCode("slideshow-dlg","<script type='text/javascript'>\n" +
+"document.addEventListener('DOMContentLoaded', function(event){\n" +
+"  var rmkFunc = pluginOf('slideshow-dlg').remake;\n" +
+"  if (rmkFunc) {\n" +
+"    var wd=SLIDE_HALF_WIDTH+SLIDE_HALF_WIDTH, hi=SLIDE_HALF_HEIGHT+SLIDE_HALF_HEIGHT;\n" +
+"    var nodes = document.querySelectorAll('article > div.slideshow-dlg');\n" +
+"    for (var i=0,node; node=nodes[i]; i++) {\n" +
+"      rmkFunc(node);\n" +
+"    }\n" +
+"  }\n" +
+"},false);\n" +
+
+"(function(){\n" +
+"  var urlRe = /\\b(?:(?:http|https):\\/\\/|)(?:(?:[-A-Za-z0-9_]+(?:\\.[-A-Za-z0-9_]+)*(?:\\.[-A-Za-z]{2,5}))|(?:[0-9]{1,3}(?:\\.[0-9]{1,3}){3}))(?::[0-9]*)?(?:\\/[-A-Za-z0-9_\\$\\.\\+\\!*()<>{},;:@&=?\\/~#%\\'`]*)*/gi;\n" +
+"  var setupOneDlg = function(sTitle,sContent,sCls) {\n" +
+"    var tmpNode = document.createElement('div'); tmpNode.className = (sCls || 'slideshow-lblk') + ' pinp-maked';\n" +
+"    var sTmp = \"<table class='\" + (sCls=='slideshow-rblk'?'slideshow-rdlg':'slideshow-ldlg') + \"'>\";\n" +
+"    sTmp += \"<tr><td></td><td></td><td></td></tr><tr><td></td><td><p><span class='slideshow-title'>\" + (sTitle || sContent) + '</span>';\n" +
+"    if (sTitle && sContent) {\n" +
+"      sTmp += '<br>' + sContent.replace(urlRe,function(m){\n" +
+"        var i = urlRe.lastIndex - m.length - 1;\n" +
+"        if (i >= 0 && (sOut[i] == '\"' || sOut[i] == \"'\")) return m;\n" +
+"        else return '<a class=\"slideshow-url\" target=\"_blank\" href=\"' + m + '\">' + m + '</span>';\n" +
+"      });\n" +
+"    }\n" +
+"    sTmp += '</p></td><td></td></tr><tr><td></td><td></td><td></td></tr></table>';\n" +
+"    tmpNode.innerHTML = sTmp;\n" +
+"    return tmpNode;\n" +
+"  };\n" +
+
+"  var spaceOrNull = function(iCode) {\n" +
+"    if (typeof iCode != 'number') return true;\n" +
+"    if ((iCode >= 9 && iCode <= 13) || iCode == 32) return true;\n" +
+"    else return false;\n" +
+"  };\n" +
+
+"  var dMod = pluginOf('slideshow-dlg');\n" +
+"  if (!dMod.title) {\n" +
+"    dMod.title = 'slideshow dialog';\n" +
+"    dMod.remake = function(node) {\n" +
+"      var txtNode = node.querySelector('div.rotate-txt > pre');\n" +
+"      if (!txtNode) return;\n" +
+"      var tailNode = txtNode.parentNode;\n" +
+"      if (!tailNode || tailNode.parentNode !== node) return;\n" +
+"      for (var i=node.children.length-1; i>=0; i--) {\n" +
+"        var item = node.children[i]; if (item.nodeName == 'DIV' && item.classList.contains('pinp-maked')) node.removeChild(item);\n" +
+"      }\n" +
+
+"      var b=txtNode.textContent.split('\\n'), iLen=b.length, sFocus=tailNode.getAttribute('_focus')||'';\n" +
+"      var sTitle='', sCls='', sContent='';\n" +
+"      for (var i=0; i < iLen; i++) {\n" +
+"        var item = b[i].trim();\n" +
+"        if (!item) {\n" +
+"          if (sTitle || sContent) {\n" +
+"            if (!sFocus && sTitle) {\n" +
+"              sFocus = sTitle.split(/\\s+/gm)[0];\n" +
+"              if (sContent) node.insertBefore(setupOneDlg(sTitle,sContent,'slideshow-rblk'),tailNode);\n" +
+"            } else node.insertBefore(setupOneDlg(sTitle,sContent,sCls),tailNode);\n" +
+"          }\n" +
+"          sTitle = ''; sCls = ''; sContent = ''; continue;\n" +
+"        }\n" +
+
+"        if (!sTitle) {\n" +
+"          sTitle = item;\n" +
+"          if (sFocus && sTitle.indexOf(sFocus) == 0 && spaceOrNull(sTitle.charCodeAt(sFocus.length))) sCls = 'slideshow-rblk';\n" +
+"        } else { if (sContent) sContent += ' '; sContent += item; }\n" +
+"      };\n" +
+"      if (sTitle || sContent) {\n" +
+"        if (!sFocus && sTitle) {\n" +
+"          sFocus = sTitle.split(/\s+/gm)[0]; sCls = 'slideshow-rblk';\n" +
+"        }\n" +
+"        node.insertBefore(setupOneDlg(sTitle,sContent,sCls),tailNode);\n" +
+"      };\n" +
+"    };\n" +
+
+"    dMod['fullsize-fixed'] = function(owner){\n" +
+"      var iWd = SLIDE_HALF_WIDTH + SLIDE_HALF_WIDTH;\n" +
+"      var iHi = SLIDE_HALF_HEIGHT + SLIDE_HALF_HEIGHT;\n" +
+"      owner.setAttribute('_left',(-SLIDE_HALF_WIDTH)+'');\n" +
+"      owner.setAttribute('_top',(-SLIDE_HALF_HEIGHT)+'');\n" +
+"      owner.setAttribute('_width',iWd+'');\n" +
+"      owner.setAttribute('_height',iHi+'');\n" +
+"      owner.style.left   = '0px';\n" +
+"      owner.style.top    = '0px';\n" +
+"      owner.style.width  = iWd + 'px';\n" +
+"      owner.style.height = iHi + 'px';\n" +
+"      setTimeout(function(){apiNode.unselect();},0);\n" +
+"    };\n" +
+
+"    dMod['fixed-fullsize'] = function(owner){\n" +
+"      owner.setAttribute('_width','500');\n" +
+"      owner.setAttribute('_height','340');\n" +
+"      owner.style.width  = '500px';\n" +
+"      owner.style.height = '340px';\n" +
+"      setTimeout(function(){apiNode.unselect();},0);\n" +
+"    };\n" +
+
+"    dMod.oncreated = function(event) {\n" +
+"      if (event.target) pluginOf('slideshow-dlg').remake(event.target);\n" +
+"    };\n" +
+
+"    dMod.getPluginMenu = function(node) {\n" +
+"      return [['set author',function(node) {\n" +
+"        var txtNode = node.querySelector('div.rotate-txt');\n" +
+"        if (txtNode) {\n" +
+"          var s = prompt('Author (right side dialog) name',txtNode.getAttribute('_focus')||'');\n" +
+"          if (typeof s == 'string') {\n" +
+"            s = s.trim(); if (!s)\n" +
+"              txtNode.removeAttribute('_focus');\n" +
+"            else txtNode.setAttribute('_focus',s);\n" +
+"            pluginOf('slideshow-dlg').remake(txtNode.parentNode);\n" +
+"            apiNode.setPageModified();\n" +
+"          }\n" +
+"        }\n" +
+"      }]];\n" +
+"    };\n" +
+"  }\n" +
+"})();\n" +
+"</script><style>\n" +
+"a.slideshow-url {cursor:default}\n" +
+"div.slideshow-dlg {background-color:rgba(0,0,0,0.027); color:#222; overflow-x:hidden; overflow-y:auto;}\n" +
+"div.slideshow-dlg > div.rotate-txt {position:static; display:none;}\n" +
+"div.slideshow-dlg.normal-large-small table {font-size:16px}\n" +
+"div.slideshow-dlg.large-small-normal table {font-size:20px}\n" +
+"div.slideshow-dlg.small-normal-large table {font-size:14px}\n" +
+".slideshow-title {color:#8B4513}\n" +
+".slideshow-lblk {float:left; clear:both; padding-left:22px; max-width:80%;}\n" +
+".slideshow-rblk {float:right; clear:both; padding-right:22px; max-width:80%;}\n" +
+".slideshow-ldlg, .slideshow-rdlg {margin:0px; padding:0px; border:0px solid #fff; border-spacing:0px; border-collapse:separate;}\n" +
+".slideshow-ldlg td > p {margin:-20px 0px 0px 0px; padding:0px;}\n" +
+".slideshow-ldlg tr:nth-child(1), .slideshow-ldlg tr:nth-child(3) {line-height:8px;}\n" +
+".slideshow-ldlg tr:nth-child(1) td:nth-child(1) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL1.png') no-repeat top left; width:22px; height:28px; background-size:100% 100%;}\n" +
+".slideshow-ldlg tr:nth-child(1) td:nth-child(2) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL2.png') repeat-x top left; height:28px; background-size:100% 100%;}\n" +
+".slideshow-ldlg tr:nth-child(1) td:nth-child(3) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL3.png') no-repeat top left; width:12px; height:28px; background-size:100% 100%;}\n" +
+".slideshow-ldlg tr:nth-child(2) td:nth-child(1) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL4.png') no-repeat top left; background-size:100% 100%;}\n" +
+".slideshow-ldlg tr:nth-child(2) td:nth-child(2) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL5.png') repeat-x top left; min-width:30px; background-size:100% 100%;}\n" +
+".slideshow-ldlg tr:nth-child(2) td:nth-child(3) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL6.png') no-repeat top left; background-size:100% 100%;}\n" +
+".slideshow-ldlg tr:nth-child(3) td:nth-child(1) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL7.png') no-repeat top left; width:22px; height:10px; background-size:100% 100%;}\n" +
+".slideshow-ldlg tr:nth-child(3) td:nth-child(2) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL8.png') repeat-x top left; height:10px; background-size:100% 100%;}\n" +
+".slideshow-ldlg tr:nth-child(3) td:nth-child(3) {background:url('/software/slide11/$ext/3rd-slideshow/dlgL9.png') no-repeat top left; width:12px; height:10px; background-size:100% 100%;}\n" +
+".slideshow-rdlg td > p {margin:-20px 0px 0px 0px; padding:0px;}\n" +
+".slideshow-rdlg tr:nth-child(1), .slideshow-rdlg tr:nth-child(3) {line-height:8px;}\n" +
+".slideshow-rdlg tr:nth-child(1) td:nth-child(1) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR1.png') no-repeat top left; width:12px; height:28px; background-size:100% 100%;}\n" +
+".slideshow-rdlg tr:nth-child(1) td:nth-child(2) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR2.png') repeat-x top left; height:28px; background-size:100% 100%;}\n" +
+".slideshow-rdlg tr:nth-child(1) td:nth-child(3) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR3.png') no-repeat top left; width:22px; height:28px; background-size:100% 100%;}\n" +
+".slideshow-rdlg tr:nth-child(2) td:nth-child(1) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR4.png') no-repeat top left; background-size:100% 100%;}\n" +
+".slideshow-rdlg tr:nth-child(2) td:nth-child(2) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR5.png') repeat-x top left; min-width:30px; background-size:100% 100%;}\n" +
+".slideshow-rdlg tr:nth-child(2) td:nth-child(3) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR6.png') no-repeat top left; background-size:100% 100%;}\n" +
+".slideshow-rdlg tr:nth-child(3) td:nth-child(1) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR7.png') no-repeat top left; width:12px; height:10px; background-size:100% 100%;}\n" +
+".slideshow-rdlg tr:nth-child(3) td:nth-child(2) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR8.png') repeat-x top left; height:10px; background-size:100% 100%;}\n" +
+".slideshow-rdlg tr:nth-child(3) td:nth-child(3) {background:url('/software/slide11/$ext/3rd-slideshow/dlgR9.png') no-repeat top left; width:22px; height:10px; background-size:100% 100%;}\n" +
+"</style>" );
+    
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

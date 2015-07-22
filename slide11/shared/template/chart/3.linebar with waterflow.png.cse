@@ -1,0 +1,33 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='frame-build' _zindex='995' _left='%1' _top='%2' _width='680' _height='320'><iframe class='echarts-linebar build' frameborder='0' border='0' _widget=\"[['title=','Waterfall bar diagram'],['desc=','Assumed data'],['legend=','top'],['HideFirstRow=','true'],['table=',,,,'day 1','day 2','day 3','day 4','day 5','day 6','day 7','day 8','day 9','day 10','day 11'],[,'bar','<total>','assist','0','900','1245','1530','1376','1376','1511','1689','1856','1495','1292'],[,,,'Income','900','345','393','-','-','135','178','286','-','-','-'],[,,,'Outgo','-','-','-','108','154','-','-','-','119','361','203']]\" _src='/software/slide11/$plugins/echarts_linebar3.html' src='/software/slide11/$plugins/echarts_linebar3.html'></iframe></div>\n";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.addDepends("frame-build","","/software/slide11/$plugins/echarts.js","text/javascript","");
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

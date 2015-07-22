@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Source editor</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<script type='text/cse' line='7'>
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  apiNode as document.getElementById("api-node");
+
+  apiNode.setHook("setCloseState", super(isOk):
+    hostWin as window.hostWin();
+    hostWin->closeState = isOk? 1: 2;
+    if isOk:
+      hostWin->resultHtml = JSB(document)..getEditorHtml();
+    end;
+  end);
+  
+  apiNode.setHook("copyToClipboard", super(s):
+    window.hostWin()->copyToClipboard(s);
+  end);
+end;
+
+end;
+</script>
+
+<script type="text/javascript">
+function location__(href) {
+  var location = document.createElement('a');
+  location.href = href;
+  if (location.host == '')
+    location.href = location.href;
+  return location;
+}
+
+function assistOnload(event) {
+  var frmNode = event.target;
+  frmNode.onload = null;
+  
+  if (!frmNode.contentWindow.assistorLoaded) {
+    frmNode.contentWindow.document.body.innerHTML = '';
+    
+    var sHost = frmNode.getAttribute('host');
+    var sPath = frmNode.getAttribute('src');
+    if (sHost && sPath && sPath[0] == '/') {
+      var loc = location__(sHost);
+      if (loc.hostname != location.hostname)  // try reload from web
+        frmNode.setAttribute('src',sHost + sPath);
+    }
+  }
+}
+
+function setEditorHtml(sHtml,bAssist) {
+  if (bAssist && bAssist.length) {
+    var sHost = bAssist[0];
+    var owner = document.querySelector('div.assist-owner');
+    
+    for (var i=1,item; item=bAssist[i]; i++) {
+      var sName = 'assist' + i;
+      var sUrl = item + '?name=' + sName;
+      var sHtml = '<iframe frameborder="no" border="0" name="' + sName + '" ';
+      if (sHost) sHtml += 'host="' + sHost + '" ';
+      sHtml += '" onload="assistOnload(event)" src="' + sUrl + '"></iframe>';
+      
+      var divNode = document.createElement('div');
+      divNode.className = 'assist-holder';
+      divNode.innerHTML = sHtml;
+      owner.appendChild(divNode);
+    }
+  }
+  
+  var editor = document.getElementById('editor');
+  editor.value = sHtml;
+}
+
+function getEditorHtml() {
+  var editor = document.getElementById('editor');
+  return editor.value;
+}
+
+function finishEditing(isOk) {
+  if (isOk) {
+    var s = getEditorHtml();
+    var iFrom=s.search(/\<\!--\s*\{/gm), iEnd=s.search(/\}\s*--\>/gm);
+    if (iFrom >= 0 && iEnd > iFrom) {
+      try {
+        JSON.parse(s.slice(iFrom+4,iEnd+1));
+      }
+      catch(e) {
+        alert(e);
+        return;
+      }
+    }
+  }
+  
+  var apiNode = document.getElementById('api-node');
+  apiNode.setCloseState(isOk)
+  window.close();
+}
+
+function init() {
+  var editor = document.getElementById('editor');
+  editor.style.height = Math.max(window.innerHeight-180,300) + 'px';
+  
+  window.addEventListener('message', function(msg) {
+    if (typeof msg == 'object' && msg.data)
+      msg = msg.data;
+    try {
+      msg = JSON.parse(msg.slice(14)); // remove prefix
+      if (msg instanceof Object) {
+        if (msg.method == 'resize') {
+          var sName = msg.param[0];
+          var iWd = msg.param[1] || 0;  // not used
+          var iHi = msg.param[2] || 0;
+          if (sName && iHi) {
+            var frmNode = document.querySelector('iframe[name="' + sName + '"]');
+            if (frmNode) {
+              var upNode = frmNode.parentNode;
+              if (iWd) upNode.style.width = iWd + 'px';
+              if (iHi) upNode.style.height = iHi + 'px';
+              if (iWd && iHi)
+                upNode.style.cssFloat = 'right';
+            }
+          }
+        }
+        else if (msg.method = 'copy') {
+          var sText = msg.param[0] || '';
+          if (sText) {
+            var apiNode = document.getElementById('api-node');
+            apiNode.copyToClipboard(sText);
+          }
+        }
+      }
+    }
+    catch(e) {
+      console.log(e);
+    }
+  },false);
+}
+</script>
+
+<style>
+body {
+  background-color: #d7d7d7;
+}
+.assist-owner {
+  width: 100%;
+  margin: 2px 0px 4px 0px;
+}
+.assist-holder {
+  width: 100%;
+  height: 40px;
+  overflow: hidden;
+}
+.assist-holder > iframe {
+  border: 0px solid gray;
+  overflow: hidden;
+}
+#editor {
+  width: 99%;
+  height: 300px;
+  resize: both;
+  
+  font-family: 'Courier New','Verdana','monospace','Arial';
+  font-size: 14px;
+  line-height: 18px;
+}
+</style>
+</head>
+
+<body onload='init()'>
+<div id='api-node' style='display:none; visibility:hidden;'></div>
+
+<table style='width:100%; margin:0px; padding:2px; border:0px solid gray; border-spacing:0px; font-size:14px;'>
+<tr><td></td>
+<td style='min-width:150px'>
+  <p style='text-align:right; margin:2px'>
+    <input type='button' style='width:60px' value='OK' onclick='finishEditing(true)' />
+    <input type='button' style='width:70px' value='Cancel' onclick='finishEditing(false)' />
+  </p>
+</td></tr>
+</table>
+
+<div class='assist-owner'></div>
+
+<div>
+  <textarea id='editor'></textarea>
+</div>
+
+</body>
+</html>

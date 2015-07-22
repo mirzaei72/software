@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <g>
+  <title>Layer 1</title>
+  <path id="svg_22" d="m15.577095,4.108609l32.392273,0l0,0c2.147919,0 4.207706,0.965688 5.726368,2.684664c1.518764,1.718991 2.372025,4.05053 2.372025,6.481461l0,45.829857c0,0.000191 -0.000229,0.000423 -0.000507,0.000423l-48.58841,-0.000423l0,0c-0.000258,0 -0.000467,-0.000263 -0.000467,-0.000465l0.000467,-45.829391l0,0c0,-5.062262 3.625669,-9.166125 8.098252,-9.166125l0,0z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="3" stroke="#191919" fill="none"/>
+  <line stroke-width="2" id="svg_23" y2="52.880518" x2="50.401623" y1="52.899258" x1="14.449963" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke="#7f7f7f" fill="none"/>
+  <line fill="none" stroke="#7f0000" stroke-width="5" x1="19.73428" y1="50.380891" x2="41.002871" y2="23.891795" id="svg_1"/>
+  <line fill="none" stroke="#7f0000" stroke-width="5" x1="19.768054" y1="23.941393" x2="42.105131" y2="50.327043" id="svg_2"/>
+  <line id="svg_17" y2="60.374355" x2="29.578136" y1="60.552334" x1="29.400158" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke="#7f0000" fill="none"/>
+ </g>
+
+</svg>

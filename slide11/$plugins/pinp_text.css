@@ -1,0 +1,118 @@
+p {
+  margin: 10px 0px;
+  padding: 0px;
+}
+h1 {
+  padding: 0;
+  margin: 0;
+
+  font-size: 58px;
+  font-weight: 600;
+  letter-spacing: -2px;
+}
+h2 {
+  padding: 0;
+  margin: 0;
+
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+h3 {
+  padding: 0;
+  margin: 0;
+
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 0px;
+}
+h4 {
+  padding: 0;
+  margin: 0;
+
+  font-size: 24px;
+  font-weight: 600;
+}
+h5 {
+  padding: 0;
+  margin: 0;
+
+  font-size: 18px;
+  font-weight: 600;
+}
+h6 {
+  padding: 0;
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+div.editor {
+  font-size: 32px;
+  line-height: 1.25;
+  letter-spacing: 0px;
+}
+
+div.S1,p.S1,span.S1 {font-size:58px; letter-spacing:-1px;}
+div.S2,p.S2,span.S2 {font-size:44px; letter-spacing:-1px;}
+div.S3,p.S3,span.S3 {font-size:32px;}
+div.S4,p.S4,span.S4 {font-size:24px;}
+div.S5,p.S5,span.S5 {font-size:18px;}
+div.S6,p.S6,span.S6 {font-size:14px;}
+
+div.large-small-default > * {
+  font-size: 40px;
+  letter-spacing: -1px;
+}
+
+div.large-small-default h1 {font-size:68px; letter-spacing:-2px;}
+div.large-small-default h2 {font-size:50px; letter-spacing:-1px;}
+div.large-small-default h3 {font-size:40px; letter-spacing:-1px;}
+div.large-small-default h4 {font-size:30px;}
+div.large-small-default h5 {font-size:22px;}
+div.large-small-default h6 {font-size:16px;}
+
+div.large-small-default div.S1, div.large-small-default p.S1, div.large-small-default span.S1 {font-size:68px; letter-spacing:-2px;}
+div.large-small-default div.S2, div.large-small-default p.S2, div.large-small-default span.S2 {font-size:50px; letter-spacing:-1px;}
+div.large-small-default div.S3, div.large-small-default p.S3, div.large-small-default span.S3 {font-size:40px; letter-spacing:-1px;}
+div.large-small-default div.S4, div.large-small-default p.S4, div.large-small-default span.S4 {font-size:30px;}
+div.large-small-default div.S5, div.large-small-default p.S5, div.large-small-default span.S5 {font-size:22px;}
+div.large-small-default div.S6, div.large-small-default p.S6, div.large-small-default span.S6 {font-size:16px;}
+
+div.small-default-large > * {
+  font-size: 24px;
+  letter-spacing: 0px;
+}
+
+div.small-default-large h1 {font-size:48px; letter-spacing:-1px;}
+div.small-default-large h2 {font-size:36px; letter-spacing:-1px;}
+div.small-default-large h3 {font-size:24px;}
+div.small-default-large h4 {font-size:18px;}
+div.small-default-large h5 {font-size:14px;}
+div.small-default-large h6 {font-size:12px;}
+
+div.small-default-large div.S1, div.small-default-large p.S1, div.small-default-large span.S1 {font-size:48px; letter-spacing:-1px;}
+div.small-default-large div.S2, div.small-default-large p.S2, div.small-default-large span.S2 {font-size:36px; letter-spacing:-1px;}
+div.small-default-large div.S3, div.small-default-large p.S3, div.small-default-large span.S3 {font-size:24px;}
+div.small-default-large div.S4, div.small-default-large p.S4, div.small-default-large span.S4 {font-size:18px;}
+div.small-default-large div.S5, div.small-default-large p.S5, div.small-default-large span.S5 {font-size:14px;}
+div.small-default-large div.S6, div.small-default-large p.S6, div.small-default-large span.S6 {font-size:12px;}
+
+div.center-right-default,
+div.center-right-default > * {
+  text-align: center;
+}
+div.right-default-center,
+div.right-default-center > * {
+  text-align: right;
+}
+div.txt-left, p.txt-left {
+  text-align: left;
+}
+div.txt-center, p.txt-center {
+  text-align: center;
+}
+div.txt-right, p.txt-right {
+  text-align: right;
+}

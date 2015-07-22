@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>popline</title>
+
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/normalize.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/pinp_text.css" />
+
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/font-awesome.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/themes/popclip.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/page.css" />
+
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/jquery.min.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/jquery.popline.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.link.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.blockquote.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.decoration.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.list.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.justify.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.blockformat.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.social.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.backcolor.js"></script>
+  
+<script type="text/javascript">
+var currFontFamily_ = '';
+
+function unselectText() {
+  if (window.getSelection) {
+    var sel = window.getSelection();
+    if (sel) sel.removeAllRanges();
+  }
+  else if (document.selection)
+    document.selection.empty();
+    
+  var popBtn = document.querySelector('ul.popline');
+  if (popBtn) popBtn.style.display = 'none';
+}
+
+function cleanDefaultFont(editor,sFontFam) {
+  var nodes = editor.querySelectorAll('*[style*="font-family:"]');
+  for (var i=0,item; item=nodes[i]; i++) {
+    if (item.style.fontFamily == sFontFam) {
+      if (window.getComputedStyle(item.parentNode).fontFamily == sFontFam)
+        item.style.fontFamily = '';
+    }
+  }
+}
+
+function getContent() {
+  unselectText();
+  var editor = document.querySelector('.editor');
+  if (currFontFamily_)
+    cleanDefaultFont(editor,currFontFamily_); // clear duplicated font-family
+  
+  return editor.innerHTML;
+}
+
+function setContent(sHtml,sizeCls,sizeCls2,sFont,sExtern) {
+  unselectText();
+  
+  var owner = document.getElementById('txt-widget');
+  var editor = document.querySelector('div.editor');
+  if (sFont) {
+    editor.style.fontFamily = sFont;
+    currFontFamily_ = editor.style.fontFamily;
+  }
+  else currFontFamily_ = '';
+  
+  if (sExtern) {
+    var styleNode = document.getElementById('extern-style');
+    if (!styleNode) {
+      styleNode = document.createElement('style');
+      styleNode.id = 'extern-style';
+      styleNode.innerHTML = sExtern;
+      document.body.appendChild(styleNode);
+    }
+  }
+  
+  if (sizeCls) owner.className = sizeCls;
+  if (sizeCls2)
+    editor.className = 'editor ' + sizeCls2;
+  else editor.className = 'editor';
+  editor.innerHTML = sHtml;
+}
+
+function poplineClicked(event) {
+  if (window.parent) {
+    var ownerWin = window.parent.window;
+    if (ownerWin.onPoplineClicked)
+      ownerWin.onPoplineClicked();
+  }
+}
+
+$(function(){
+  document.execCommand('defaultParagraphSeparator', false, 'p');
+  $(".editor").popline({position: "fixed"});  // 'fixed' or 'relative'
+});
+</script>
+
+<style>
+body {
+  overflow: hidden;
+}
+.container {
+  width: 350px;
+  margin: 40px 6px;
+}
+.editor {
+  width: 100%;
+  height: 100%;
+}
+</style>
+</head>
+
+<body>
+
+<section class="container"><article class="content">
+<div id="txt-widget" class="small-default-large">
+  <div class="editor" contenteditable="true" onmousedown='poplineClicked(event)'>title</div>
+</div>
+</article></section>
+
+</body>
+</html>

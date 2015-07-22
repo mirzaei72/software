@@ -1,0 +1,857 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>SVG paper editor</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<link rel='stylesheet' type='text/css' href='/software/slide11/$script/styles.css' />
+
+<script type='text/cse' line='9'>
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  taskConfig as SMeta = super:
+    dropBeforeCurr: false;
+    mouseX: 0;
+    mouseY: 0;
+    svgTool: true;
+  end;
+  window.hostWin()->taskConfig = taskConfig;
+  
+  document as window->document;
+  apiNode as document.getElementById("slide-api");
+  
+  apiNode.setHook("setDropMouseXY", super(iX,iY):
+    taskConfig->mouseX = iX;
+    taskConfig->mouseY = iY;
+  end);
+  
+  apiNode.setHook("runCseFile", super(sFile):
+    window.runCseFile(sFile);
+  end);
+  
+  apiNode.setHook("copyToClipboard", super(s):
+    window.hostWin()->copyToClipboard(s);
+  end);
+  
+  apiNode.setHook("textOfClipboard", super() as s:
+    return window.hostWin()->textOfClipboard();
+  end);
+  
+  apiNode.setHook("editContent", super(id as SObject,id2 as SObject,sSourFont,sFamiFont,sContFont,sExtend,sFontSize,sPrjRoot):
+    document_ as H5Element = document;
+    txtNode as H5Element(id);
+    maskNode as H5Element(id2);
+    
+    dlgWin as window.hostWin()->createWindow(true,1);
+    dlgWin->moveTo(0,0);
+    dlgWin->resize(window.hostWin()->width(),window.hostWin()->height());
+    
+    dlgWin->onload = super(this):
+      dlgWin->closeState = 0;
+      sHtml as SStr = txtNode->innerHTML;
+      JSB(dlgWin->window()->document)..setEditorHtml(sHtml,sSourFont,sFamiFont,sContFont,sExtend,sFontSize,sPrjRoot);
+    end;
+    
+    dlgWin->onclose = super(this):
+      if dlgWin->closeState == 1:  ## press 'OK'
+        txtNode->innerHTML = dlgWin->resultHtml;
+      end;
+      maskNode->style.setProperty("display","none");
+    end;
+    
+    sUrl as SStr = "http://" + JSB(document)..window.location.host + JSB(document)..CURR_USR_PATH + "$pinp_text_editor";
+    dlgWin->location(sUrl);
+    dlgWin->show();
+  end);
+  
+  apiNode.setHook("setCloseState", super(isOk):
+    hostWin as window.hostWin();
+    hostWin->closeState = isOk? 1: 2;
+    if isOk:
+      hostWin->resultHtml = JSB(document)..getOutputHtml();
+    end;
+  end);
+end;
+
+end;  ## end of namespace H5
+</script>
+
+<script type='text/javascript' src='/software/slide11/$plugins/svg_paper.min.js'></script>
+
+<style>
+body {
+  margin: 0px;
+  padding: 0px;
+  min-width: 650px;
+  min-height: 100px;
+  overflow: hidden;
+}
+.noselect-txt {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+#tool-bar {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height:70px;
+  min-width: 620px;
+  background-color: #e0e0e0;
+  outline: #cccccc solid 1px;
+  overflow: hidden;
+  z-index: 1999;
+}
+#text-area {
+  display: none;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 360px;
+  height: 70px;  /* 70 or 270 */
+  z-index: 2000;
+}
+.popline-frame {
+  width: 100%;
+  height: 70px;  /* 70 or 270 */
+  outline: #bfbfbf solid 1px;
+}
+.popline-expand {
+  position: relative;
+  left: 339px;
+  top: -25px;
+  width: 14px;
+  height: 28px;
+  -webkit-transform: rotate(270deg);
+  
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXBAMAAADJv2OxAAAAMFBMVEX///+ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZnHHh8xAAAAD3RSTlMAESIzRFVmd4iZqrvM3e5GKvWZAAAAdElEQVQI12NgAAH2v2CKsf83mJb8vxBEMe3/KQCitf83gLn3n4Flff8FgCjW90/A3Pw/BiBK4v0lMHf+bwUw/R/CZVj/SwBq5kaIQD1UAfv7yxCBuH8OYJrl/VWIgM3/AjDNdP45REDq/0SI+9b/gghw/AUAn68l+4HFkZUAAAAASUVORK5CYII=");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.palette-item {
+  height: 15px;
+  width: 15px;
+  float: left;
+}
+
+#color-dlg {
+  display: none;
+  top: 0px;
+  position: absolute;
+  margin: 0px;
+  padding: 0px;
+  z-index: 2001;
+}
+#color-chart {
+  padding: 0px;
+  margin: 1px 0px 0px 0px;
+  border-collapse: collapse;
+  width: 500px;
+  height: 300px;
+}
+
+#tool-opacity {
+  height: 26px;
+  font-size: 12px;
+  line-height: 24px;
+}
+#group-opacity {
+  min-width: 40px;
+  background-repeat: no-repeat;
+  background-position: 100% 0px;  /* 0px -18px -36px */
+  background-image: url('/software/slide11/$plugins/spinbtn_updn.png');
+  background-color: #ffffff;
+}
+#tool-frameWd {
+  height: 26px;
+  font-size: 12px;
+  line-height: 24px;
+}
+#group-frameWd {
+  min-width: 30px;
+  background-repeat: no-repeat;
+  background-position: 100% 0px;  /* 0px -18px -36px */
+  background-image: url('/software/slide11/$plugins/spinbtn_updn.png');
+  background-color: #ffffff;
+}
+
+#tool-lineId,#tool-arrowIdE,#tool-arrowIdS {
+  display: none;
+  margin: 6px 1px 0px 0px;
+  padding: 0px;
+  height: 18px;
+  line-height: 18px;
+  background: none repeat scroll 0% 0% #E8E8E8;
+}
+#tool-lineId:hover, #tool-arrowIdE:hover, #tool-arrowIdS:hover {
+  -webkit-transform: scale(1.15,1.15);
+}
+
+.quick-btn {
+  width: 20px;
+  height:20px;
+}
+.quick-btn:hover {
+  -webkit-transform: scale(1.15,1.15);
+}
+#tool-poptop,#tool-pushbtm,#tool-alignleft,#tool-alignmid,#tool-alignright {
+  display: none;
+}
+
+#opacity_dropdown {
+  display: none;
+  position: absolute;
+  margin: 0px;
+  padding: 0px;
+  
+  left: 0px;
+  top: 1px;
+  list-style: none outside none;
+  z-index: 2001;
+}
+#opacity_dropdown li {
+  width: 114px;
+  margin: 0px;
+  padding: 8px 4px;
+  border: 1px solid #B0B0B0;
+  background: none repeat scroll 0% 0% #E8E8E8;
+}
+div.opacity-slider {
+  position: relative;
+  height: 12px;
+  border: 1px solid #B0B0B0;
+}
+.slider-handle {
+  background: none repeat scroll 0% 0% #B0B0B0;
+  border: 1px solid #000;
+}
+div.opacity-slider .slider-handle {
+  position: absolute;
+  width: 10px;
+  height: 18px;
+  top: -4px;
+  cursor: default;
+}
+
+#arrowstyle_dropdown {
+  display: none;
+  left: 0px;
+  top: 0px;
+  width: 190px;
+  height: 26px;
+  position: absolute;
+  margin: 0px;
+  padding: 6px 0px 0px 6px;
+  
+  border: 1px solid #B0B0B0;
+  background: none repeat scroll 0% 0% #E8E8E8;
+  z-index: 2001;
+}
+#arrowstyle_dropdown > svg {
+  padding: 0px 2px 0px 2px;
+  width: 22px;
+  height: 18px;
+}
+#arrowstyle_dropdown > svg:hover {
+  -webkit-transform: scale(1.15,1.15);
+}
+
+#linestyle_dropdown {
+  display: none;
+  left: 0px;
+  top: 0px;
+  width: 310px;
+  position: absolute;
+  margin: 0px;
+  padding: 0px 0px 0px 4px;
+  
+  border: 1px solid #B0B0B0;
+  background: none repeat scroll 0% 0% #E8E8E8;
+  z-index: 2001;
+}
+#linestyle_dropdown p {
+  margin: 0px;
+  padding: 0px;
+  line-height: 14px;
+}
+#linestyle_dropdown svg:hover {
+  -webkit-transform: scale(1.15,1.15);
+}
+
+div.svg-shape {
+  position: absolute;
+  cursor: pointer;
+}
+
+div.free-transform {
+  display: none;
+  position: absolute;
+  width: 40px;
+  height: 60px;
+  
+  border: 1px dashed black;
+  pointer-events: none;
+  z-index: 1997;
+  -webkit-transform: rotate(0deg);
+}
+div.free-transform > div {
+  position: absolute;
+  background-color: #C0392B;
+  border: 1px solid black;
+  pointer-events: auto;
+}
+div.free-transform .resize {
+  width: 6px;
+  height: 6px;
+  background-color: #FFFFFF;
+  border-width: 2px;
+  border-radius: 6px;
+}
+div.free-transform .resize[data-position]:hover {
+  -webkit-transform: scale(1.4,1.4);
+}
+div.free-transform .resize.nw {
+  cursor: nw-resize;
+}
+
+div.free-transform .resize[data-position="top-left"] {
+  top: -1px;
+  left: -1px;
+  border-radius: 0px 0px 5px;
+  z-index: 2;
+}
+div.free-transform .resize[data-position="top-left"]:hover {
+  -webkit-transform-origin: 0% 0%;
+}
+
+div.free-transform .resize[data-position="top"] {
+  top: -6px;
+  left: 50%;
+  margin-left: -6px;
+}
+div.free-transform .resize.n {
+  cursor: n-resize;
+}
+div.free-transform .resize[data-position="top"] {
+  top: -1px;
+  left: 50%;
+  margin-left: -5px;
+  border-radius: 0px 0px 5px 5px;
+  z-index: 1;
+}
+div.free-transform .resize[data-position="top"]:hover {
+  -webkit-transform-origin: 50% 0%;
+}
+
+div.free-transform .resize[data-position="top-right"] {
+  top: -6px;
+  right: -6px;
+}
+div.free-transform .resize.ne {
+  cursor: ne-resize;
+}
+div.free-transform .resize[data-position="top-right"] {
+  top: -1px;
+  right: -1px;
+  border-radius: 0px 0px 0px 5px;
+  z-index: 2;
+}
+div.free-transform .resize[data-position="top-right"]:hover {
+  -webkit-transform-origin: 100% 0%;
+}
+
+div.free-transform .resize[data-position="right"] {
+  right: -6px;
+  top: 50%;
+  margin-top: -8px;
+}
+div.free-transform .resize.e {
+  cursor: e-resize;
+}
+div.free-transform .resize[data-position="right"] {
+  right: -1px;
+  top: 50%;
+  margin-top: -5px;
+  border-radius: 5px 0px 0px 5px;
+  z-index: 1;
+}
+div.free-transform .resize[data-position="right"]:hover {
+  -webkit-transform-origin: 100% 50%;
+}
+
+div.free-transform .resize[data-position="bottom-right"] {
+  bottom: -6px;
+  right: -6px;
+}
+div.free-transform .resize.se {
+  cursor: se-resize;
+}
+div.free-transform .resize[data-position="bottom-right"] {
+  bottom: -1px;
+  right: -1px;
+  border-radius: 5px 0px 0px;
+  z-index: 3;
+}
+div.free-transform .resize[data-position="bottom-right"]:hover {
+  -webkit-transform-origin: 100% 100%;
+}
+
+div.free-transform .resize[data-position="bottom"] {
+  bottom: -6px;
+  left: 50%;
+  margin-left: -6px;
+}
+div.free-transform .resize.s {
+  cursor: s-resize;
+}
+div.free-transform .resize[data-position="bottom"] {
+  bottom: -1px;
+  left: 50%;
+  margin-left: -5px;
+  border-radius: 5px 5px 0px 0px;
+  z-index: 1;
+}
+div.free-transform .resize[data-position="bottom"]:hover {
+  -webkit-transform-origin: 50% 100%;
+}
+
+div.free-transform .resize[data-position="bottom-left"] {
+  bottom: -6px;
+  left: -6px;
+}
+div.free-transform .resize.sw {
+  cursor: sw-resize;
+}
+div.free-transform .resize[data-position="bottom-left"] {
+  bottom: -1px;
+  left: -1px;
+  border-radius: 0px 5px 0px 0px;
+  z-index: 2;
+}
+div.free-transform .resize[data-position="bottom-left"]:hover {
+  -webkit-transform-origin: 0% 100%;
+}
+
+div.free-transform .resize[data-position="left"] {
+  left: -6px;
+  top: 50%;
+  margin-top: -8px;
+}
+div.free-transform .resize.w {
+  cursor: w-resize;
+}
+div.free-transform .resize[data-position="left"] {
+  left: -1px;
+  top: 50%;
+  margin-top: -5px;
+  border-radius: 0px 5px 5px 0px;
+  z-index: 1;
+}
+div.free-transform .resize[data-position="left"]:hover {
+  -webkit-transform-origin: 0% 50%;
+}
+
+div.halo {
+  display: none;
+  position: absolute;
+  width: 60px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 1998;
+}
+div.halo > div {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  
+  cursor: pointer;
+  pointer-events: auto;
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  -webkit-user-select: none;
+}
+
+div.halo .remove {
+  bottom: -25px;
+  right: -25px;
+  margin-left: -10px;
+  cursor: default;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAO5JREFUeNrUV9sNwyAMtLoAI3SEjJIRMgqjdBRG8CiMQGnlVHwEOBAE19L9OdwRGz+IcNsibISLCBk48dlooB0RXCDNgeXbbntWbovCyVlNtkf4AeQnvJwJ//IwCQdy8zAZeynm/gYBPpcT7gbyNDGb4/4CnyOLb1M+MED+MVPxZfEhQASnFQ4hp4qIlJxAEd+KaQGlpiIC8bmCRZOvRNBL/kvGltp+RdRLfqK5wZhCITMdjaury5lB5OFBCuxvQjAtCZc/w+WFaHkpXt6MVLTj5QOJipFs+VCqYixXsZioWM1GLaf7yK45ZT1/CzAAESidXQn9F/MAAAAASUVORK5CYII=');
+}
+div.halo .clone {
+  bottom: -25px;
+  left: -25px;
+  cursor: move;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2RpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo2NjREODhDMjc4MkVFMjExODUyOEU5NTNCRjg5OEI3QiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoxNTM0NjJBRjJGMkQxMUUyQkRFM0FCRTMxMDhFQkE2QiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoxNTM0NjJBRTJGMkQxMUUyQkRFM0FCRTMxMDhFQkE2QiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IFdpbmRvd3MiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo2NjREODhDMjc4MkVFMjExODUyOEU5NTNCRjg5OEI3QiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo2NjREODhDMjc4MkVFMjExODUyOEU5NTNCRjg5OEI3QiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PkJFWv4AAAD3SURBVHja5FfRDYMgED2bDsAIjsAIMAluoqs4CY7gCI7ABtTTnsEUNCVQanzJGT/Qx7t7HFBZa6EEHlAIxYh90HPYzCHul+pixM93TV1wfDRNA0qppGRSyh2x8A2q6xqEEIc/mqZpCcTZWJ/iaPR9D13XLe/fNqKiNd6lahxHMMb8jlhrvRlgGAbvYJwQTsytMcH9hjEGnPN0NUZS15khx2L2SMi1GwgqQfdSkKPJ1RRnau/ZMq9J3LbtVtfodezrw6H1nAp2NeWK2bm5Tx9lTyAfilNhXuOkTv/n7hTqwbFwN5DDVGcMHVIsM2fVu7lXt7s7vQQYAIMHB7xhVbHdAAAAAElFTkSuQmCC');
+}
+div.halo .fork {
+  right: -25px;
+  top: 50%;
+  margin-top: -10px;
+  cursor: move;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QUUEAUZcNUVHAAAALtJREFUWMPtlt0RgjAMgL9zAkZglI7ACLoJm8RNHIERGMER6ksfsIeRtsGq9LvLW2i+oz8JNBoHYAZcTQEfQoCupoAH7sBZS1jGDAwbCgwh1yfEDejfCSx/3SsksXAcIxsTZYfiSQJrEiUCT1sQ45TFNQkJ33aphzB1f9ckZK9rKBkHM2YqfYgsJIr5aYnJshfkSJj3Ak3C5fQCSwmTh+hTEh4YTwUCF+D6DRNPcTuuPpD8/UhWfShtNFQe+d/oVK9MAB0AAAAASUVORK5CYII=');
+}
+div.halo .link {
+  top: -21px;
+  right: -25px;
+  cursor: default;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyBpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBXaW5kb3dzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjIwRkVFNkM3MkU3RjExRTJBMDA3RkZBQzMyMzExQzIzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjIwRkVFNkM4MkU3RjExRTJBMDA3RkZBQzMyMzExQzIzIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MjBGRUU2QzUyRTdGMTFFMkEwMDdGRkFDMzIzMTFDMjMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MjBGRUU2QzYyRTdGMTFFMkEwMDdGRkFDMzIzMTFDMjMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5hjT/5AAAA8ElEQVR42syXwQ3DIAxFUbtAR+gIHLsSN2+SboA6CSOEMbghJqCAHKlNmwYwkWvpKwdinmRsY4Sos2sSJJkknxRX8rgG+C/ZJG4YG2XQt9kuSVMHcK0J96qGzgOgi+Ya+GhoFfwo6C5890wBIGqto5SScuYf2fvTKcMW895T4G/ZblrARLh5bQ5VTjnMg+ClyUCL0yA4iJ7ONABewu17koQIz8z+2iTCaY3hG7zG7yQYjS3UbMnFVk5sDYStZbJdEizX4hnBDqeD21bNOedECKF8lVLCWttTuvekx9+MPmzDHut4yzrQsz5hDn+0PQUYAOGQcmTsT0IpAAAAAElFTkSuQmCC');
+}
+div.halo .rotate {
+  top: -21px;
+  left: -25px;
+  cursor: move;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyBpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBXaW5kb3dzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjI1NTk5RUFBMkU3RjExRTI4OUIyQzYwMkMyN0MxMDE3IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjI1NTk5RUFCMkU3RjExRTI4OUIyQzYwMkMyN0MxMDE3Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MjU1OTlFQTgyRTdGMTFFMjg5QjJDNjAyQzI3QzEwMTciIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MjU1OTlFQTkyRTdGMTFFMjg5QjJDNjAyQzI3QzEwMTciLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6W+5aDAAABJElEQVR42syXbRGDMAyGYTcBOBgSkICESWAOmAMcTAJzgAQksCnYHFRC13Jlx7qkDf0Acvf+6ZF7mjRNQ8o5T/ZqmVAt1AkxIa5JrvXqmywUsAVANkmf3BV6RqKjSvpWlqD+7OYBhKKHoMNS6EuddaPUqjUqfIJyPb2Ysyye0pC6Qm0I8680KJ/vhDmcFbU2mAb9glvk48KhMAtiYY7RYunxuRVWcI2cqa/ZegBYFGWA5jPYwAy4MrGhI1hf6FaA8gPg/PSA9tSbcAz8il2XOIRM9SILXVxki3GdEvUmD6bhIHYDQeFrtEwUvsYj0WBRx34Wc5cXJcQg8GMpMPrUBsBb6DHrbie1IdNUeRe6UNLVRB72Nh1v9zfQR/+FSbf6afsIMAB0elCwFZfPigAAAABJRU5ErkJggg==');
+}
+
+div.point-nodes {
+  display: none;
+  position: absolute;
+  left: 0px;
+  top: 70px;
+  pointer-events: none;
+  z-index: 1997;
+}
+div.point-nodes > div.pointer {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: 0px;
+  margin-left: -6px;
+  margin-top: -6px;
+  padding: 0px;
+  
+  background-color: #1abc9c;
+  border: 0px;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-user-select: none;
+  -webkit-border-radius: 6px;
+}
+div.point-nodes.no-move > div.pointer {
+  background-color: grey;
+}
+div.point-nodes:not(.no-move) > div.pointer:hover {
+  -webkit-transform: scale(1.4,1.4);
+}
+
+#root-paper {
+  position: absolute;
+  left: 0px;
+  top: 70px;
+  width: 100%;
+  overflow: hidden;
+}
+
+#top-ruler {
+  margin: 0px 0px 0px 30px;
+  display: none;
+  position: absolute;
+  left: 0px;
+  top: 70px;
+  width: 920px;
+  height: 20px;
+  overflow: hidden;
+  
+  font-size: 8px;
+  text-align: center;
+}
+#top-ruler > div {
+  margin: 0px;
+  padding: 0px;
+  float: left;
+  width: 40px;
+  height: 100%;
+}
+#left-ruler {
+  margin: 25px 0px 0px 0px;
+  display: none;
+  position: absolute;
+  left: 0px;
+  top: 70px;
+  width: 28px;
+  height: 720px;
+  overflow: hidden;
+  
+  font-size: 8px;
+  text-align: left;
+}
+#left-ruler > div {
+  margin: 0px;
+  padding: 0px;
+  float: left;
+  width: 100%;
+  height: 40px;
+}
+</style>
+</head>
+
+<body class='noselect-txt' onclick='bodyOnClick(event)' ondblclick='bodyOnDblClick(event)' onmousemove="bodyMouseMove(event)" onmouseup="bodyMouseUp(event)" onload='initSvgPaper()' onresize='bodyOnResize(event)'>
+<div id='slide-api' style='display:none; visibility:hidden;'></div>
+
+<div id='dlg-mask' style='display:none; position:absolute; left:0px; top:0px; z-index:20001'></div>
+
+<div id='tool-bar'>
+<div style='width:100%; height:1px'></div>
+<div style='width:150px; height:68px; float:right'>
+  <div style='width:140px; float:left'>
+  <p style='text-align:right'>
+    <input type='button' style='width:60px' value='OK' onclick='finishEditing(true)' /><input type='button' style='width:70px' value='Cancel' onclick='finishEditing(false)' />
+  </p>
+  </div>
+</div>
+<div style='width:315px; height:68px; float:left'>
+  <!-- first row tool bar -->
+  <div title="click to set fill color, shift-click set frame color, double-click change palette color" style='width:315px; height:32px; float:left' onmouseup='selectOrSetColor(event)' onclick='event.stopPropagation()' ondblclick='event.stopPropagation()'>
+  <div class="palette-item">
+    <svg width="15" height="15" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <rect stroke-width="0" fill="#ffffff" x="0" y="0" width="24" height="24"></rect>
+      <line stroke="#d40000" y2="24" x2="24" y1="0" x1="0"></line>
+      <line stroke="#d40000" y2="24" x2="0" y1="0" x1="24"></line>
+    </svg>
+  </div>
+  <div class='palette-item' style='background-color: #000000'></div>
+  <div class='palette-item' style='background-color: #3F3F3F'></div>
+  <div class="palette-item" style="background-color: #7F7F7F;"></div>
+  <div class="palette-item" style="background-color: #BFBFBF;"></div>
+  <div class="palette-item" style="background-color: #FFFFFF;"></div>
+  <div class="palette-item" style="background-color: #FF0000;"></div>
+  <div class="palette-item" style="background-color: #FF7F00;"></div>
+  <div class="palette-item" style="background-color: #FFFF00;"></div>
+  <div class="palette-item" style="background-color: #7FFF00;"></div>
+  <div class="palette-item" style="background-color: #00FF00;"></div>
+  <div class="palette-item" style="background-color: #00FF7F;"></div>
+  <div class="palette-item" style="background-color: #00FFFF;"></div>
+  <div class="palette-item" style="background-color: #007FFF;"></div>
+  <div class="palette-item" style="background-color: #0000FF;"></div>
+  <div class="palette-item" style="background-color: #7F00FF;"></div>
+  <div class="palette-item" style="background-color: #FF00FF;"></div>
+  <div class="palette-item" style="background-color: #FF007F;"></div>
+  <div class="palette-item" style="background-color: #7F0000;"></div>
+  <div class="palette-item" style="background-color: #7F3F00;"></div>
+  <div class="palette-item" style="background-color: #7F7F00;"></div>
+  
+  <div class="palette-item" style="background-color: #C0C000;"></div>
+  <div class="palette-item" style="background-color: #3F7F00;"></div>
+  <div class="palette-item" style="background-color: #007F00;"></div>
+  <div class="palette-item" style="background-color: #007F7F;"></div>
+  <div class="palette-item" style="background-color: #003F7F;"></div>
+  <div class="palette-item" style="background-color: #00007F;"></div>
+  <div class="palette-item" style="background-color: #3F007F;"></div>
+  <div class="palette-item" style="background-color: #7F007F;"></div>
+  <div class="palette-item" style="background-color: #7F003F;"></div>
+  <div class="palette-item" style="background-color: #FFAAAA;"></div>
+  <div class="palette-item" style="background-color: #FFD4AA;"></div>
+  <div class="palette-item" style="background-color: #FFFFAA;"></div>
+  <div class="palette-item" style="background-color: #D4FFAA;"></div>
+  <div class="palette-item" style="background-color: #AAFFAA;"></div>
+  <div class="palette-item" style="background-color: #AAFFFF;"></div>
+  <div class="palette-item" style="background-color: #AAD4FF;"></div>
+  <div class="palette-item" style="background-color: #AAAAFF;"></div>
+  <div class="palette-item" style="background-color: #D4AAFF;"></div>
+  <div class="palette-item" style="background-color: #FFAAD4;"></div>
+  <div class="palette-item" style="background-color: #FFFFFF;"></div>
+  <div class="palette-item" style="background-color: #FFFFFF;"></div>
+  </div>
+  
+  <!-- second row tool bar -->
+  <div style='width:315px; height:36px; padding:3px 0px 0px 0px; float:left'>
+  
+  <div title='change opacity' style='float:left; margin:5px 1px 0px 1px'>
+    <img class="quick-btn" src="/software/slide11/$plugins/btn_opacity.png" onclick='opacityDropdownClick(event)' />
+  </div>
+  <div id="tool-opacity" title='change opacity' style='float:left; margin:2px 0px 0px 0px'>
+    <input id="group-opacity" type="text" readonly="readonly" value="100" size="3" autocomplete="off" onmousemove='UpDownBtnHint(event)' onmouseout='UpDownBtnHintOut(event)' onclick='opacityToolClick(event)' />
+  </div>
+  <div id="tool-split" style='float:left; width:6px; height:32px'></div>
+  
+  <div id="tool-frameWd" title='change frame width' style='display:none; float:left; margin:2px 0px 0px 0px'>
+    <input id="group-frameWd" type="text" readonly="readonly" value="3" size="2" autocomplete="off" onmousemove='UpDownBtnHint(event)' onmouseout='UpDownBtnHintOut(event)' onclick='frameWdToolClick(event)' />
+  </div>
+  <div id="tool-split2" style='float:left; width:6px; height:32px'></div>
+  
+  <div id="tool-arrowIdS" title='change start arrow style' style='float:left' onclick='arrowStyleClick(event,true)'>
+    <svg width="18" height="18" viewBox="0 0 100 100">
+    <path stroke='#ff7f00' fill='#ff7f00' stroke-width='10' d='m100,50l-100,40l30,-40l-30,-40z'/>
+    </svg>
+  </div>
+  <div id="tool-split4S" style='float:left; width:6px; height:32px'></div>
+
+  <div id="tool-lineId" title='change line style' style='float:left' onclick='lineStyleClick(event)'>
+    <svg width="60" height="14">
+    <line stroke='#ff7f00' stroke-width='1' x1='0%' y1='60%' x2='100%' y2='60%'/>
+    </svg>
+  </div>
+  <div id="tool-split3" style='float:left; width:6px; height:32px'></div>
+  
+  <div id="tool-arrowIdE" title='change end arrow style' style='float:left' onclick='arrowStyleClick(event,false)'>
+    <svg width="18" height="18" viewBox="0 0 100 100">
+    <path stroke='#ff7f00' fill='#ff7f00' stroke-width='10' d='m100,50l-100,40l30,-40l-30,-40z'/>
+    </svg>
+  </div>
+  <div id="tool-split4E" style='float:left; width:6px; height:32px'></div>
+  
+  <div id="tool-alignleft" title='align left' style='float:left; margin:5px 1px 0px 0px'>
+    <img class="quick-btn" src="/software/slide11/$plugins/align_left.png" onclick='textAlignClick(event,0)' />
+  </div>
+  <div id="tool-alignmid" title='align middle' style='float:left; margin:5px 1px 0px 2px'>
+    <img class="quick-btn" src="/software/slide11/$plugins/align_mid.png" onclick='textAlignClick(event,1)' />
+  </div>
+  <div id="tool-alignright" title='align right' style='float:left; margin:5px 1px 0px 2px'>
+    <img class="quick-btn" src="/software/slide11/$plugins/align_right.png" onclick='textAlignClick(event,2)' />
+  </div>
+  <div id="tool-split5" style='float:left; width:6px; height:32px'></div>
+  
+  <div id="tool-poptop" title='pop to topmost' style='float:left; margin:5px 1px 0px 0px'>
+    <img class="quick-btn" src="/software/slide11/$plugins/pop_top.png" onclick='popTopmostClick(event)' />
+  </div>
+  <div id="tool-pushbtm" title='push to bottom' style='float:left; margin:5px 1px 0px 2px'>
+    <img class="quick-btn" src="/software/slide11/$plugins/push_bottom.png" onclick='pushBottomClick(event)' />
+  </div>
+  
+  </div>
+</div>
+<div id='extend-tool' style='width:150px; height:68px; float:left'>   <!-- extended tool bar -->
+  <div style='height:36px; float:left'>  <!-- first row of extended tool -->
+  <div title="show paper grid" style='float:left; margin:4px 0px 0px 10px'>
+    <input id="group-grid" type="checkbox" size="20" onclick='showGridClick(event,this)' /><span style='font-size:14px' onclick='switchGrid(event)'>Show grid</span>
+  </div>
+  <div style='float:left; width:16px; height:32px'></div>
+  </div>
+  
+</div>
+</div>
+
+<ul id="opacity_dropdown">
+  <li>
+    <div class="opacity-slider">
+      <a id="opac-slider" class="slider-handle" href="javascript:void(0)" style="left:100px" onmousedown="opacityMouseDown(event)"></a>
+    </div>
+  </li>
+</ul>
+
+<div id='linestyle_dropdown' onclick='lineStyleListClick(event)'>
+<p>
+  <svg _style="0" width="150" height="14">
+    <line stroke='#ff7f00' stroke-width='1' x1='10%' y1='60%' x2='90%' y2='60%'/>
+  </svg><svg _style="1" width="150" height="14">
+    <line stroke='#ff7f00' stroke-width='1' stroke-dasharray='1,1' x1='10%' y1='60%' x2='90%' y2='60%'/>
+  </svg>
+</p>
+<p>
+  <svg _style="2" width="150" height="14">
+    <line stroke='#ff7f00' stroke-width='1' stroke-dasharray='2,2' x1='10%' y1='60%' x2='90%' y2='60%'/>
+  </svg><svg _style="3" width="150" height="14">
+    <line stroke='#ff7f00' stroke-width='1' stroke-dasharray='5,5' x1='10%' y1='60%' x2='90%' y2='60%'/>
+  </svg>
+</p>
+<p>
+  <svg _style="4" width="150" height="14">
+    <line stroke='#ff7f00' stroke-width='1' stroke-dasharray='5,10' x1='10%' y1='60%' x2='90%' y2='60%'/>
+  </svg><svg _style="5" width="150" height="14">
+    <line stroke='#ff7f00' stroke-width='1' stroke-dasharray='10,5' x1='10%' y1='60%' x2='90%' y2='60%'/>
+  </svg>
+</p>
+<p>
+  <svg _style="6" width="150" height="14">
+    <line stroke='#ff7f00' stroke-width='1' stroke-dasharray='5,1' x1='10%' y1='60%' x2='90%' y2='60%'/>
+  </svg><svg _style="7" width="150" height="14">
+    <line stroke='#ff7f00' stroke-width='1' stroke-dasharray='15,10,5,10,15' x1='10%' y1='60%' x2='90%' y2='60%'/>
+  </svg>
+</p>
+</div>
+
+<div id='arrowstyle_dropdown' onclick='arrowStyleListClick(event)'>
+  <svg _style="0" viewBox="0 0 100 100">
+    <path stroke='#ff7f00' fill='#ff7f00' stroke-width='10' d='m0,50l100,0'/>
+  </svg>
+  <svg _style="1" viewBox="0 0 100 100">
+    <path stroke='#ff7f00' fill='#ff7f00' stroke-width='10' d='m100,50l-100,40l30,-40l-30,-40z'/>
+  </svg>
+  <svg _style="2" viewBox="0 0 100 100">
+    <path stroke='#ff7f00' fill='#ff7f00' stroke-width='10' d='m20,50c0,-16.57458 13.42542,-30 30,-30c16.57458,0 30,13.42542 30,30c0,16.57458 -13.42542,30 -30,30c-16.57458,0 -30,-13.42542 -30,-30z'/>
+  </svg>
+  <svg _style="3" viewBox="0 0 100 100">
+    <path stroke='#ff7f00' fill='#ff7f00' stroke-width='10' d='m20,20l0,60l60,0l0,-60z'/>
+  </svg>
+  <svg _style="4" viewBox="0 0 100 100">
+    <path stroke='#ff7f00' stroke-width='10' d='m20,80l60,-60m0,60l-60,-60'/>
+  </svg>
+  <svg _style="5" viewBox="0 0 100 100">
+    <path stroke='#ff7f00' stroke-width='10' d='m50,0l0,100'/>
+  </svg>
+</div>
+
+<div id='color-dlg'>
+<table id="color-chart" onclick='event.stopPropagation()' ondblclick='setClrPalette(event)'>
+  <tr><td bgColor="#FBEFEF"></td><td bgColor="#FBF2EF"></td><td bgColor="#FBF5EF"></td><td bgColor="#FBF8EF"></td><td bgColor="#FBFBEF"></td><td bgColor="#F8FBEF"></td><td bgColor="#F5FBEF"></td><td bgColor="#F2FBEF"></td><td bgColor="#EFFBEF"></td><td bgColor="#EFFBF2"></td><td bgColor="#EFFBF5"></td><td bgColor="#EFFBF8"></td><td bgColor="#EFFBFB"></td><td bgColor="#EFF8FB"></td><td bgColor="#EFF5FB"></td><td bgColor="#EFF2FB"></td><td bgColor="#EFEFFB"></td><td bgColor="#F2EFFB"></td><td bgColor="#F5EFFB"></td><td bgColor="#F8EFFB"></td><td bgColor="#FBEFFB"></td><td bgColor="#FBEFF8"></td><td bgColor="#FBEFF5"></td><td bgColor="#FBEFF2"></td><td bgColor="#FFFFFF"></td></tr>
+  <tr><td bgColor="#F8E0E0"></td><td bgColor="#F8E6E0"></td><td bgColor="#F8ECE0"></td><td bgColor="#F7F2E0"></td><td bgColor="#F7F8E0"></td><td bgColor="#F1F8E0"></td><td bgColor="#ECF8E0"></td><td bgColor="#E6F8E0"></td><td bgColor="#E0F8E0"></td><td bgColor="#E0F8E6"></td><td bgColor="#E0F8EC"></td><td bgColor="#E0F8F1"></td><td bgColor="#E0F8F7"></td><td bgColor="#E0F2F7"></td><td bgColor="#E0ECF8"></td><td bgColor="#E0E6F8"></td><td bgColor="#E0E0F8"></td><td bgColor="#E6E0F8"></td><td bgColor="#ECE0F8"></td><td bgColor="#F2E0F7"></td><td bgColor="#F8E0F7"></td><td bgColor="#F8E0F1"></td><td bgColor="#F8E0EC"></td><td bgColor="#F8E0E6"></td><td bgColor="#FAFAFA"></td></tr>
+  <tr><td bgColor="#F6CECE"></td><td bgColor="#F6D8CE"></td><td bgColor="#F6E3CE"></td><td bgColor="#F5ECCE"></td><td bgColor="#F5F6CE"></td><td bgColor="#ECF6CE"></td><td bgColor="#E3F6CE"></td><td bgColor="#D8F6CE"></td><td bgColor="#CEF6CE"></td><td bgColor="#CEF6D8"></td><td bgColor="#CEF6E3"></td><td bgColor="#CEF6EC"></td><td bgColor="#CEF6F5"></td><td bgColor="#CEECF5"></td><td bgColor="#CEE3F6"></td><td bgColor="#CED8F6"></td><td bgColor="#CECEF6"></td><td bgColor="#D8CEF6"></td><td bgColor="#E3CEF6"></td><td bgColor="#ECCEF5"></td><td bgColor="#F6CEF5"></td><td bgColor="#F6CEEC"></td><td bgColor="#F6CEE3"></td><td bgColor="#F6CED8"></td><td bgColor="#F2F2F2"></td></tr>
+  <tr><td bgColor="#F5A9A9"></td><td bgColor="#F5BCA9"></td><td bgColor="#F5D0A9"></td><td bgColor="#F3E2A9"></td><td bgColor="#F2F5A9"></td><td bgColor="#E1F5A9"></td><td bgColor="#D0F5A9"></td><td bgColor="#BCF5A9"></td><td bgColor="#A9F5A9"></td><td bgColor="#A9F5BC"></td><td bgColor="#A9F5D0"></td><td bgColor="#A9F5E1"></td><td bgColor="#A9F5F2"></td><td bgColor="#A9E2F3"></td><td bgColor="#A9D0F5"></td><td bgColor="#A9BCF5"></td><td bgColor="#A9A9F5"></td><td bgColor="#BCA9F5"></td><td bgColor="#D0A9F5"></td><td bgColor="#E2A9F3"></td><td bgColor="#F5A9F2"></td><td bgColor="#F5A9E1"></td><td bgColor="#F5A9D0"></td><td bgColor="#F5A9BC"></td><td bgColor="#E6E6E6"></td></tr>
+  <tr><td bgColor="#F78181"></td><td bgColor="#F79F81"></td><td bgColor="#F7BE81"></td><td bgColor="#F5DA81"></td><td bgColor="#F3F781"></td><td bgColor="#D8F781"></td><td bgColor="#BEF781"></td><td bgColor="#9FF781"></td><td bgColor="#81F781"></td><td bgColor="#81F79F"></td><td bgColor="#81F7BE"></td><td bgColor="#81F7D8"></td><td bgColor="#81F7F3"></td><td bgColor="#81DAF5"></td><td bgColor="#81BEF7"></td><td bgColor="#819FF7"></td><td bgColor="#8181F7"></td><td bgColor="#9F81F7"></td><td bgColor="#BE81F7"></td><td bgColor="#DA81F5"></td><td bgColor="#F781F3"></td><td bgColor="#F781D8"></td><td bgColor="#F781BE"></td><td bgColor="#F7819F"></td><td bgColor="#D8D8D8"></td></tr>
+  <tr><td bgColor="#FA5858"></td><td bgColor="#FA8258"></td><td bgColor="#FAAC58"></td><td bgColor="#F7D358"></td><td bgColor="#F4FA58"></td><td bgColor="#D0FA58"></td><td bgColor="#ACFA58"></td><td bgColor="#82FA58"></td><td bgColor="#58FA58"></td><td bgColor="#58FA82"></td><td bgColor="#58FAAC"></td><td bgColor="#58FAD0"></td><td bgColor="#58FAF4"></td><td bgColor="#58D3F7"></td><td bgColor="#58ACFA"></td><td bgColor="#5882FA"></td><td bgColor="#5858FA"></td><td bgColor="#8258FA"></td><td bgColor="#AC58FA"></td><td bgColor="#D358F7"></td><td bgColor="#FA58F4"></td><td bgColor="#FA58D0"></td><td bgColor="#FA58AC"></td><td bgColor="#FA5882"></td><td bgColor="#BDBDBD"></td></tr>
+  <tr><td bgColor="#FE2E2E"></td><td bgColor="#FE642E"></td><td bgColor="#FE9A2E"></td><td bgColor="#FACC2E"></td><td bgColor="#F7FE2E"></td><td bgColor="#C8FE2E"></td><td bgColor="#9AFE2E"></td><td bgColor="#64FE2E"></td><td bgColor="#2EFE2E"></td><td bgColor="#2EFE64"></td><td bgColor="#2EFE9A"></td><td bgColor="#2EFEC8"></td><td bgColor="#2EFEF7"></td><td bgColor="#2ECCFA"></td><td bgColor="#2E9AFE"></td><td bgColor="#2E64FE"></td><td bgColor="#2E2EFE"></td><td bgColor="#642EFE"></td><td bgColor="#9A2EFE"></td><td bgColor="#CC2EFA"></td><td bgColor="#FE2EF7"></td><td bgColor="#FE2EC8"></td><td bgColor="#FE2E9A"></td><td bgColor="#FE2E64"></td><td bgColor="#A4A4A4"></td></tr>
+  <tr><td bgColor="#FF0000"></td><td bgColor="#FF4000"></td><td bgColor="#FF8000"></td><td bgColor="#FFBF00"></td><td bgColor="#FFFF00"></td><td bgColor="#BFFF00"></td><td bgColor="#80FF00"></td><td bgColor="#40FF00"></td><td bgColor="#00FF00"></td><td bgColor="#00FF40"></td><td bgColor="#00FF80"></td><td bgColor="#00FFBF"></td><td bgColor="#00FFFF"></td><td bgColor="#00BFFF"></td><td bgColor="#0080FF"></td><td bgColor="#0040FF"></td><td bgColor="#0000FF"></td><td bgColor="#4000FF"></td><td bgColor="#8000FF"></td><td bgColor="#BF00FF"></td><td bgColor="#FF00FF"></td><td bgColor="#FF00BF"></td><td bgColor="#FF0080"></td><td bgColor="#FF0040"></td><td bgColor="#848484"></td></tr>
+  <tr><td bgColor="#DF0101"></td><td bgColor="#DF3A01"></td><td bgColor="#DF7401"></td><td bgColor="#DBA901"></td><td bgColor="#D7DF01"></td><td bgColor="#A5DF00"></td><td bgColor="#74DF00"></td><td bgColor="#3ADF00"></td><td bgColor="#01DF01"></td><td bgColor="#01DF3A"></td><td bgColor="#01DF74"></td><td bgColor="#01DFA5"></td><td bgColor="#01DFD7"></td><td bgColor="#01A9DB"></td><td bgColor="#0174DF"></td><td bgColor="#013ADF"></td><td bgColor="#0101DF"></td><td bgColor="#3A01DF"></td><td bgColor="#7401DF"></td><td bgColor="#A901DB"></td><td bgColor="#DF01D7"></td><td bgColor="#DF01A5"></td><td bgColor="#DF0174"></td><td bgColor="#DF013A"></td><td bgColor="#6E6E6E"></td></tr>
+  <tr><td bgColor="#B40404"></td><td bgColor="#B43104"></td><td bgColor="#B45F04"></td><td bgColor="#B18904"></td><td bgColor="#AEB404"></td><td bgColor="#86B404"></td><td bgColor="#5FB404"></td><td bgColor="#31B404"></td><td bgColor="#04B404"></td><td bgColor="#04B431"></td><td bgColor="#04B45F"></td><td bgColor="#04B486"></td><td bgColor="#04B4AE"></td><td bgColor="#0489B1"></td><td bgColor="#045FB4"></td><td bgColor="#0431B4"></td><td bgColor="#0404B4"></td><td bgColor="#3104B4"></td><td bgColor="#5F04B4"></td><td bgColor="#8904B1"></td><td bgColor="#B404AE"></td><td bgColor="#B40486"></td><td bgColor="#B4045F"></td><td bgColor="#B40431"></td><td bgColor="#585858"></td></tr>
+  <tr><td bgColor="#8A0808"></td><td bgColor="#8A2908"></td><td bgColor="#8A4B08"></td><td bgColor="#886A08"></td><td bgColor="#868A08"></td><td bgColor="#688A08"></td><td bgColor="#4B8A08"></td><td bgColor="#298A08"></td><td bgColor="#088A08"></td><td bgColor="#088A29"></td><td bgColor="#088A4B"></td><td bgColor="#088A68"></td><td bgColor="#088A85"></td><td bgColor="#086A87"></td><td bgColor="#084B8A"></td><td bgColor="#08298A"></td><td bgColor="#08088A"></td><td bgColor="#29088A"></td><td bgColor="#4B088A"></td><td bgColor="#6A0888"></td><td bgColor="#8A0886"></td><td bgColor="#8A0868"></td><td bgColor="#8A084B"></td><td bgColor="#8A0829"></td><td bgColor="#424242"></td></tr>
+  <tr><td bgColor="#610B0B"></td><td bgColor="#61210B"></td><td bgColor="#61380B"></td><td bgColor="#5F4C0B"></td><td bgColor="#5E610B"></td><td bgColor="#4B610B"></td><td bgColor="#38610B"></td><td bgColor="#21610B"></td><td bgColor="#0B610B"></td><td bgColor="#0B6121"></td><td bgColor="#0B6138"></td><td bgColor="#0B614B"></td><td bgColor="#0B615E"></td><td bgColor="#0B4C5F"></td><td bgColor="#0B3861"></td><td bgColor="#0B2161"></td><td bgColor="#0B0B61"></td><td bgColor="#210B61"></td><td bgColor="#380B61"></td><td bgColor="#4C0B5F"></td><td bgColor="#610B5E"></td><td bgColor="#610B4B"></td><td bgColor="#610B38"></td><td bgColor="#610B21"></td><td bgColor="#2E2E2E"></td></tr>
+  <tr><td bgColor="#3B0B0B"></td><td bgColor="#3B170B"></td><td bgColor="#3B240B"></td><td bgColor="#3A2F0B"></td><td bgColor="#393B0B"></td><td bgColor="#2E3B0B"></td><td bgColor="#243B0B"></td><td bgColor="#173B0B"></td><td bgColor="#0B3B0B"></td><td bgColor="#0B3B17"></td><td bgColor="#0B3B24"></td><td bgColor="#0B3B2E"></td><td bgColor="#0B3B39"></td><td bgColor="#0B2F3A"></td><td bgColor="#0B243B"></td><td bgColor="#0B173B"></td><td bgColor="#0B0B3B"></td><td bgColor="#170B3B"></td><td bgColor="#240B3B"></td><td bgColor="#2F0B3A"></td><td bgColor="#3B0B39"></td><td bgColor="#3B0B2E"></td><td bgColor="#3B0B24"></td><td bgColor="#3B0B17"></td><td bgColor="#1C1C1C"></td></tr>
+  <tr><td bgColor="#2A0A0A"></td><td bgColor="#2A120A"></td><td bgColor="#2A1B0A"></td><td bgColor="#29220A"></td><td bgColor="#292A0A"></td><td bgColor="#222A0A"></td><td bgColor="#1B2A0A"></td><td bgColor="#122A0A"></td><td bgColor="#0A2A0A"></td><td bgColor="#0A2A12"></td><td bgColor="#0A2A1B"></td><td bgColor="#0A2A22"></td><td bgColor="#0A2A29"></td><td bgColor="#0A2229"></td><td bgColor="#0A1B2A"></td><td bgColor="#0A122A"></td><td bgColor="#0A0A2A"></td><td bgColor="#120A2A"></td><td bgColor="#1B0A2A"></td><td bgColor="#220A29"></td><td bgColor="#2A0A29"></td><td bgColor="#2A0A22"></td><td bgColor="#2A0A1B"></td><td bgColor="#2A0A12"></td><td bgColor="#151515"></td></tr>
+  <tr><td bgColor="#190707"></td><td bgColor="#190B07"></td><td bgColor="#191007"></td><td bgColor="#181407"></td><td bgColor="#181907"></td><td bgColor="#141907"></td><td bgColor="#101907"></td><td bgColor="#0B1907"></td><td bgColor="#071907"></td><td bgColor="#07190B"></td><td bgColor="#071910"></td><td bgColor="#071914"></td><td bgColor="#071918"></td><td bgColor="#071418"></td><td bgColor="#071019"></td><td bgColor="#070B19"></td><td bgColor="#070719"></td><td bgColor="#0B0719"></td><td bgColor="#100719"></td><td bgColor="#140718"></td><td bgColor="#190718"></td><td bgColor="#190714"></td><td bgColor="#190710"></td><td bgColor="#19070B"></td><td bgColor="#000000"></td></tr>
+</table>
+</div>
+
+<div id='text-area'>
+<iframe class='popline-frame' frameborder='no' border='0' src='/$editor2'></iframe><br>
+<div class='popline-expand' onclick='switchEditorArea(event,this)'></div>
+</div>
+
+<div class="point-nodes" onmousedown="pointsMouseDown(event)">
+</div>
+<div class="free-transform" onmousedown="resizerMouseDown(event)">
+  <div class="resize nw" draggable="false" data-position="top-left"></div>
+  <div class="resize n" draggable="false" data-position="top"></div>
+  <div class="resize ne" draggable="false" data-position="top-right"></div>
+  <div class="resize e" draggable="false" data-position="right"></div>
+  <div class="resize se" draggable="false" data-position="bottom-right"></div>
+  <div class="resize s" draggable="false" data-position="bottom"></div>
+  <div class="resize sw" draggable="false" data-position="bottom-left"></div>
+  <div class="resize w" draggable="false" data-position="left"></div>
+</div>
+<div class="halo">
+  <div class="remove" draggable="false" title="remove the object" onclick="removeCurrItem(event)"></div>
+  <div class="clone" draggable="false" title="drag to clone the object" onmousedown="cloneMouseDown(event)"></div>
+  <div class="link" draggable="false" title="drag to connect the object, hold shift and drag for smooth connection" onmousedown="linkMouseDown(event)"></div>
+  <div class="fork" draggable="false" title="drag to clone and connect the object in one go, hold shift and drag for smooth connection" onmousedown="forkMouseDown(event)"></div>
+  <div class="rotate" draggable="false" title="drag to rotate the object" onmousedown="rotateMouseDown(event)"></div>
+</div>
+
+<div id='root-paper' class='svg-paper' ondragover='itemMovDragOver(event)' ondrop='itemMovDragDrop(event)' onclick='paperOnClick(event)' onmousedown="paperMouseDown(event)">
+</div>
+
+<div id='top-ruler'>
+  <div>-400</div><div>-360</div><div>-320</div><div>-280</div><div>-240</div>
+  <div>-200</div><div>-160</div><div>-120</div><div>-80</div><div>-40</div>
+  <div>0</div>
+  <div>40</div><div>80</div><div>120</div><div>160</div><div>200</div>
+  <div>240</div><div>280</div><div>320</div><div>360</div><div>400</div><div>440</div>
+</div>
+<div id='left-ruler'>
+  <div>-320</div><div>-280</div><div>-240</div>
+  <div>-200</div><div>-160</div><div>-120</div><div>-80</div><div>-40</div>
+  <div>0</div>
+  <div>40</div><div>80</div><div>120</div><div>160</div><div>200</div>
+  <div>240</div><div>280</div><div>320</div>
+</div>
+
+</body>
+</html>

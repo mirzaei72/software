@@ -1,0 +1,324 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>PINP tools</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/normalize.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/pinp_text.css" />
+
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/font-awesome.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/themes/popclip.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/page.css" />
+
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/jquery.min.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/jquery.popline.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.link.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.blockquote.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.decoration.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.list.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.justify.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.blockformat.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.social.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/plugins/jquery.popline.backcolor.js"></script>
+
+<script type='text/cse' line='25'>
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  hostWin as window.hostWin();
+  document as window->document;
+  apiNode as document.getElementById("api-node");
+  
+  hostWin->setContent = super(id,sHtml,sClass,sFont,sExtern):
+    JSB(document)..setContent(id,sHtml,sClass,sFont,sExtern);
+  end;
+  
+  hostWin->getContent = super(id) as s:
+    return JSB(document)..getContent(id);
+  end;
+  
+  hostWin->hideContent = super():
+    JSB(document)..hideContent();
+  end;
+  
+  apiNode.setHook("hostWidth", super() as i:
+    return hostWin->width();
+  end);
+  
+  apiNode.setHook("setHostWidth", super(iWd):
+    hostWin->width(iWd);
+  end);
+end;
+
+end;
+</script>
+
+<script type='text/javascript'>
+var apiNode = null;
+
+var currEditingId_ = -1;
+var currEditingHtml_ = '';
+var currUseEditing_ = false;
+var currFontFamily_ = '';
+
+function unselectText() {
+  if (window.getSelection) {
+    var sel = window.getSelection();
+    if (sel) sel.removeAllRanges();
+  }
+  else if (document.selection)
+    document.selection.empty();
+  
+  var popBtn = document.querySelector('ul.popline');
+  if (popBtn) popBtn.style.display = 'none';
+}
+
+var poplineFontClass_ = ['large-small-default','small-default-large','center-right-default','right-default-center'];
+
+function setEditorState(inEditing) {
+  var toolHint = document.getElementById('tool-hint');
+  var toolEditor = document.getElementById('tool-editor');
+  var imgNode = document.getElementById('btn-show-editor');
+  var imgNode2 = document.getElementById('btn-cancel-editor');
+  if (inEditing) {
+    toolHint.style.display = 'none';
+    toolEditor.style.display = 'block';
+    imgNode.style.display = 'none';
+    imgNode2.style.display = 'block';
+  }
+  else {
+    toolHint.style.display = 'block';
+    toolEditor.style.display = 'none';
+    imgNode.style.display = 'block';
+    imgNode2.style.display = 'none';
+  }
+}
+
+function setContent(id,sHtml,sClass,sFont,sExtern) {
+  if (usingInlineEditor_) {
+    unselectText();
+    setEditorState(true);
+    
+    var txtNode = document.getElementById('txt-widget');
+    var editNode = document.querySelector('div.editor');
+    if (sFont) {
+      txtNode.style.fontFamily = sFont;
+      currFontFamily_ = txtNode.style.fontFamily;
+    }
+    else currFontFamily_ = '';
+    
+    if (sExtern) {
+      var styleNode = document.getElementById('extern-style');
+      if (styleNode) styleNode.parentNode.removeChild(styleNode);
+      
+      styleNode = document.createElement('style');
+      styleNode.id = 'extern-style';
+      styleNode.innerHTML = sExtern;
+      document.body.appendChild(styleNode);
+    }
+    
+    for (var i=0,item; item=poplineFontClass_[i]; i++) {
+      if (sClass.indexOf(item) >= 0)
+        txtNode.classList.add(item);
+      else txtNode.classList.remove(item);
+    }
+    editNode.innerHTML = sHtml;
+    
+    currUseEditing_ = true;
+    currEditingId_ = id;
+    currEditingHtml_ = sHtml;
+  }
+  else {
+    currUseEditing_ = false;
+    currEditingId_ = -1;
+  }
+}
+
+function cleanDefaultFont(editor,sFontFam) {
+  var nodes = editor.querySelectorAll('*[style*="font-family:"]');
+  for (var i=0,item; item=nodes[i]; i++) {
+    if (item.style.fontFamily == sFontFam) {
+      if (window.getComputedStyle(item.parentNode).fontFamily == sFontFam)
+        item.style.fontFamily = '';
+    }
+  }
+}
+
+function getContent(id) {
+  if (usingInlineEditor_ && currUseEditing_) {
+    if (id === currEditingId_) {
+      unselectText();
+      var editor = document.querySelector('.editor');
+      if (currFontFamily_)
+        cleanDefaultFont(editor,currFontFamily_); // clear duplicated font-family
+      
+      var sRet = editor.innerHTML;
+      if (sRet === currEditingHtml_)
+        return '<nochange/>';
+      else return sRet;
+    }
+    else return '<error/>';
+  }
+  else return '<nochange/>';
+}
+
+function hideContent() {
+  unselectText();
+  setEditorState(false);
+  
+  currUseEditing_ = false;  // usingInlineEditor_ can be true/false
+  currEditingId_ = -1;
+}
+
+function onBodyResize() {
+  var w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  document.getElementById('root-node').style.height = h + 'px';
+  document.getElementById('tool-body').style.width = (w-24) + 'px';
+}
+
+function init() {
+  onBodyResize();
+  
+  usingInlineEditor_ = false;
+  inlineEditorWidth_ = 0;
+  setTimeout( function() {
+    if (apiNode.hostWidth() > 24)
+      apiNode.setHostWidth(24);
+  }, 1000);  // wait hostWidth/setHostWidth registed, 1000 is 1 second
+}
+
+var usingInlineEditor_ = false;
+var inlineEditorWidth_ = 0;
+
+function switchEditor() {
+  var iWd = apiNode.hostWidth();
+  if (usingInlineEditor_) {
+    if (document.getElementById('tool-editor').style.display == 'block')
+      hideContent();
+    else {
+      if (iWd >= 100)
+        inlineEditorWidth_ = iWd;
+      else inlineEditorWidth_ = 0;
+      usingInlineEditor_ = false;
+      apiNode.setHostWidth(24);
+    }
+  }
+  else {
+    if (iWd < 100) {
+      inlineEditorWidth_ = inlineEditorWidth_ || 500;
+      apiNode.setHostWidth(inlineEditorWidth_);
+    }
+    usingInlineEditor_ = true;
+    
+    // prepare popline
+    if (currUseEditing_)
+      setEditorState(true);
+    else hideContent();
+  }
+}
+
+function saveSnapshot() {
+  var saveBtn = document.getElementById('btn-save-snap');
+  var pendingBtn = document.getElementById('btn-pending');
+  saveBtn.style.display = 'none';
+  pendingBtn.style.display = 'block';
+  
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4) {
+      setTimeout( function() {
+        saveBtn.style.display = 'block';
+        pendingBtn.style.display = 'none';
+      }, 1000);  // 'loading' image in showing, avoid run too fast
+    }
+  }
+  
+  var url = document.location.protocol + '//' + document.location.host + '/$snapshot';
+  xmlhttp.open("GET",url,true);
+  xmlhttp.send(null);
+}
+
+$(function(){
+  document.execCommand('defaultParagraphSeparator', false, 'p');
+  $(".editor").popline({position: "fixed"});  // 'fixed' or 'relative'
+  
+  apiNode = document.getElementById('api-node');
+  apiNode.hostWidth = function() {
+    return screen.width;
+  };
+  apiNode.setHostWidth = function() {
+  };
+});
+</script>
+
+<style>
+html,body {
+  width: 100%;
+  height: 100%;
+}
+body,div {
+  margin: 0px;
+  padding: 0px;
+}
+body {
+  overflow: hidden;
+}
+
+.tool-btn, .static-btn {
+  margin: 2px;
+  width: 20px;
+  height: 20px;
+  float: left;
+}
+.tool-btn:hover {
+  -webkit-transform: scale(1.15,1.15);
+}
+
+.editor {
+  width: 100%;
+  height: 100%;
+}
+
+#tool-editor {
+  display: none;
+  width: 100%;
+  height: 100%;
+  margin: 40px 0px;
+}
+#tool-hint {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: #e0e0e0;
+}
+</style>
+</head>
+
+<body onload='init()' onresize='onBodyResize()'>
+<div id='api-node' style='display:none; visibility:hidden;'></div>
+
+<div id='root-node' style='width:100%; min-width:44px; background-color:#e0e0e0; overflow:hidden'>
+<div id='tool-list' style='width:24px; height:100%; overflow:hidden; float:left'>
+  <img id='btn-show-editor' class='tool-btn' title='show or hide inline editor' src='/software/slide11/$plugins/pop_editor.svg' onclick='switchEditor()' />
+  <img id='btn-cancel-editor' class='tool-btn' title='cancel editing' src='/software/slide11/$plugins/pop_cancel.svg' onclick='switchEditor()' style='display:none' />
+  <img id='btn-save-snap' class='tool-btn' title='snapshot document' src='/software/slide11/$plugins/save_snapshot.svg' onclick='saveSnapshot()' />
+  <img id='btn-pending' class='static-btn' title='snapshot in processing' src='/software/slide11/$images/loading.gif' style='display:none' />
+</div>
+
+<div id='tool-body' style='width:20px; height:100%; overflow-x:hidden; overflow-y:auto; float:left; background-color:#ffffff'>
+  <section id='tool-editor' class='container'>
+    <article class='content'>
+    <div id='txt-widget' style='margin:0px 6px'><div class='editor' contenteditable='true'></div></div>
+    </article>
+  </section>
+  <section id='tool-hint'></section>
+</div>
+
+</div>
+
+</body>
+</html>

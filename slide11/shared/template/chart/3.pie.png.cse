@@ -1,0 +1,33 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='frame-build' _config='default-large-small' _zindex='995' _left='%1' _top='%2' _width='640' _height='440'><iframe class='echarts-pie build' frameborder='0' border='0' _widget=\"[['legend=','left'],['percent=','true'],['table=','pie',,,'value'],[,,'&lt;inner:Source of visit&gt;','Directly','335'],[,,,'Email','310'],[,,,'Viedo','135'],[,,,'Search','1548']]\" _src='/software/slide11/$plugins/echarts_pie.html' src='/software/slide11/$plugins/echarts_pie.html'></iframe></div>\n";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.addDepends("frame-build","","/software/slide11/$plugins/echarts.js","text/javascript","");
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

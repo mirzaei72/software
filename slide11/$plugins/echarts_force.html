@@ -1,0 +1,691 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECharts</title>
+  <script type="text/javascript" src="esl.js"></script>
+
+<script type="text/javascript">
+// pinpcharts.js
+
+var PINP_CHART_ID = 'echarts-linebar';
+var currInPresent = true;
+
+function getOwnerFrameNode() {
+  var ownerDoc = window.parent.document;
+  if (ownerDoc && ownerDoc !== document) {
+    var ownerFrames=ownerDoc.querySelectorAll('iframe.' + PINP_CHART_ID), i=ownerFrames.length-1;
+    while (i >= 0) {
+      var frameNode = ownerFrames[i];
+      if (frameNode.contentWindow.window === window)
+        return frameNode;
+      i -= 1;
+    }
+  }
+  return null;
+}
+
+function slideInPresent() {
+  try {
+    var ownerWin = window.parent.window;
+    if (ownerWin && ownerWin !== window)
+      return ownerWin.apiNode.beenReadonly();
+    else return true;
+  } catch (e) {
+    return true;
+  }
+}
+
+function GetMouseOffset(object,off) {
+  if (!object) return;
+  off.x += object.offsetLeft + object.clientLeft;
+  off.y += object.offsetTop + object.clientTop;
+  GetMouseOffset(object.offsetParent,off);
+}
+
+function docOnClick(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode && compnNode.onclick) {
+      event._target = frameNode;
+      compnNode.onclick(event);
+    }
+  }
+}
+
+function docOnDragOver(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && currSlide.ondragover)
+        currSlide.ondragover(event);
+    }
+  }
+}
+
+function docOnDragDrop(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && currSlide.ondrop) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        currSlide.ondrop(event);
+      }
+    }
+  }
+}
+
+function docOnMouseDn(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      var ownerWin = window.parent.window;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && ownerWin.handleDomMouseDown) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._target = compnNode;
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.handleDomMouseDown(event);
+      }
+    }
+  }
+}
+
+function docOnMouseMv(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      var ownerWin = window.parent.window;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && ownerWin.handleDomMouseMove) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.handleDomMouseMove(event);
+      }
+    }
+  }
+}
+
+function docOnMouseUp(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      var ownerWin = window.parent.window;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && ownerWin.handleDomMouseUp) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.handleDomMouseUp(event);
+      }
+    }
+  }
+}
+
+// left/up/right/down/enter/esc/space/pgup/pgdn/end/home
+var RsvdKeyEventCode_ = [37,38,39,40,13,27,32,33,34,35,36];
+
+function docOnKeyDown(event) {
+  var ownerWin = window.parent.window;
+  if (ownerWin.handleDocKeyDown) {
+    var canPass = false;
+    if (event.ctrlKey || event.altKey)
+      canPass = true;
+    else if (event.keyCode >= 112 && event.keyCode <= 123)  // F1 ~ F12
+      canPass = true;
+    else if (RsvdKeyEventCode_.indexOf(event.keyCode) >= 0)
+      canPass = true;
+    
+    if (canPass) // only ctr+xx / alt+xx / F1~F12 can pass to owner window
+      ownerWin.handleDocKeyDown(event);
+  }
+}
+
+function docOnLoad() {
+  document.addEventListener('keydown',docOnKeyDown,false);
+  
+  currInPresent = slideInPresent();
+  if (!currInPresent) {
+    document.addEventListener('click',docOnClick,false);
+    document.addEventListener('dragover',docOnDragOver,false);
+    document.addEventListener('drop',docOnDragDrop,false);
+    document.addEventListener('mousedown',docOnMouseDn,false);
+    document.addEventListener('mousemove',docOnMouseMv,false);
+    document.addEventListener('mouseup',docOnMouseUp,false);
+    
+    document.body.onresize = function(event) {
+      var now = (new Date()).valueOf();
+      if (lastHasWaiting)
+        lastOwnerResizeTm = now;
+      else {
+        lastHasWaiting = true;
+        
+        var ownerFrameResizing = function() {
+          if ((new Date).valueOf() - lastOwnerResizeTm > 1500)
+            performBuild();
+          else setTimeout(ownerFrameResizing,1000); // wait next loop
+        }
+        setTimeout(ownerFrameResizing,1000);
+      }
+    }
+  }
+}
+
+function copyConfig(cfg) {
+  if (cfg instanceof Array) {
+    var ret=[], iLen=cfg.length;
+    for (var i=0; i < iLen; i++)
+      ret.push(copyConfig(cfg[i]));
+    return ret;
+  }
+  else if (cfg instanceof Object) {
+    var item, ret={};
+    for (item in cfg) {  // item of cfg only can be: Number/String/Array/Object/undefined/null
+      ret[item] = copyConfig(cfg[item]);
+    }
+    return ret;
+  }
+  else return cfg;
+}
+
+function getChartSizeCfg() {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var ownerNode = frameNode.parentNode;
+    if (ownerNode.classList.contains('large-small-default'))
+      return 1;
+    else if (ownerNode.classList.contains('small-default-large'))
+      return 2;
+  }
+  return 0;
+}
+//-----------------------------------
+
+PINP_CHART_ID = 'echarts-force';
+
+var lastOwnerResizeTm = 0;
+var lastHasWaiting = false;
+
+var defaultOption = {
+  title : {
+    text: 'Relationship: Steve Jobs',
+    subtext: 'Data from Renlifang',
+    x:'left',
+    y:'top'
+  },
+  tooltip : {
+    show: true,
+    trigger: 'item',
+    showDelay: 100,
+    hideDelay: 200,
+    transitionDuration: 0,
+    formatter: '{a} : {b}'
+  },
+  legend: {
+    orient: 'horizontal',
+    x: 'right',
+    y: 'bottom',
+    data:['Family','Friend']
+  },
+  series : [
+    {
+      type:'force',
+      name:'Relationship',
+      categories : [
+        { name: 'Personage' },
+        { name: 'Family' },
+        { name:'Friend' }
+      ],
+      itemStyle: {
+        normal: {
+          label: {
+            show: true,
+            textStyle: {
+              color: '#800080'
+            }
+          },
+          nodeStyle : {
+            brushType : 'both',
+            strokeColor : 'rgba(255,215,0,0.4)',
+            lineWidth : 1
+          }
+        },
+        emphasis: {
+          label: {
+            show: false
+            // textStyle: null
+          },
+          nodeStyle : {
+            // r: 30
+          },
+          linkStyle : {}
+        }
+      },
+      minRadius : 15,
+      maxRadius : 25,
+      density : 0.05,
+      attractiveness: 1.2,
+      linkSymbol: '',
+      nodes:[
+        {category:0, name: 'Steve Jobs', value : 10},
+        {category:1, name: 'Lisa Jobs',value : 2},
+        {category:1, name: 'Paul Jobs',value : 3},
+        {category:1, name: 'Clara Jobs',value : 3},
+        {category:1, name: 'Laurene Powell',value : 7},
+        {category:2, name: 'Steven Wozniak',value : 5},
+        {category:2, name: 'Obama',value : 8},
+        {category:2, name: 'Bill Gates',value : 9},
+        {category:2, name: 'Jonathan Ive',value : 4},
+        {category:2, name: 'Tim Cook',value : 4},
+        {category:2, name: 'Long Wayne',value : 1},
+      ],
+      links : [
+        {source : 1, target : 0, weight : 1},
+        {source : 2, target : 0, weight : 2},
+        {source : 3, target : 0, weight : 1},
+        {source : 4, target : 0, weight : 2},
+        {source : 5, target : 0, weight : 3},
+        {source : 6, target : 0, weight : 6},
+        {source : 7, target : 0, weight : 6},
+        {source : 8, target : 0, weight : 1},
+        {source : 9, target : 0, weight : 1},
+        {source : 10, target : 0, weight : 1},
+        {source : 3, target : 2, weight : 1},
+        {source : 6, target : 2, weight : 1},
+        {source : 6, target : 3, weight : 1},
+        {source : 6, target : 4, weight : 1},
+        {source : 6, target : 5, weight : 1},
+        {source : 7, target : 6, weight : 6},
+        {source : 7, target : 3, weight : 1},
+        {source : 9, target : 6, weight : 1}
+      ]
+    }
+  ]
+};
+
+var themeDict_ = {macarons:"macarons",infographic:"infographic",shine:"shine",dark:"dark",
+                  blue:"blue",green:"green",red:"red",gray:"gray",default:"default"};
+
+var myChart = null;
+var myChartTheme = 'default';
+var myOption = defaultOption;
+
+function performBuild(noReset) {
+  if (!myChart) {
+    InitPinpChart();
+    return;
+  }
+  
+  if (myChart && myOption) {
+    if (noReset) {
+      myChart.clear();
+      myChart.setOption(myOption,true);
+    }
+    else {
+      myChart.dispose();
+      require(['echarts','echarts/chart/force'], function(ec){
+        var mainNode = document.getElementById('main');
+        var iframeNode = getOwnerFrameNode();
+        if (iframeNode)
+          mainNode.style.height = Math.max(iframeNode.clientHeight,200) + 'px';
+          
+        myChart = ec.init(document.getElementById('main'));
+        if (myChartTheme && myChartTheme != 'default') {
+          require.config({paths:{theme:'./theme'}});
+          require(['theme/' + myChartTheme], function(tarTheme) {
+            myChart.setTheme(tarTheme);
+            myChart.setOption(myOption,true);
+          });
+        }
+        else myChart.setOption(myOption,true);
+      });
+    }
+  }
+  
+  lastOwnerResizeTm = 0;
+  lastHasWaiting = false;
+}
+
+function convertCfg(bCfg) {
+  var sTitle='', sDesc='', legendCfg='bottom', sLinkSym='', iFrom=-1;
+  for (var i=0,item; item=bCfg[i]; i++) {
+    var s = item[0];
+    if (typeof s == 'string') {
+      if (s == 'theme=')
+        myChartTheme = themeDict_[item[1]] || 'default';
+      else if (s == 'title=')
+        sTitle = (item[1] || '') + '';
+      else if (s == 'desc=')
+        sDesc = (item[1] || '') + '';
+      else if (s == 'legend=')
+        legendCfg = (item[1] || 'bottom') + '';
+      else if (s == 'LinkSymbol=') {
+        if (item[1] == 'arrow')
+          sLinkSym = 'arrow';
+        else if (item[1] == 'none')
+          sLinkSym = 'none';
+      }
+      else if (s == 'table=') {
+        iFrom = i;
+        break;
+      }
+    }
+  }
+  if (iFrom < 0) {
+    alert("token not defined: 'table='");
+    return null;
+  }
+  
+  var bNode=[], bLegend=[], bCategory=[], bPerson=[], bPersonInfo=[];
+  for (var i=iFrom+1,item; item=bCfg[i]; i++) {
+    var s = item[2];
+    if (s && (typeof s == 'string')) {
+      s = s.trim();
+      if (s[0] == '<' && s[s.length-1] == '>')
+        s = s.slice(1,s.length-1);
+      var b=s.split(':'), ss=b[0];
+      if (bCategory.length)
+        bLegend.push(ss);
+      
+      if (b.length == 2)
+        bCategory.push({name:ss, itemStyle:{normal:{color:b[1]}}});
+      else bCategory.push({name:ss});
+    }
+    
+    var cid = bCategory.length - 1;
+    var sName = item[3];
+    if (cid < 0 || !sName) continue;
+    
+    sName = sName + '';
+    var iValue = parseInt(item[4]) || 1;
+    bPerson.push(sName);
+    bPersonInfo.push([cid,iValue]);
+    bNode.push({category:cid, name:sName, value:iValue});
+  }
+  
+  var bColum=[], items=bCfg[iFrom];
+  for (var i=5,item; item=items[i]; i++) {
+    var s = item + '';
+    var cid = bPerson.indexOf(s);
+    if (cid < 0) {
+      alert('personage not defined: ' + s);
+      return null;
+    }
+    else if (cid == 0) {
+      alert('invalid source personage: ' + s);
+      return null;
+    }
+    bColum.push(cid);
+  }
+  
+  if (bPerson.length < 2 || bColum.length == 0 || bLegend.length == 0) {
+    alert("invalid personage definition");
+    return null;
+  }
+  
+  var bLinks=[];
+  for (var i=0; i < bPerson.length; i++) {
+    var item = bCfg[iFrom+1+i];
+    if (item) {
+      var cidTarget = bPerson.indexOf(item[3] + '');
+      for (var i2=0; i2 < bColum.length; i2++) {
+        var s = item[i2 + 5];
+        if (s) {
+          var iValue = parseInt(s) || 1;
+          bLinks.push({source:bColum[i2], target:cidTarget, weight:iValue});
+        }
+      }
+    }
+  }
+  
+  var defaultOpt = copyConfig(defaultOption);
+  defaultOpt.title['text'] = sTitle;
+  defaultOpt.title['subtext'] = sDesc;
+  
+  if (legendCfg == 'top') {
+    defaultOpt.legend['orient'] = 'horizontal';
+    defaultOpt.legend['x'] = 'right';
+    defaultOpt.legend['y'] = 'top';
+  }
+  else if (legendCfg == 'left') {
+    defaultOpt.legend['orient'] = 'vertical';
+    defaultOpt.legend['x'] = 'left';
+    defaultOpt.legend['y'] = 'bottom';
+  }
+  else if (legendCfg == 'right') {
+    defaultOpt.legend['orient'] = 'vertical';
+    defaultOpt.legend['x'] = 'right';
+    defaultOpt.legend['y'] = 'bottom';
+  }
+  else {
+    defaultOpt.legend['orient'] = 'horizontal';
+    defaultOpt.legend['x'] = 'right';
+    defaultOpt.legend['y'] = 'bottom';
+  }
+  if (legendCfg == 'none')
+    defaultOpt.legend['data'] = [];
+  else defaultOpt.legend['data'] = bLegend;
+  
+  defaultOpt.series[0]['linkSymbol'] = sLinkSym;
+  defaultOpt.series[0]['categories'] = bCategory;
+  defaultOpt.series[0]['nodes'] = bNode;
+  defaultOpt.series[0]['links'] = bLinks;
+  
+  if (!currInPresent)
+    defaultOpt.tooltip['show'] = false;
+  
+  myOption = defaultOpt;
+  return myOption;
+}
+
+function getHintText() {
+  return 'Hint:<br>&nbsp;&nbsp;legend = left/top/bottom/right/none<br>&nbsp;&nbsp;LinkSymbol = line/arrow/none<br>&nbsp;&nbsp;theme = default/macarons/infographic/shine/dark/blue/green/red/gray';
+}
+
+function getContent() {
+  var sLegend = 'bottom';
+  if (myOption.legend) {
+    if (myOption.legend.orient == 'horizontal' && myOption.legend.y == 'top')
+      sLegend = 'top';
+    else if (myOption.legend.orient == 'vertical' && myOption.legend.x == 'right')
+      sLegend = 'right';
+    else if (myOption.legend.orient == 'vertical' && myOption.legend.x == 'left')
+      sLegend = 'left';
+    // else, 'bottom'
+    
+    if (myOption.legend.data.length == 0)
+      sLegend = 'none';
+  }
+  
+  var sLinkSym = myOption.series[0]['linkSymbol'] || 'line';
+  
+  var bCategory=[], bCateInfo=[], b=myOption.series[0].categories;
+  for (var i=0,item; item=b[i]; i++) {
+    bCategory.push(item.name);
+    if (item.itemStyle && item.itemStyle.normal)
+      bCateInfo.push('<' + item.name + ':' + item.itemStyle.normal.color + '>');
+    else bCateInfo.push(item.name);
+  }
+  
+  var bPerson=[], bNames=[], b=myOption.series[0].nodes, lastCate=-1;
+  for (var i=0,item; item=b[i]; i++) {
+    var bRow = [null,null];
+    if (lastCate != item.category) {
+      lastCate = item.category;
+      bRow.push(bCateInfo[lastCate]);
+    }
+    else bRow.push(null);
+    bRow.push(item.name);
+    bRow.push(item.value+'');
+    
+    bNames.push(item.name);
+    bPerson.push(bRow);
+  }
+  
+  var bColum = ['table=','force',null,null,null];
+  for (var i=1,item; item=bNames[i]; i++) {
+    bColum.push(item);
+  }
+  
+  var b = myOption.series[0].links;
+  for (var i=0,item; item=b[i]; i++) {
+    var iSour = item.source + 4;
+    var iTarg = item.target;
+    if (iTarg < bPerson.length) {
+      var bTmp = bPerson[iTarg];
+      while (iSour >= bTmp.length) bTmp.push(null);
+      bTmp[iSour] = item.weight + '';
+    }
+  }
+  
+  var rows = [];
+  rows.push(['theme=',myChartTheme]);
+  rows.push(['title=',myOption.title.text]);
+  rows.push(['desc=',myOption.title.subtext]);
+  rows.push(['legend=',sLegend]);
+  rows.push(['LinkSymbol=',sLinkSym]);
+  rows.push(bColum);
+  Array.prototype.push.apply(rows,bPerson);
+  
+  return rows;
+}
+
+function setContent(bCfg) {
+  if (!myChart) return false;
+  
+  var oldTheme = myChartTheme;
+  var dOpt = convertCfg(bCfg);
+  if (dOpt) {
+    myOption = dOpt;
+    if (oldTheme != myChartTheme) {
+      require.config({
+        paths:{ 
+          theme: './theme',
+        }
+      });
+      require(['theme/' + myChartTheme], function(tarTheme) {
+        myChart.setTheme(tarTheme);
+        myChart.clear();
+        myChart.setOption(myOption,true);
+      });
+    }
+    else {
+      myChart.clear();
+      myChart.setOption(myOption,true);
+    }
+    return true;
+  }
+  else return false;
+}
+
+function buildContent(noReset) {
+  performBuild(noReset);
+}
+
+function everyBuild() {
+  performBuild();
+}
+</script>
+
+<style>
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.noselect-txt {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#main {
+  tap-highlight-color: transparent;
+  -o-tap-highlight-color: transparent;
+  -moz-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+</style>
+</head>
+
+<body class='noselect-txt' onload='docOnLoad()'>
+  <div class="container">
+    <div class="row">
+      <div id="graphic" class="span12">
+        <div id="main" style="height:400px"></div>
+      </div><!--/span-->
+    </div><!--/row-->
+  </div>
+
+  <script type="text/javascript">
+    require.config({
+      paths:{ 
+        echarts: './echarts',
+        'echarts/chart/force' : './echarts',
+      }
+    });
+    
+    currInPresent = slideInPresent();
+    
+    var InitPinpChart = function() {
+      require(
+        [
+          'echarts',
+          'echarts/chart/force'
+        ],
+        function(ec) {
+          var opt = null;
+          var mainNode = document.getElementById('main');
+          var iframeNode = getOwnerFrameNode();
+          if (iframeNode) {
+            mainNode.style.height = Math.max(iframeNode.clientHeight,200) + 'px';
+            
+            var sCfg = iframeNode.getAttribute('_widget') || '';
+            if (sCfg)
+              opt = convertCfg(window.eval(sCfg));
+          }
+          if (!opt) opt = myOption;
+          
+          myChart = ec.init(mainNode);
+          if (myChartTheme && myChartTheme != 'default') {
+            require.config({
+              paths:{
+                theme: './theme',
+              }
+            });
+            require(['theme/' + myChartTheme], function(tarTheme) {
+              setTimeout( function() {
+                myChart.setTheme(tarTheme);
+                myChart.setOption(opt);
+              },500);
+            });
+          }
+          else myChart.setOption(opt,true);
+        }
+      );
+    };
+    
+    var rect = document.getElementById('main').getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0)  // current in visible range
+      InitPinpChart();
+  </script>
+</body>
+</html>

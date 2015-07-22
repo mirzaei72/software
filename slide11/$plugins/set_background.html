@@ -1,0 +1,680 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Set background</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<script type='text/cse' line='7'>
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  apiNode as document.getElementById("api-node");
+
+  apiNode.setHook("setCloseState", super(isOk):
+    hostWin as window.hostWin();
+    hostWin->closeState = isOk? 1: 2;
+    if isOk:
+      hostWin->bgColor = JSB(document)..getBackgroundColor();
+      hostWin->bgCss = JSB(document)..getBackgroundCss();
+      hostWin->logoUrl = JSB(document)..getLogoImgSrc();
+      hostWin->pageTag = JSB(document)..getPageTagCfg();
+      hostWin->pageTurn = JSB(document)..getPageTurn();
+      hostWin->useFrame = JSB(document)..getUseFrame();
+      hostWin->useTrans = JSB(document)..getUseTrans();
+      hostWin->useGround = JSB(document)..getUseGround();
+      hostWin->useTurning = JSB(document)..getUseTuning();
+    end;
+  end);
+end;
+
+end;
+</script>
+
+<script type="text/javascript">
+function getCookie__(name) {
+  if (document.cookie.length > 0) {
+    var iEnd, iStart = document.cookie.indexOf(name + "=");
+    if (iStart != -1) {
+      iStart = iStart + name.length + 1;
+      iEnd = document.cookie.indexOf(";",iStart);
+      if (iEnd == -1) iEnd = document.cookie.length;
+      return unescape(document.cookie.substring(iStart,iEnd));
+    }
+  }
+  return "";
+}
+
+function setCookie__(name,value,expireDays) {
+  expireDays = expireDays || 1;
+  var exDate = new Date();
+  exDate.setTime(exDate.getTime() + expireDays*24*60*60*1000);
+  document.cookie = name + "=" + escape(value) + ";expires=" + exDate.toGMTString() + ";path=/;";
+}
+
+function location__(href) {
+  var location = document.createElement('a');
+  location.href = href;
+  if (location.host == '')
+    location.href = location.href;
+  return location;
+}
+
+function setHistoryColor(s) {
+  var sOld = getCookie__('used_color') || "[]";
+  var bOld = window.eval(sOld);
+  var sHtml = '<tr><td bgColor="' + s + '"></td>';
+  var sNew = '["' + s + '"';
+  
+  var iNum = 1;
+  for (var i=0, item; item=bOld[i]; i++) {
+    if (s != item && iNum <= 7) {
+      iNum++;
+      sHtml += '<td bgColor="' + item + '"></td>';
+      sNew += ',"' + item + '"';
+    }
+  }
+  while (iNum <= 7) {
+    sHtml += '<td bgColor="#FFFFFF"></td>';
+    iNum++;
+  }
+  sHtml += "</tr>"
+  sNew += ']';
+  
+  setCookie__('used_color',sNew);
+  var node = document.getElementById('history-color');
+  if (node) node.innerHTML = sHtml;
+}
+
+function showHistoryColor(defaultColor) {
+  var sOld = getCookie__('used_color') || '["#FFFFFF"]';
+  var bOld = window.eval(sOld);
+  var sHtml = '<tr>';
+  
+  var iNum=0, sFirst=defaultColor;
+  for (var i=0, item; item=bOld[i]; i++) {
+    if (iNum <= 7) {
+      if (iNum == 0) {
+        if (!sFirst)
+          sFirst = item;
+      }
+      iNum++;
+      sHtml += '<td bgColor="' + item + '"></td>';
+    }
+  }
+  if (!sFirst) sFirst = '#FFFFFF';
+  while (iNum <= 7) {
+    sHtml += '<td bgColor="#FFFFFF"></td>';
+    iNum++;
+  }
+  sHtml += "</tr>"
+  
+  var node = document.getElementById('history-color');
+  if (node) node.innerHTML = sHtml;
+  
+  node = document.getElementById('selected-color');
+  if (node) {
+    node.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;' + sFirst + '&nbsp;&nbsp;&nbsp;&nbsp;';
+    node.style.backgroundColor = sFirst;
+    node.style.color = reserveColor(sFirst);
+  }
+}
+
+function reserveColor(color) {
+  if (color.slice(0,1) !== '#')
+    return '#000000';
+  
+  var iColor = parseInt('0x' + color.slice(1));
+  var red = 255 - ((iColor >> 16) & 0xFF);
+  var green = 255 - ((iColor >> 8) & 0xFF);
+  var blue = 255 - (iColor & 0xFF);
+  
+  red = '0' + red.toString(16);
+  green = '0' + green.toString(16);
+  blue = '0' + blue.toString(16);
+  
+  return '#' + red.slice(red.length-2) + green.slice(green.length-2) + blue.slice(blue.length-2);
+}
+
+function setBkgClrPattern(sColor) {
+  retBackgroundCss = '';
+  delBackgroundCss();
+  
+  var cssNode = document.createElement("style");
+  cssNode.id = "background-css";
+  cssNode.innerHTML = "#accept-pattern {background:" + sColor + ";}";
+  document.body.appendChild(cssNode);
+}
+
+function ColorCellClick(event) {
+  var node = document.getElementById('selected-color');
+  if (node && event.target.nodeName == 'TD') {
+    var s = event.target.bgColor || "#FFFFFF";
+    node.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;' + s + '&nbsp;&nbsp;&nbsp;&nbsp;';
+    node.style.backgroundColor = s;
+    node.style.color = reserveColor(s);
+    
+    setBkgClrPattern(s);
+    setHistoryColor(s);
+  }
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+function ColorCellClick2(event) {
+  var node = document.getElementById('selected-color');
+  if (node && event.target.nodeName == 'TD') {
+    var s = event.target.bgColor || "#ffffff";
+    node.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;' + s + '&nbsp;&nbsp;&nbsp;&nbsp;';
+    node.style.backgroundColor = s;
+    node.style.color = reserveColor(s);
+    
+    setBkgClrPattern(s);
+  }
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+var bkgImgCssUsed = false;
+var retBackgroundCss = '';
+
+var CURR_USR_PATH = '';
+
+function PatternDragOver(event) {
+  event.preventDefault();
+}
+
+function loadCssFromJs(url) {
+  var xmlhttp = null;
+  if (window.XMLHttpRequest)      // code for Firefox, Opera, IE7, etc.
+    xmlhttp = new XMLHttpRequest();
+  else if (window.ActiveXObject)  // code for IE6, IE5
+    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    
+  if (xmlhttp != null) {
+    xmlhttp.open("GET",url,false); // wait until replied
+    xmlhttp.send(null);
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      var obj = window.eval(xmlhttp.responseText);
+      if (obj.length == 2 && obj[0] == 20130520 && (obj=obj[1]).type == "text/css")
+        return obj.css;
+    }
+  }
+}
+
+function PatternDragDrop(event) {
+  event.stopPropagation();
+  event.preventDefault();
+
+  var node = event.target;
+  var sArg = '';
+  if (event.dataTransfer)
+    sArg = event.dataTransfer.getData("text/args") || "";
+  var b = sArg.split(',');
+  
+  if (node && node.id == "accept-pattern" && b.length == 3 && b[0] == 'image') {
+    var cssNode = document.getElementById("background-css");
+    if (cssNode) cssNode.parentNode.removeChild(cssNode);
+    cssNode = document.createElement("style");
+    cssNode.id = "background-css";
+    
+    if (b[1] == '0') {
+      var sAdjust='', url = b[2].trim();
+      var location = location__(url);
+      if (location.host == window.location.host) {
+        url = location.pathname;
+        if (CURR_USR_PATH && url.indexOf(CURR_USR_PATH) == 0 && url.length > CURR_USR_PATH.length)
+          sAdjust = url.slice(CURR_USR_PATH.length);
+      }
+      else url = location.href;
+      
+      retBackgroundCss = "{background:url(" + (sAdjust || url) + ") repeat;}";
+      cssNode.innerHTML = "#accept-pattern {background:url(" + url + ") repeat;}";
+      document.body.appendChild(cssNode);
+      bkgImgCssUsed = true;
+    }
+    
+/*  else if (b[1] == '4') {   // removed, not support svg-background
+      var url = b[2].trim();
+      sArg = loadCssFromJs(url + '.js');
+      if (typeof sArg == "string") {
+        cssNode.innerHTML = "#accept-pattern {" + sArg + "}";
+        document.body.appendChild(cssNode);
+        bkgImgCssUsed = true;
+      }
+    } */
+  }
+}
+
+function ImageDragOver(event) {
+  event.preventDefault();
+}
+
+function ImageDrop(event) {
+  event.stopPropagation();
+  event.preventDefault();
+
+  var s = event.dataTransfer.getData("text/args");
+  var b = s.split(',');
+  if (b.length == 3 && b[0] == 'image') {
+    document.getElementById("drag-target").src = b[2];
+  }
+}
+
+function getLogoImgSrc() {
+  var s = document.getElementById("drag-target").src || '';
+  if (s) {
+    var location = location__(s);
+    if (location.host == window.location.host) {
+      var url = location.pathname;
+      if (CURR_USR_PATH && url.indexOf(CURR_USR_PATH) == 0 && url.length > CURR_USR_PATH.length)
+        url = url.slice(CURR_USR_PATH.length);
+      return url;
+    }
+    else return location.href;
+  }
+  else return '';
+}
+
+function getBackgroundColor() {
+  var node = document.getElementById("selected-color");
+  if (node)
+    return node.style.backgroundColor;
+  else return "#d7d7d7";
+}
+
+function getBackgroundCss() {
+  var node = document.getElementById("background-css");
+  if (node && bkgImgCssUsed)
+    return retBackgroundCss;
+  else return "";
+}
+
+function delBackgroundCss() {
+  var node = document.getElementById("background-css");
+  if (node)
+    node.parentNode.removeChild(node);
+  bkgImgCssUsed = false;
+}
+
+function delBackgroundLogo() {
+  var node = document.getElementById("accept-image");
+  if (node) node.innerHTML = "<img id='drag-target' style='width:100%' />";
+}
+
+function resetPageTagCode() {
+  var s = "<table style='width:100%; border:0px; font-size:12px; text-align:center;'><tr><td style='width:10%;'></td><td style='width:10%;'>";
+  var hasHome = document.getElementById('has-home').checked;
+  if (hasHome)
+    s += "<a href='%index%'>home</a>";
+  s += '</td><td>';
+  
+  var iCount = 0;
+  var hasTitle = document.getElementById('has-title').checked;
+  if (hasTitle) {
+    s += "%title%";
+    iCount += 1;
+  }
+  var hasChapter = document.getElementById('has-chapter').checked;
+  if (hasChapter) {
+    if (iCount) s += " &gt; ";
+    s += "%chapter%";
+    iCount += 1;
+  }
+  var hasSection = document.getElementById('has-section').checked;
+  if (hasSection) {
+    if (iCount) s += " &gt; ";
+    s += "%section%";
+    iCount += 1;
+  }
+  
+  s += "</td><td style='width:10%;'>"
+  var hasPage = document.getElementById('has-page').checked;
+  if (hasPage) {
+    s += "%current% / %total%";
+  }
+  s += "</td><td style='width:10%;'></td></tr></table>";
+  
+  return s;
+}
+
+function setPageTurnPos(id) {
+  document.getElementById('none-turn').checked = id == 0;
+  document.getElementById('top-turn').checked = id == 1;
+  document.getElementById('middle-turn').checked = id == 2;
+  document.getElementById('bottom-turn').checked = id == 3;
+  
+  var s = '';
+  if (id > 0) {
+    if (id == 2)
+      s = '45%';
+    else if (id == 3)
+      s = '88%';
+    else s = '2%';
+  }
+  document.getElementById('pg-TurnPos').value = s;
+}
+
+function setPageTagPos(id) {
+  document.getElementById('none-tag').checked = id == 0;
+  document.getElementById('top-tag').checked = id == 1;
+  document.getElementById('bottom-tag').checked = id == 2;
+  
+  var htmlNode = document.getElementById('html-value');
+  if (id == 1 || id == 2) {
+    htmlNode.value = resetPageTagCode();
+    htmlNode.removeAttribute('readonly');
+  }
+  else {
+    htmlNode.value = '';
+    htmlNode.setAttribute('readonly','readonly');
+  }
+}
+
+function setPageTagDesc() {
+  var htmlNode = document.getElementById('html-value');
+  if (!document.getElementById('none-tag').checked)
+    htmlNode.value = resetPageTagCode();
+}
+
+function switchPageTag(sId) {
+  var targ = document.getElementById(sId);
+  if (targ) {
+    targ.checked = !targ.checked;
+    setPageTagDesc();
+  }
+}
+
+function setUseFrame(useIt) {
+  var node = document.getElementById('use-frame');
+  var node2 = document.getElementById('hide-frame');
+  node.checked = useIt;
+  node2.checked = !useIt;
+}
+
+function getUseFrame() {
+  var node = document.getElementById('use-frame');
+  return (node && node.checked)? 1: 0;
+}
+
+function setUseTrans(useIt) {
+  var node = document.getElementById('use-trans');
+  var node2 = document.getElementById('no-trans');
+  node.checked = useIt;
+  node2.checked = !useIt;
+}
+
+function getUseTrans() {
+  var node = document.getElementById('use-trans');
+  return (node && node.checked)? 1: 0;
+}
+
+function setUseTurning(useIt) {
+  var node = document.getElementById('use-turning');
+  var node2 = document.getElementById('no-turning');
+  node.checked = useIt;
+  node2.checked = !useIt;
+}
+
+function getUseTuning() {
+  var node = document.getElementById('use-turning');
+  return (node && node.checked)? 1: 0;
+}
+
+function setUseGround(useIt) {
+  var node = document.getElementById('use-ground');
+  var node2 = document.getElementById('hide-ground');
+  node.checked = useIt;
+  node2.checked = !useIt;
+}
+
+function getUseGround() {
+  var node = document.getElementById('use-ground');
+  return (node && node.checked)? 1: 0;
+}
+
+function getPageTagCfg() {
+  var htmlNode = document.getElementById('html-value');
+  if (document.getElementById('none-tag').checked)
+    return [0,''];
+  else if (document.getElementById('top-tag').checked)
+    return [1,htmlNode.value];
+  else return [2,htmlNode.value];
+}
+
+function getPageTurn() {
+  var s = document.getElementById('pg-TurnPos').value;
+  return s.trim();
+}
+
+function adjustImgUrl(sUrl) {
+  if (sUrl.indexOf('://') > 0 || sUrl[0] == '/')
+    return sUrl;
+  else if (CURR_USR_PATH)
+    return location__(CURR_USR_PATH + sUrl).pathname;
+  else return sUrl;
+}
+
+function initSysState(sDefaultColor,sOwnerBgCss,sLogoUrl,iPgTag,sPgTag,sPgTurn,sPrjRoot,noFrame,noTrans,noGround,noTurning) {
+  CURR_USR_PATH = sPrjRoot || '';
+  
+  var node = document.getElementById("background-css");
+  if (node) node.parentNode.removeChild(node);
+  
+  var i = sOwnerBgCss.indexOf('body ');
+  if (i >= 0) {
+    retBackgroundCss = sOwnerBgCss.slice(i+5);
+    
+    var iPos = sOwnerBgCss.indexOf('url(');
+    if (iPos > 0) {
+      var iPos2 = sOwnerBgCss.indexOf(')',iPos+1)
+      if (iPos2) { // use image background
+        var sUrl = sOwnerBgCss.slice(iPos+4,iPos2);
+        sOwnerBgCss = sOwnerBgCss.slice(0,iPos+4) + adjustImgUrl(sUrl) + sOwnerBgCss.slice(iPos2);
+      }
+    }
+    
+    var tmp = document.createElement('style');
+    tmp.id = "background-css";
+    tmp.innerHTML = "#accept-pattern " + sOwnerBgCss.slice(i+5);
+    document.body.appendChild(tmp);
+    bkgImgCssUsed = true;
+  }
+  
+  if (sLogoUrl)
+    document.getElementById("drag-target").src = adjustImgUrl(sLogoUrl);
+  
+  showHistoryColor(sDefaultColor);
+  
+  document.getElementById('none-tag').checked = false;
+  document.getElementById('top-tag').checked = false;
+  document.getElementById('bottom-tag').checked = false;
+  if (iPgTag == 0 || !sPgTag) {
+    document.getElementById('none-tag').checked = true;
+    document.getElementById('html-value').setAttribute('readonly','readonly');
+  }
+  else {
+    document.getElementById('has-home').checked = false;
+    document.getElementById('has-title').checked = false;
+    document.getElementById('has-chapter').checked = false;
+    document.getElementById('has-section').checked = false;
+    document.getElementById('has-page').checked = false;
+    
+    document.getElementById('top-tag').checked = (iPgTag == 1);
+    document.getElementById('bottom-tag').checked = (iPgTag != 1);
+  }
+  if (sPgTag)
+    document.getElementById('html-value').value = sPgTag;
+  
+  if (sPgTurn) {
+    document.getElementById('none-turn').checked = false;
+    document.getElementById('top-turn').checked = false;
+    document.getElementById('middle-turn').checked = false;
+    document.getElementById('bottom-turn').checked = false;
+    
+    if (sPgTurn == '2%')
+      document.getElementById('top-turn').checked = true;
+    else if (sPgTurn == '45%')
+      document.getElementById('middle-turn').checked = true;
+    else if (sPgTurn == '88%')
+      document.getElementById('bottom-turn').checked = true;
+    else document.getElementById('none-turn').checked = true;
+    document.getElementById('pg-TurnPos').value = sPgTurn + '';
+  }
+  
+  if (noFrame) {
+    document.getElementById('use-frame').checked = false;
+    document.getElementById('hide-frame').checked = true;
+  }
+  if (noTrans) {
+    document.getElementById('use-trans').checked = false;
+    document.getElementById('no-trans').checked = true;
+  }
+  if (noGround) {
+    document.getElementById('use-ground').checked = false;
+    document.getElementById('hide-ground').checked = true;
+  }
+  if (noTurning) {
+    document.getElementById('use-turning').checked = false;
+    document.getElementById('no-turning').checked = true;
+  }
+}
+
+function finishEditing(isOk) {
+  var apiNode = document.getElementById('api-node');
+  apiNode.setCloseState(isOk);
+  window.close();
+}
+</script>
+<style>
+body {
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+}
+
+#selected-color {
+  outline: gray solid 1px;
+  padding: 2px;
+}
+#history-color {
+  border-width: 1px 1px 0px 1px;
+  border-color: gray;
+  border-style: solid;
+  width: 300px;
+  height: 30px;
+}
+#color-chart {
+  padding: 0px;
+  margin: 1px 0px 0px 0px;
+  border-collapse: collapse;
+  width: 500px;
+  height: 300px;
+}
+
+#accept-pattern {
+  width: 500px;
+  height: 200px;
+  border: 1px solid #cccccc;
+}
+#accept-image {
+  width: 200px;
+  min-height: 60px;
+  padding: 2px;
+  border: 1px solid #cccccc;
+}
+
+.check-txt {
+  cursor: default;
+}
+</style>
+</head>
+
+<body>
+<div id='api-node' style='display:none; visibility:hidden;'></div>
+
+<p style='text-align:right'>
+  <input type='button' style='width:60px' value='OK' onclick='finishEditing(true)' />
+  <input type='button' style='width:70px' value='Cancel' onclick='finishEditing(false)' />
+</p>
+
+<h3>1.Background color</h3>
+<p>selected color: <span id='selected-color'></span></p>
+<table id="history-color" onclick='ColorCellClick2(event)'>
+  <tr><td bgColor="#FFFFFF"></td><td bgColor="#FFFFFF"></td><td bgColor="#FFFFFF"></td><td bgColor="#FFFFFF"></td><td bgColor="#FFFFFF"></td><td bgColor="#FFFFFF"></td><td bgColor="#FFFFFF"></td><td bgColor="#FFFFFF"></td></tr>
+</table>
+<div style="border:1px solid gray; width:500px">
+<table id="color-chart" onclick='ColorCellClick(event)'>
+  <tr><td bgColor="#FBEFEF"></td><td bgColor="#FBF2EF"></td><td bgColor="#FBF5EF"></td><td bgColor="#FBF8EF"></td><td bgColor="#FBFBEF"></td><td bgColor="#F8FBEF"></td><td bgColor="#F5FBEF"></td><td bgColor="#F2FBEF"></td><td bgColor="#EFFBEF"></td><td bgColor="#EFFBF2"></td><td bgColor="#EFFBF5"></td><td bgColor="#EFFBF8"></td><td bgColor="#EFFBFB"></td><td bgColor="#EFF8FB"></td><td bgColor="#EFF5FB"></td><td bgColor="#EFF2FB"></td><td bgColor="#EFEFFB"></td><td bgColor="#F2EFFB"></td><td bgColor="#F5EFFB"></td><td bgColor="#F8EFFB"></td><td bgColor="#FBEFFB"></td><td bgColor="#FBEFF8"></td><td bgColor="#FBEFF5"></td><td bgColor="#FBEFF2"></td><td bgColor="#FFFFFF"></td></tr>
+  <tr><td bgColor="#F8E0E0"></td><td bgColor="#F8E6E0"></td><td bgColor="#F8ECE0"></td><td bgColor="#F7F2E0"></td><td bgColor="#F7F8E0"></td><td bgColor="#F1F8E0"></td><td bgColor="#ECF8E0"></td><td bgColor="#E6F8E0"></td><td bgColor="#E0F8E0"></td><td bgColor="#E0F8E6"></td><td bgColor="#E0F8EC"></td><td bgColor="#E0F8F1"></td><td bgColor="#E0F8F7"></td><td bgColor="#E0F2F7"></td><td bgColor="#E0ECF8"></td><td bgColor="#E0E6F8"></td><td bgColor="#E0E0F8"></td><td bgColor="#E6E0F8"></td><td bgColor="#ECE0F8"></td><td bgColor="#F2E0F7"></td><td bgColor="#F8E0F7"></td><td bgColor="#F8E0F1"></td><td bgColor="#F8E0EC"></td><td bgColor="#F8E0E6"></td><td bgColor="#FAFAFA"></td></tr>
+  <tr><td bgColor="#F6CECE"></td><td bgColor="#F6D8CE"></td><td bgColor="#F6E3CE"></td><td bgColor="#F5ECCE"></td><td bgColor="#F5F6CE"></td><td bgColor="#ECF6CE"></td><td bgColor="#E3F6CE"></td><td bgColor="#D8F6CE"></td><td bgColor="#CEF6CE"></td><td bgColor="#CEF6D8"></td><td bgColor="#CEF6E3"></td><td bgColor="#CEF6EC"></td><td bgColor="#CEF6F5"></td><td bgColor="#CEECF5"></td><td bgColor="#CEE3F6"></td><td bgColor="#CED8F6"></td><td bgColor="#CECEF6"></td><td bgColor="#D8CEF6"></td><td bgColor="#E3CEF6"></td><td bgColor="#ECCEF5"></td><td bgColor="#F6CEF5"></td><td bgColor="#F6CEEC"></td><td bgColor="#F6CEE3"></td><td bgColor="#F6CED8"></td><td bgColor="#F2F2F2"></td></tr>
+  <tr><td bgColor="#F5A9A9"></td><td bgColor="#F5BCA9"></td><td bgColor="#F5D0A9"></td><td bgColor="#F3E2A9"></td><td bgColor="#F2F5A9"></td><td bgColor="#E1F5A9"></td><td bgColor="#D0F5A9"></td><td bgColor="#BCF5A9"></td><td bgColor="#A9F5A9"></td><td bgColor="#A9F5BC"></td><td bgColor="#A9F5D0"></td><td bgColor="#A9F5E1"></td><td bgColor="#A9F5F2"></td><td bgColor="#A9E2F3"></td><td bgColor="#A9D0F5"></td><td bgColor="#A9BCF5"></td><td bgColor="#A9A9F5"></td><td bgColor="#BCA9F5"></td><td bgColor="#D0A9F5"></td><td bgColor="#E2A9F3"></td><td bgColor="#F5A9F2"></td><td bgColor="#F5A9E1"></td><td bgColor="#F5A9D0"></td><td bgColor="#F5A9BC"></td><td bgColor="#E6E6E6"></td></tr>
+  <tr><td bgColor="#F78181"></td><td bgColor="#F79F81"></td><td bgColor="#F7BE81"></td><td bgColor="#F5DA81"></td><td bgColor="#F3F781"></td><td bgColor="#D8F781"></td><td bgColor="#BEF781"></td><td bgColor="#9FF781"></td><td bgColor="#81F781"></td><td bgColor="#81F79F"></td><td bgColor="#81F7BE"></td><td bgColor="#81F7D8"></td><td bgColor="#81F7F3"></td><td bgColor="#81DAF5"></td><td bgColor="#81BEF7"></td><td bgColor="#819FF7"></td><td bgColor="#8181F7"></td><td bgColor="#9F81F7"></td><td bgColor="#BE81F7"></td><td bgColor="#DA81F5"></td><td bgColor="#F781F3"></td><td bgColor="#F781D8"></td><td bgColor="#F781BE"></td><td bgColor="#F7819F"></td><td bgColor="#D8D8D8"></td></tr>
+  <tr><td bgColor="#FA5858"></td><td bgColor="#FA8258"></td><td bgColor="#FAAC58"></td><td bgColor="#F7D358"></td><td bgColor="#F4FA58"></td><td bgColor="#D0FA58"></td><td bgColor="#ACFA58"></td><td bgColor="#82FA58"></td><td bgColor="#58FA58"></td><td bgColor="#58FA82"></td><td bgColor="#58FAAC"></td><td bgColor="#58FAD0"></td><td bgColor="#58FAF4"></td><td bgColor="#58D3F7"></td><td bgColor="#58ACFA"></td><td bgColor="#5882FA"></td><td bgColor="#5858FA"></td><td bgColor="#8258FA"></td><td bgColor="#AC58FA"></td><td bgColor="#D358F7"></td><td bgColor="#FA58F4"></td><td bgColor="#FA58D0"></td><td bgColor="#FA58AC"></td><td bgColor="#FA5882"></td><td bgColor="#BDBDBD"></td></tr>
+  <tr><td bgColor="#FE2E2E"></td><td bgColor="#FE642E"></td><td bgColor="#FE9A2E"></td><td bgColor="#FACC2E"></td><td bgColor="#F7FE2E"></td><td bgColor="#C8FE2E"></td><td bgColor="#9AFE2E"></td><td bgColor="#64FE2E"></td><td bgColor="#2EFE2E"></td><td bgColor="#2EFE64"></td><td bgColor="#2EFE9A"></td><td bgColor="#2EFEC8"></td><td bgColor="#2EFEF7"></td><td bgColor="#2ECCFA"></td><td bgColor="#2E9AFE"></td><td bgColor="#2E64FE"></td><td bgColor="#2E2EFE"></td><td bgColor="#642EFE"></td><td bgColor="#9A2EFE"></td><td bgColor="#CC2EFA"></td><td bgColor="#FE2EF7"></td><td bgColor="#FE2EC8"></td><td bgColor="#FE2E9A"></td><td bgColor="#FE2E64"></td><td bgColor="#A4A4A4"></td></tr>
+  <tr><td bgColor="#FF0000"></td><td bgColor="#FF4000"></td><td bgColor="#FF8000"></td><td bgColor="#FFBF00"></td><td bgColor="#FFFF00"></td><td bgColor="#BFFF00"></td><td bgColor="#80FF00"></td><td bgColor="#40FF00"></td><td bgColor="#00FF00"></td><td bgColor="#00FF40"></td><td bgColor="#00FF80"></td><td bgColor="#00FFBF"></td><td bgColor="#00FFFF"></td><td bgColor="#00BFFF"></td><td bgColor="#0080FF"></td><td bgColor="#0040FF"></td><td bgColor="#0000FF"></td><td bgColor="#4000FF"></td><td bgColor="#8000FF"></td><td bgColor="#BF00FF"></td><td bgColor="#FF00FF"></td><td bgColor="#FF00BF"></td><td bgColor="#FF0080"></td><td bgColor="#FF0040"></td><td bgColor="#848484"></td></tr>
+  <tr><td bgColor="#DF0101"></td><td bgColor="#DF3A01"></td><td bgColor="#DF7401"></td><td bgColor="#DBA901"></td><td bgColor="#D7DF01"></td><td bgColor="#A5DF00"></td><td bgColor="#74DF00"></td><td bgColor="#3ADF00"></td><td bgColor="#01DF01"></td><td bgColor="#01DF3A"></td><td bgColor="#01DF74"></td><td bgColor="#01DFA5"></td><td bgColor="#01DFD7"></td><td bgColor="#01A9DB"></td><td bgColor="#0174DF"></td><td bgColor="#013ADF"></td><td bgColor="#0101DF"></td><td bgColor="#3A01DF"></td><td bgColor="#7401DF"></td><td bgColor="#A901DB"></td><td bgColor="#DF01D7"></td><td bgColor="#DF01A5"></td><td bgColor="#DF0174"></td><td bgColor="#DF013A"></td><td bgColor="#6E6E6E"></td></tr>
+  <tr><td bgColor="#B40404"></td><td bgColor="#B43104"></td><td bgColor="#B45F04"></td><td bgColor="#B18904"></td><td bgColor="#AEB404"></td><td bgColor="#86B404"></td><td bgColor="#5FB404"></td><td bgColor="#31B404"></td><td bgColor="#04B404"></td><td bgColor="#04B431"></td><td bgColor="#04B45F"></td><td bgColor="#04B486"></td><td bgColor="#04B4AE"></td><td bgColor="#0489B1"></td><td bgColor="#045FB4"></td><td bgColor="#0431B4"></td><td bgColor="#0404B4"></td><td bgColor="#3104B4"></td><td bgColor="#5F04B4"></td><td bgColor="#8904B1"></td><td bgColor="#B404AE"></td><td bgColor="#B40486"></td><td bgColor="#B4045F"></td><td bgColor="#B40431"></td><td bgColor="#585858"></td></tr>
+  <tr><td bgColor="#8A0808"></td><td bgColor="#8A2908"></td><td bgColor="#8A4B08"></td><td bgColor="#886A08"></td><td bgColor="#868A08"></td><td bgColor="#688A08"></td><td bgColor="#4B8A08"></td><td bgColor="#298A08"></td><td bgColor="#088A08"></td><td bgColor="#088A29"></td><td bgColor="#088A4B"></td><td bgColor="#088A68"></td><td bgColor="#088A85"></td><td bgColor="#086A87"></td><td bgColor="#084B8A"></td><td bgColor="#08298A"></td><td bgColor="#08088A"></td><td bgColor="#29088A"></td><td bgColor="#4B088A"></td><td bgColor="#6A0888"></td><td bgColor="#8A0886"></td><td bgColor="#8A0868"></td><td bgColor="#8A084B"></td><td bgColor="#8A0829"></td><td bgColor="#424242"></td></tr>
+  <tr><td bgColor="#610B0B"></td><td bgColor="#61210B"></td><td bgColor="#61380B"></td><td bgColor="#5F4C0B"></td><td bgColor="#5E610B"></td><td bgColor="#4B610B"></td><td bgColor="#38610B"></td><td bgColor="#21610B"></td><td bgColor="#0B610B"></td><td bgColor="#0B6121"></td><td bgColor="#0B6138"></td><td bgColor="#0B614B"></td><td bgColor="#0B615E"></td><td bgColor="#0B4C5F"></td><td bgColor="#0B3861"></td><td bgColor="#0B2161"></td><td bgColor="#0B0B61"></td><td bgColor="#210B61"></td><td bgColor="#380B61"></td><td bgColor="#4C0B5F"></td><td bgColor="#610B5E"></td><td bgColor="#610B4B"></td><td bgColor="#610B38"></td><td bgColor="#610B21"></td><td bgColor="#2E2E2E"></td></tr>
+  <tr><td bgColor="#3B0B0B"></td><td bgColor="#3B170B"></td><td bgColor="#3B240B"></td><td bgColor="#3A2F0B"></td><td bgColor="#393B0B"></td><td bgColor="#2E3B0B"></td><td bgColor="#243B0B"></td><td bgColor="#173B0B"></td><td bgColor="#0B3B0B"></td><td bgColor="#0B3B17"></td><td bgColor="#0B3B24"></td><td bgColor="#0B3B2E"></td><td bgColor="#0B3B39"></td><td bgColor="#0B2F3A"></td><td bgColor="#0B243B"></td><td bgColor="#0B173B"></td><td bgColor="#0B0B3B"></td><td bgColor="#170B3B"></td><td bgColor="#240B3B"></td><td bgColor="#2F0B3A"></td><td bgColor="#3B0B39"></td><td bgColor="#3B0B2E"></td><td bgColor="#3B0B24"></td><td bgColor="#3B0B17"></td><td bgColor="#1C1C1C"></td></tr>
+  <tr><td bgColor="#2A0A0A"></td><td bgColor="#2A120A"></td><td bgColor="#2A1B0A"></td><td bgColor="#29220A"></td><td bgColor="#292A0A"></td><td bgColor="#222A0A"></td><td bgColor="#1B2A0A"></td><td bgColor="#122A0A"></td><td bgColor="#0A2A0A"></td><td bgColor="#0A2A12"></td><td bgColor="#0A2A1B"></td><td bgColor="#0A2A22"></td><td bgColor="#0A2A29"></td><td bgColor="#0A2229"></td><td bgColor="#0A1B2A"></td><td bgColor="#0A122A"></td><td bgColor="#0A0A2A"></td><td bgColor="#120A2A"></td><td bgColor="#1B0A2A"></td><td bgColor="#220A29"></td><td bgColor="#2A0A29"></td><td bgColor="#2A0A22"></td><td bgColor="#2A0A1B"></td><td bgColor="#2A0A12"></td><td bgColor="#151515"></td></tr>
+  <tr><td bgColor="#190707"></td><td bgColor="#190B07"></td><td bgColor="#191007"></td><td bgColor="#181407"></td><td bgColor="#181907"></td><td bgColor="#141907"></td><td bgColor="#101907"></td><td bgColor="#0B1907"></td><td bgColor="#071907"></td><td bgColor="#07190B"></td><td bgColor="#071910"></td><td bgColor="#071914"></td><td bgColor="#071918"></td><td bgColor="#071418"></td><td bgColor="#071019"></td><td bgColor="#070B19"></td><td bgColor="#070719"></td><td bgColor="#0B0719"></td><td bgColor="#100719"></td><td bgColor="#140718"></td><td bgColor="#190718"></td><td bgColor="#190714"></td><td bgColor="#190710"></td><td bgColor="#19070B"></td><td bgColor="#000000"></td></tr>
+</table>
+</div>
+
+<h3>2.Background Pattern (drag pattern to following box)</h3>
+<p>Background-pattern will overrides background-color, previous step only applied when background-pattern cleared</p>
+<div id='accept-pattern' ondragover='PatternDragOver(event)' ondrop='PatternDragDrop(event)'>
+</div>
+
+<h3>3.Logo image (drag image to following box)</h3>
+<input type='button' onclick='delBackgroundLogo()' value='clear' />
+<div id='accept-image' ondragover='ImageDragOver(event)' ondrop='ImageDrop(event)'>
+  <img id='drag-target' style='width:100%' />
+</div>
+
+<h3>4.Page turning</h3>
+<p>Page turning button:&nbsp;&nbsp;&nbsp;
+<input type='checkbox' id='none-turn' checked='checked' onclick='setPageTurnPos(0)' /><span class='check-txt' onclick='setPageTurnPos(0)'>None</span>&nbsp;&nbsp;
+<input type='checkbox' id='top-turn' onclick='setPageTurnPos(1)' /><span class='check-txt' onclick='setPageTurnPos(1)'>Top</span>&nbsp;&nbsp;
+<input type='checkbox' id='middle-turn' onclick='setPageTurnPos(2)' /><span class='check-txt' onclick='setPageTurnPos(2)'>Middle</span>&nbsp;&nbsp;
+<input type='checkbox' id='bottom-turn' onclick='setPageTurnPos(3)' /><span class='check-txt' onclick='setPageTurnPos(3)'>Bottom</span><br>
+Top of turning button:&nbsp;<input type='text' id='pg-TurnPos' value='' size='8' />
+</p>
+
+<h3>5.Page tag</h3>
+<p>Position:&nbsp;&nbsp;
+<input type='checkbox' id='none-tag' checked='checked' onclick='setPageTagPos(0)' /><span class='check-txt' onclick='setPageTagPos(0)'>None</span>&nbsp;&nbsp;
+<input type='checkbox' id='top-tag' onclick='setPageTagPos(1)' /><span class='check-txt' onclick='setPageTagPos(1)'>Top</span>&nbsp;&nbsp;
+<input type='checkbox' id='bottom-tag' onclick='setPageTagPos(2)' /><span class='check-txt' onclick='setPageTagPos(2)'>Bottom</span>
+</p>
+
+<p>Include:&nbsp;&nbsp;&nbsp;
+<input type='checkbox' id='has-home' onclick='setPageTagDesc()' /><span class='check-txt' onclick='switchPageTag("has-home")'>Home</span>&nbsp;&nbsp;
+<input type='checkbox' id='has-title' onclick='setPageTagDesc()' /><span class='check-txt' onclick='switchPageTag("has-title")'>Title</span>&nbsp;&nbsp;
+<input type='checkbox' id='has-chapter' onclick='setPageTagDesc()' /><span class='check-txt' onclick='switchPageTag("has-chapter")'>Chapter</span>&nbsp;&nbsp;
+<input type='checkbox' id='has-section' onclick='setPageTagDesc()' /><span class='check-txt' onclick='switchPageTag("has-section")'>Section</span>&nbsp;&nbsp;
+<input type='checkbox' id='has-page' checked='checked' onclick='setPageTagDesc()' /><span class='check-txt' onclick='switchPageTag("has-page")'>Page</span>
+</p>
+
+<textarea id='html-value' rows='7' style='width:500px'></textarea>
+
+<h3>6.Page frame</h3>
+<p>Page frame:&nbsp;&nbsp;<input type='checkbox' id='use-frame' checked='checked' onclick='setUseFrame(true)' /><span class='check-txt' onclick='setUseFrame(true)'>Use frame</span>&nbsp;&nbsp;
+  <input type='checkbox' id='hide-frame' onclick='setUseFrame(false)' /><span class='check-txt' onclick='setUseFrame(false)'>No frame</span>
+</p>
+<p>Background:&nbsp;&nbsp;<input type='checkbox' id='use-ground' checked='checked' onclick='setUseGround(true)' /><span class='check-txt' onclick='setUseGround(true)'>White background</span>&nbsp;&nbsp;
+  <input type='checkbox' id='hide-ground' onclick='setUseGround(false)' /><span class='check-txt' onclick='setUseGround(false)'>Transparent</span>
+</p>
+<p>Transition:&nbsp;&nbsp;<input type='checkbox' id='use-trans' checked='checked' onclick='setUseTrans(true)' /><span class='check-txt' onclick='setUseTrans(true)'>Use transition</span>&nbsp;&nbsp;
+  <input type='checkbox' id='no-trans' onclick='setUseTrans(false)' /><span class='check-txt' onclick='setUseTrans(false)'>No transition</span>
+</p>
+<p>Page turning:&nbsp;<input type='checkbox' id='use-turning' checked='checked' onclick='setUseTurning(true)' /><span class='check-txt' onclick='setUseTurning(true)'>Normal</span>&nbsp;&nbsp;
+  <input type='checkbox' id='no-turning' onclick='setUseTurning(false)' /><span class='check-txt' onclick='setUseTurning(false)'>No page turning</span>
+</p>
+
+</body>
+</html>

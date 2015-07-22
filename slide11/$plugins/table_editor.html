@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Table editor</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.handsontable.full.js"></script>
+<link rel="stylesheet" media="screen" href="jquery.handsontable.full.css">
+
+<script type='text/cse' line='10'>
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  apiNode as document.getElementById("api-node");
+
+  apiNode.setHook("setCloseState", super(isOk):
+    hostWin as window.hostWin();
+    hostWin->closeState = isOk? 1: 2;
+    if isOk:
+      hostWin->tabData = JSB(document)..getTableData();
+    end;
+  end);
+end;
+
+end;
+</script>
+
+<script type="text/javascript">
+var hasInit = false;
+
+function initTableData(data,iRows,iCols,sFont) {
+  if (hasInit) return;
+  hasInit = true;
+  
+  if (sFont) {
+    var el = document.createElement('style');
+    el.innerHTML = ".handsontable {font-family: " + sFont + ";} textarea.handsontableInput {font-family: " + sFont + ";}";
+    document.body.appendChild(el);
+  }
+  
+  $('#example').handsontable({
+    data: data,           // [[]],
+    minRows: iRows || 4,
+    minCols: iCols || 4,
+    manualColumnResize: true,
+    minSpareCols: 0,
+    minSpareRows: 1,
+    autoWrapRow: true,
+    rowHeaders: true,
+    colHeaders: true,
+    contextMenu: true,
+  });
+  $('.ver').text($('#example').data('handsontable').version);
+}
+
+function initTableData2(b,iCol,jsonStr) {
+  if (hasInit) return;
+  hasInit = true;
+  
+  if (jsonStr) {
+    try {
+      var d = JSON.parse(jsonStr);
+      for (var key in d) {
+        b.push([key,JSON.stringify(d[key])]);
+      }
+    }
+    catch(e) { alert(e); }
+  }
+  
+  $('#example').handsontable({
+    data: b,   // [[]],
+    minRows: b.length || 4,
+    minCols: iCol || 4,
+    manualColumnResize: true,
+    minSpareCols: 0,
+    minSpareRows: 1,
+    autoWrapRow: true,
+    rowHeaders: true,
+    colHeaders: true,
+    contextMenu: true,
+  });
+  $('.ver').text($('#example').data('handsontable').version);
+}
+
+function getTableData() {
+  var ht = $('#example').handsontable('getInstance');
+  return ht.getData();
+}
+
+function finishEditing(isOk) {
+  var apiNode = document.getElementById('api-node');
+  apiNode.setCloseState(isOk);
+  window.close();
+}
+
+function setHintText(s) {
+  document.getElementById('hint-text').innerHTML = s;
+}
+</script>
+<style>
+body {
+  margin: 0px;
+  padding: 0px;
+  overflow: auto;
+}
+</style>
+</head>
+
+<body>
+<div id='api-node' style='display:none; visibility:hidden;'></div>
+
+<table style='width:100%; margin:0px; padding:2px; border:1px solid gray; border-spacing:0px;'>
+<tr><td><p id='hint-text'>&nbsp;</p></td>
+<td style='min-width:150px'>
+  <p style='text-align:right'>
+    <input type='button' style='width:60px' value='OK' onclick='finishEditing(true)' />
+    <input type='button' style='width:70px' value='Cancel' onclick='finishEditing(false)' />
+  </p>
+</td></tr>
+</table>
+
+<div id="example"></div>
+
+</body>
+</html>

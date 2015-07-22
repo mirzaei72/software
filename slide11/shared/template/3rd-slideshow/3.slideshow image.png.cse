@@ -1,0 +1,149 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='pinp-image slideshow-img' _zindex='996' _config='fullsize-fixed fit-contain default-round2-round3-round0 default-looser-impacted p1-p2-p3-p0' _left='-450' _top='-350' _width='900' _height='700'>\n<img draggable='false' src='/software/slide11/$ext/3rd-slideshow/background.jpg'><div class='rotate-txt'></div></div>";
+    apiNode->innerHTML = sHtml;
+    
+    newOne as H5Element = apiNode->childNodes[0];
+    currNode.appendChild(newOne);
+    apiNode->innerHTML = "";
+    
+    imgNode as H5Element = newOne.querySelector("img");
+    if imgNode != dummyElement:
+      imgNode->onload = super(this,event as SMeta):
+        JSB(newOne)..apiNode.callPlugin("slideshow-img","refresh",JSB..this);
+      end;
+    end;
+    
+    JSB(document)..apiNode.addPlugCode("slideshow-img","<script type='text/javascript'>\n" +
+"document.addEventListener('DOMContentLoaded', function(event){\n" +
+"  var renewFn = pluginOf('slideshow-img').refresh;\n" +
+"  var nodes = document.querySelectorAll('article > div.slideshow-img > img');\n" +
+"  for (var i=0,item; item=nodes[i]; i++) {\n" +
+"    if (apiNode.beenReadonly()) {\n" +
+"      var txtNode = item.nextSibling;\n" +
+"      if (txtNode && txtNode.classList.contains('rotate-txt')) txtNode.onclick = function(event){\n" +
+"        var sUrl='', node=event.target.previousSibling;\n" +
+"        if (node && node.nodeName == 'IMG') sUrl = node.getAttribute('_jump');\n" +
+"        if (sUrl) {\n" +
+"          event.preventDefault(); event.stopPropagation();\n" +
+"          window.open(sUrl,'_blank');\n" +
+"        }\n" +
+"      };\n" +
+"    }\n" +
+
+"    item.onload = function(ev) {\n" +
+"      var targ=ev.target, owner=targ.parentNode;\n" +
+"      renewFn(owner,targ);\n" +
+"    };\n" +
+"  }\n" +
+"},false);\n" +
+
+"(function(){\n" +
+"  window.addEventListener('resize', function(event){\n" +
+"    if (!PINP_FIX_FIT_X && !PINP_FIX_FIT_Y) return;\n" +
+"    setTimeout( function(){\n" +
+"      var renewFn = pluginOf('slideshow-img').refresh;\n" +
+"      var nodes = document.querySelectorAll('article > div.slideshow-img > img');\n" +
+"      for (var i=0,node; node=nodes[i]; i++) {\n" +
+"        renewFn(node.parentNode,node);\n" +
+"      }\n" +
+"    },0);\n" +
+"  },false);\n" +
+
+"  var dMod = pluginOf('slideshow-img');\n" +
+"  if (!dMod.title) {\n" +
+"    dMod.title = 'slideshow image';\n" +
+
+"    var refreshFunc = function(owner,targ) {\n" +
+"      if (!owner || !owner.classList.contains('fullsize-fixed')) return;\n" +
+"      if (!targ) targ = owner.querySelector('img');\n" +
+"      if (!targ || !targ.complete) return;\n" +
+"      var wdFull = SLIDE_HALF_WIDTH + SLIDE_HALF_WIDTH;\n" +
+"      var hiFull = SLIDE_HALF_HEIGHT + SLIDE_HALF_HEIGHT;\n" +
+"      var x,y, iWd=wdFull, iHi=hiFull;\n" +
+
+"      if (owner.classList.contains('fit-contain')) {\n" +
+"        x = -SLIDE_HALF_WIDTH; y = -SLIDE_HALF_HEIGHT;\n" +
+"      } else {\n" +
+"        var f = targ.naturalWidth / targ.naturalHeight;\n" +
+"        var f0 = SLIDE_HALF_WIDTH / SLIDE_HALF_HEIGHT;\n" +
+"        if (f >= f0)\n" +
+"          iHi = Math.floor(wdFull / f + 0.5);\n" +
+"        else iWd = Math.floor(hiFull * f + 0.5);\n" +
+"        x = 0 - Math.floor(iWd * 0.5 + 0.5);\n" +
+"        y = 0 - Math.floor(iHi * 0.5 + 0.5);\n" +
+"      }\n" +
+
+"      owner.setAttribute('_left',x+'');\n" +
+"      owner.setAttribute('_top',y+'');\n" +
+"      owner.setAttribute('_width',iWd+'');\n" +
+"      owner.setAttribute('_height',iHi+'');\n" +
+"      owner.style.left   = (SLIDE_HALF_WIDTH + x) + 'px';\n" +
+"      owner.style.top    = (SLIDE_HALF_HEIGHT + y) + 'px';\n" +
+"      owner.style.width  = iWd + 'px';\n" +
+"      owner.style.height = iHi + 'px';\n" +
+"      setTimeout(function(){apiNode.unselect();},0);\n" +
+"    };\n" +
+
+"    dMod.refresh = refreshFunc;\n" +
+"    dMod['contain-fit'] = refreshFunc;\n" +
+"    dMod['fit-contain'] = refreshFunc;\n" +
+"    dMod['fullsize-fixed'] = refreshFunc;\n" +
+"    dMod['fixed-fullsize'] = function(owner){\n" +
+"      if (!owner) return;\n" +
+"      var targ = owner.querySelector('img');\n" +
+"      if (!targ) return;\n" +
+"      var wd=400, hi=300;\n" +
+"      if (targ.complete) {\n" +
+"        wd = Math.floor(targ.naturalWidth); hi = Math.floor(targ.naturalHeight);\n" +
+"      };\n" +
+
+"      owner.setAttribute('_width',wd+'');\n" +
+"      owner.setAttribute('_height',hi+'');\n" +
+"      owner.style.width  = wd + 'px';\n" +
+"      owner.style.height = hi + 'px';\n" +
+"      setTimeout(function(){apiNode.unselect();},0);\n" +
+"    };\n" +
+
+"    dMod.getPluginMenu = function(node) {\n" +
+"      return [['bind URL',function(node) {\n" +
+"        var imgNode = node.querySelector('div.slideshow-img > img');\n" +
+"        if (imgNode) {\n" +
+"          var s = prompt('Input URL',imgNode.getAttribute('_jump')||'');\n" +
+"          if (typeof s == 'string') {\n" +
+"            if (!s)\n" +
+"              imgNode.removeAttribute('_jump');\n" +
+"            else imgNode.setAttribute('_jump',s);\n" +
+"            apiNode.setPageModified();\n" +
+"          }\n" +
+"        }\n" +
+"      }]];\n" +
+"    };\n" +
+"  }\n" +
+"})();\n" +
+"</script>" );
+    
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5

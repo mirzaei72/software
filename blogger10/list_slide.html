@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>PINP slides</title>
+
+<script type='text/javascript' src='js/messenger.js'></script>
+
+<script type='text/javascript'>
+var DOC_NUM_PER_PAGE = 20;
+
+var allDocList = [];
+var hasShowNum = 0;
+
+var DCF_ = null;
+var getDCF_ = function() {
+  if (!DCF_)
+    DCF_ = new Messenger.DCF(); // messenger.js must loaded
+  return DCF_;
+};
+
+function htmlEncode(s) {
+  if (s)
+    return s.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
+  else return '';
+}
+
+function showNextPage(isReset) {
+  var root = document.querySelector('div.list-container');
+  if (isReset) {
+    root.innerHTML = '';
+    hasShowNum = 0;
+  }
+  
+  var iLastOne, canShowAll = (hasShowNum+DOC_NUM_PER_PAGE+1 >= allDocList.length);
+  if (canShowAll)
+    iLastOne = allDocList.length - 1;
+  else {
+    if (hasShowNum == 0)
+      iLastOne = DOC_NUM_PER_PAGE - 2;
+    else iLastOne = hasShowNum + DOC_NUM_PER_PAGE - 1;
+  }
+  
+  var morNode = root.querySelector('img.get-more');
+  if (morNode) morNode.parentNode.removeChild(morNode);
+  
+  for (var i=hasShowNum,item; item=allDocList[i]; i++) {
+    if (i > iLastOne) break;
+    
+    var sLogo = (item.isNew?'unread_mark.png':'detail_to.png');
+    if (item.hasOpen) sLogo = 'has_read.png';
+    var sHtml = '<tr><td><img class="one-img" user="' + item.user + '" repo="' + item.repo + '" proj="' + item.proj + '" src="';
+    sHtml += item.img + '" onerror="onThumbErr(event)" /></td>';
+    sHtml += '<td><img class="one-state" src="/software/blogger10/' + sLogo + '"></td><td><div class="one-desc">' + item.desc + '</div></td></tr>';
+    
+    var one = document.createElement('table');
+    one.className = 'list-item';
+    one.innerHTML = sHtml;
+    root.appendChild(one);
+    hasShowNum += 1;
+  }
+  
+  if (!canShowAll) {
+    var one = document.createElement('img');
+    one.className = 'get-more';
+    one.title = 'Click to show more';
+    one.onclick = function(event) {
+      showNextPage(false);
+    };
+    one.src = '/software/blogger10/get_more.jpg';
+    root.appendChild(one);
+  }
+}
+
+function findDocItem(sUser,sRepo,sProj) {
+  for (var i=0,item; item=allDocList[i]; i++) {
+    if (item.proj == sProj && item.user == sUser && item.repo == sRepo)
+      return item;
+  }
+  return null;
+}
+
+function openOneslide(event) {
+  var imgNode=null, targ=event.target;
+  while (targ) {
+    if (targ.nodeName == 'IMG' && targ.classList.contains('one-img'))
+      imgNode = targ;
+    else if (targ.nodeName == 'TABLE' && targ.classList.contains('list-item'))
+      break;
+    targ = targ.parentNode;
+  }
+  if (!targ || !imgNode) return;
+  
+  var sUser = imgNode.getAttribute('user');
+  var sRepo = imgNode.getAttribute('repo');
+  var sUrl = imgNode.getAttribute('proj'); // such as: $$doc/test.blog
+  if (sUser && sRepo && sUrl) {
+    var stateNode = targ.querySelector('img.one-state');
+    if (stateNode) stateNode.src = '/software/blogger10/has_read.png';
+    var obj = findDocItem(sUser,sRepo,sUrl);
+    if (obj) obj.hasOpen = true;
+    
+    getDCF_().call('parent','showSlideDoc',[sUser,sRepo,sUrl+'/']);
+  }
+}
+
+function onThumbErr(event) {
+  var targ = event.target;
+  if (!targ || targ.nodeName != 'IMG') return;
+  targ.onerror = null;
+  
+  var sProj = targ.getAttribute('proj') || '';
+  var ss = sProj.split('/').pop();
+  if (ss.slice(ss.length-5) == '.blog')
+    ss = 'pinp_blog.jpg';
+  else ss = 'slideshow.jpg';
+  targ.src = ss;
+}
+
+document.addEventListener('DOMContentLoaded', function(event) {
+  getDCF_().regist('setSlides', function(bArgs) {
+    allDocList = [];
+    for (var i=0; i < bArgs.length; i++) {
+      var item = bArgs[i];
+      var sUser=item[0], sRepo=item[1];
+      var sProj=item[2], sImgFile=item[3], isUnread=item[4];
+      var sTitle=item[5]||'', sDesc=item[6]||'';  // item[7] is fModifyTime
+      
+      if (!sDesc)
+        sDesc = 'File: ' + sProj.split('/').pop();
+      if (sTitle)
+        sDesc = '<span class="one-title">' + htmlEncode(sTitle) + '</span><br>' + htmlEncode(sDesc);
+      else sDesc = htmlEncode(sDesc);
+      if (!sImgFile)
+        sImgFile = '/' + sRepo + '/' + sProj + '/$thumbnail.png';
+      allDocList.push({'user':sUser, 'repo':sRepo, 'desc':sDesc, 'proj':sProj, 'img':sImgFile, 'isNew':isUnread});
+    }
+    
+    setTimeout( function() {
+      showNextPage(true);
+    },0);
+  });
+  
+  getDCF_().regist('setOpened', function(bArgs) {
+    var sUser=bArgs[0], sRepo=bArgs[1], sProj=bArgs[2] || '';
+    var nodes = document.querySelectorAll('img.one-img[proj="' + sProj + '"]');
+    for (var i=0,item; item=nodes[i]; i++) {
+      if (item.getAttribute('user') === sUser && item.getAttribute('repo') === sRepo) {
+        var owner = item.parentNode;
+        while (owner) {
+          if (owner.nodeName == 'TABLE')
+            break;
+          else owner = owner.parentNode;
+        }
+        if (owner) {
+          var stateNode = owner.querySelector('img.one-state');
+          if (stateNode) stateNode.src = '/software/blogger10/has_read.png';
+        }
+        break;
+      }
+    }
+    
+    var obj = findDocItem(sUser,sRepo,sProj);
+    if (obj) obj.hasOpen = true;
+  });
+},false);
+</script>
+
+<style>
+body,div {
+  padding: 0px;
+  margin: 0px;
+}
+body {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
+
+.list-container {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.get-more {
+  float: left;
+  padding: 2px 4px;
+  width: 160px;
+  height: 124px;
+}
+.list-item {
+  float: left;
+  padding: 2px 4px;
+  width: 428px;
+  height: 124px;
+  
+  color: #222;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: left;
+  vertical-align: middle;
+  overflow: hidden;
+/* -ms-word-break: break-all; word-break: break-all; */
+}
+.one-title {
+  color: #804040;
+}
+.one-desc {
+  max-height: 122px;
+  overflow: hidden;
+}
+.one-img {
+  width: 150px;
+  height: 120px;
+  background: url('loading.gif') no-repeat scroll center center transparent;
+  
+  -ms-transform-origin: 50% 50%;
+  -webkit-transform-origin: 50% 50%;
+  -moz-transform-origin: 50% 50%;
+  -o-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+}
+.one-img:hover {
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -o-transform: scale(1.1);
+  -ms-transform: scale(1.1);
+  transform: scale(1.1);
+}
+.list-item td:first-child {
+  width: 150px;
+}
+.list-item td:nth-child(2) {
+  width: 20px;
+}
+</style>
+</head>
+
+<body name='mng-frm'>
+
+<div class='list-container' onclick='openOneslide(event)'>
+</div>
+
+</body>
+</html>

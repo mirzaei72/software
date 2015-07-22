@@ -1,0 +1,32 @@
+#include "h5lib.h";
+
+namespace H5:
+
+return super(window as H5Window):
+  document as window->document;
+  taskConfig as window.hostWin()->taskConfig;
+  apiNode as document.getElementById("slide-api");
+  
+  currNode as H5Element();
+  currId as SStr = JSB(document)..apiNode.currSlideId();
+  if currId.size():
+    currNode = document.getElementById(currId);
+  end;
+  
+  if currNode != dummyElement:
+    sHtml as SStr = "<div class='ebook-chartindex' _config='normal-large-small default-looser-impacted default-column2-column3 gap2-gap3-gap1 rule1-rule2-rule3-default' _zindex='994' _left='%1' _top='%2' _width='400' _height='120'><ul><li>Table A1</li><li><a href='#'>5</a></li></ul><ul><li>Table A2</li><li><a href='#'>7</a></li></ul><ul><li>Chart B1</li><li><a href='#'>8</a></li></ul><ul><li>Chart B2</li><li><a href='#'>10</a></li></ul></div>\n";
+    apiNode->innerHTML = sHtml.args(taskConfig->mouseX,taskConfig->mouseY);
+    
+    currNode.appendChild(apiNode->childNodes[0]);
+    apiNode->innerHTML = "";
+    
+    JSB(document)..apiNode.initPagePos(currId);
+    JSB(document)..apiNode.renewCurrSlide();
+    JSB(document)..apiNode.selectLastAdded();
+    
+    window.bringToTop(true);
+    JSB(document)..apiNode.setPageModified(currId);
+  end;
+end;
+
+end;  ## end of namespace H5
