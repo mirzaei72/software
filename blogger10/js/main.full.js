@@ -175,6 +175,8 @@ var lastRepoTime = {};
 var docConfig    = {};
 var otherConfigs = [];
 
+var autoOpenURL = '';
+
 var LastSlideList_ = [];
 var LastSlideListId_ = '';  // current listed category
 
@@ -255,13 +257,24 @@ function setUserItem(node,iUnread,userName,repoName,repoDesc) {
 function checkWhenCfgLoad() {
   var node = document.querySelector('div.btn-user[loading]');
   if (node) return; // still has some in loading
-  if (otherConfigs.length == 0) return; // current only use one user-repo
   
-  var sCate = getCookie__('cate_' + docConfig.user_name + '_@ALL') || '';
-  if (sCate)
-    lastCateHit[docConfig.user_name + '_@ALL'] = sCate;
+  if (otherConfigs.length > 0) {
+    var sCate = getCookie__('cate_' + docConfig.user_name + '_@ALL') || '';
+    if (sCate)
+      lastCateHit[docConfig.user_name + '_@ALL'] = sCate;
+    
+    addUserItem(0,docConfig.user_name,'ALL','','Collect above all',false,65535);
+  }
   
-  addUserItem(0,docConfig.user_name,'ALL','','Collect above all',false,65535);
+  if (autoOpenURL) {
+    var bArgs = ['','',autoOpenURL];
+    autoOpenURL = '';
+    setTimeout( function() {
+      document.body.guiIsReady_ = true;
+      openOneDoc(bArgs);
+    },500);
+  }
+  else document.body.guiIsReady_ = true;
 }
 
 function repoAllListByCate(sCurrCate) {
@@ -594,6 +607,38 @@ function userBtnClick(event) {
   }
 }
 
+function openOneDoc(bArgs) {
+  var sUser=bArgs[0], sRepo=bArgs[1], sUrl=bArgs[2];
+  if (!sUrl) return;
+  if (sUrl[0] == '$' && sUrl[1] == '$') {
+    var dCfg = getUserConfig(sUser,sRepo);
+    if (!dCfg) return;
+    
+    var sBase = dCfg.repoUrl || ('/' + dCfg.repos_name + '/');
+    sUrl = sBase + sUrl;
+  }
+  
+  switchToView('slide');
+  var frm = document.getElementById('doc-frm');
+  if (sUser)
+    frm.setAttribute('user',sUser);
+  else frm.removeAttribute('user');
+  if (sRepo)
+    frm.setAttribute('repo',sRepo);
+  else frm.removeAttribute('repo');
+  frm.setAttribute('path',sUrl);
+  
+  setTimeout( function() {
+    restoreBusyState();
+  },10000); // max show 10 seconds
+  frm.onload = function(event) {
+    frm.onload = null;
+    restoreBusyState();
+  }
+  setBusyState();
+  frm.src = sUrl;
+}
+
 //------------------------------------------------
 function prevNextSlideUrl(bOut,isLeft) {
   var node = document.querySelector('span.btn-dir.current');
@@ -839,7 +884,19 @@ document.addEventListener('DOMContentLoaded', function(event) {
     document.body.innerHTML = '<h2>Unknown browser type</h2>';
     return;
   }
-  
+},false);
+
+function parseParam(sArg) {
+  if (sArg) sArg = sArg.slice(1); // remove '?'
+  var d={}, b=sArg.split('&');
+  for (var i=b.length-1; i >= 0; i--) {
+    var item=b[i], b2=item.split('='), s1=(b2[0]||'').trim();
+    if (s1) d[s1] = b2[1] || '';
+  }
+  return d;
+}
+
+window.addEventListener('load', function(event) {
   var addScriptToHead_ = function(sSrc,fn) {
     var node = document.createElement('script');
     if (typeof fn == 'function') node.onload = fn;
@@ -848,9 +905,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
     document.querySelector('head').appendChild(node);
   };
   addScriptToHead_('//www.pinp.me/software/pages/blogger/js/menu.js');
-},false);
-
-window.addEventListener('load', function(event) {
+  
   bodyOnResize();
   window.addEventListener('resize',bodyOnResize,false);
   document.addEventListener('keydown',handleDocKeyDown,false);
@@ -888,32 +943,7 @@ window.addEventListener('load', function(event) {
     }
   });
   
-  getDCF_().regist('showSlideDoc', function(bArgs) {
-    var sUser=bArgs[0], sRepo=bArgs[1], sUrl=bArgs[2];
-    if (sUrl[0] == '$' && sUrl[1] == '$') {
-      var dCfg = getUserConfig(sUser,sRepo);
-      if (!dCfg) return;
-      
-      var sBase = dCfg.repoUrl || ('/' + dCfg.repos_name + '/');
-      sUrl = sBase + sUrl;
-    }
-    
-    switchToView('slide');
-    var frm = document.getElementById('doc-frm');
-    frm.setAttribute('user',sUser);
-    frm.setAttribute('repo',sRepo);
-    frm.setAttribute('path',sUrl);
-    
-    setTimeout( function() {
-      restoreBusyState();
-    },10000); // max show 10 seconds
-    frm.onload = function(event) {
-      frm.onload = null;
-      restoreBusyState();
-    }
-    setBusyState();
-    frm.src = sUrl;
-  });
+  getDCF_().regist('showSlideDoc',openOneDoc);
   
   getDCF_().regist('switchFullScreen', function(bArgs) {
     var oldState = isEnterFS_;
@@ -938,6 +968,9 @@ window.addEventListener('load', function(event) {
 
   var iUsrIndex = 0;
   setRelatedRepo(iUsrIndex,'config.json',false, function() {
+    var param = parseParam(location.search);
+    autoOpenURL = decodeURIComponent(param.opendoc || '');
+    
     for (var i=0; i < 2; i++) {
       var b = (i==0?docConfig.builtin_repos:docConfig.imported_repos) || [];
       var sUser = docConfig.user_name;

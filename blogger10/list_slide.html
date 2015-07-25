@@ -81,15 +81,22 @@ function findDocItem(sUser,sRepo,sProj) {
 }
 
 function openOneslide(event) {
-  var imgNode=null, targ=event.target;
+  var imgNode=null, titNode=null, targ=event.target;
   while (targ) {
+    if (targ.nodeName == 'SPAN' && targ.classList.contains('one-title'))
+      titNode = targ;
     if (targ.nodeName == 'IMG' && targ.classList.contains('one-img'))
       imgNode = targ;
     else if (targ.nodeName == 'TABLE' && targ.classList.contains('list-item'))
       break;
     targ = targ.parentNode;
   }
-  if (!targ || !imgNode) return;
+  if (!targ || (!imgNode && !titNode)) return;
+  
+  if (!imgNode) {
+    imgNode = targ.querySelector('img.one-img');
+    if (!imgNode) return;
+  }
   
   var sUser = imgNode.getAttribute('user');
   var sRepo = imgNode.getAttribute('repo');
@@ -124,12 +131,13 @@ document.addEventListener('DOMContentLoaded', function(event) {
       var item = bArgs[i];
       var sUser=item[0], sRepo=item[1];
       var sProj=item[2], sImgFile=item[3], isUnread=item[4];
-      var sTitle=item[5]||'', sDesc=item[6]||'';  // item[7] is fModifyTime
+      var sTitle=item[5]||'', sDesc=item[6]||'', tm=new Date(item[7]*1000);
+      var sTime = tm.toLocaleDateString() + ' ' + tm.toLocaleTimeString();
       
       if (!sDesc)
         sDesc = 'File: ' + sProj.split('/').pop();
       if (sTitle)
-        sDesc = '<span class="one-title">' + htmlEncode(sTitle) + '</span><br>' + htmlEncode(sDesc);
+        sDesc = '<span class="one-title" title="' + sTime + '">' + htmlEncode(sTitle) + '</span><br>' + htmlEncode(sDesc);
       else sDesc = htmlEncode(sDesc);
       if (!sImgFile)
         sImgFile = '/' + sRepo + '/' + sProj + '/$thumbnail.png';
@@ -234,6 +242,10 @@ body {
 }
 .list-item td:nth-child(2) {
   width: 20px;
+}
+span.one-title:hover {
+  text-decoration: underline;
+  cursor: default;
 }
 </style>
 </head>
