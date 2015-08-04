@@ -186,11 +186,12 @@ function repoCateDocList(dCfg,sCate) {
   var sPrefix = '$$' + sCate + '/';
   
   for (var i=0,item; item=bDoc[i]; i++) { // bDoc already has sorted
-    if (item.path.indexOf(sPrefix) == 0) {
+    var iFlag = item.flag || 3;
+    if (item.path.indexOf(sPrefix) == 0 && (iFlag&0x100) == 0) {
       var sImgUrl = item.thumb || '';
       if (sImgUrl && sImgUrl[0] == '$' && sImgUrl[1] == '$')
         sImgUrl = repoUrl + sImgUrl;
-      bList.push([dCfg.user_name,dCfg.repos_name,item.path,sImgUrl,item.isUnread || false,item.title || '',item.desc || '',item.modify_at || 0]);
+      bList.push([dCfg.user_name,dCfg.repos_name,item.path,sImgUrl,item.isUnread || false,item.title || '',item.desc || '',item.modify_at || 0,iFlag]);
     }
   }
   return bList;
@@ -310,11 +311,12 @@ function repoAllListByCate(sCurrCate) {
       }
       
       // step 3: add item-info if cate matched
-      if (sPath.indexOf(sPrefix) == 0) {
+      var iFlag = item2.flag || 3;
+      if (sPath.indexOf(sPrefix) == 0 && (iFlag&0x100) == 0) {
         var sImgUrl = item2.thumb || '';
         if (sImgUrl && sImgUrl[0] == '$' && sImgUrl[1] == '$')
           sImgUrl = repoUrl + sImgUrl;
-        bList.push([dCfg.user_name,dCfg.repos_name,sPath,sImgUrl,item2.isUnread || false,item2.title || '',item2.desc || '',item2.modify_at || 0]);
+        bList.push([dCfg.user_name,dCfg.repos_name,sPath,sImgUrl,item2.isUnread || false,item2.title || '',item2.desc || '',item2.modify_at || 0,iFlag]);
       }
     }
   }
