@@ -1,0 +1,27 @@
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/normalize.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/pinp_text.css" />
+
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/font-awesome.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/themes/popclip.css" />
+<link rel="stylesheet" type="text/css" href="/software/slide11/$plugins/popline/css/page.css" />
+
+<style>
+body {
+  overflow: hidden;
+}
+.container {
+  width: 350px;
+  margin: 40px 6px;
+}
+.editor {
+  width: 100%;
+  height: 100%;
+}
+</style>
+
+<section class="container"><article class="content">
+<div id="txt-widget" class="small-default-large">
+  <div class="editor" contenteditable="true" onmousedown='poplineClicked(event)'>title</div>
+</div>
+</article>
+</section>

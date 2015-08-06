@@ -1,0 +1,115 @@
+<style>
+body {
+  overflow: hidden;
+}
+.ctrl-mask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  z-index: 1;
+  background-color: rgba(0,0,0,0);
+  background: url("/software/pages/loading4.gif") no-repeat 80px 24px;
+}
+.ctrl-adding {
+  position: absolute;
+  width: 100px;
+  height: 140px;
+  left: 1024px;
+  top: 0px;
+  z-index: 1;
+  
+  background-color: #fff;
+  overflow: hidden;
+}
+.ctrl-delete {
+  position: absolute;
+  left: -1024px;
+  top: 6px;
+  width: 36px;
+  height: 36px;
+  z-index: 1;
+}
+.ctrl-panel {
+  position: absolute;
+  width: 20px;
+  height: 100%;
+  z-index: 2;
+  background-color: rgb(160,160,160);
+}
+.prev-page {
+  left: 0px;
+  top: 0px;
+}
+.prev-page:hover {
+  background: url(/software/pages/page_up.png) no-repeat center;
+  background-size: 100% 100%;
+}
+.prev-slide {
+  left: 20px;
+  top: 0px;
+  background-color: rgb(200,200,200);
+}
+.prev-slide:hover {
+  background: url(/software/pages/item_up.png) no-repeat center;
+  background-size: 100% 100%;
+}
+.next-slide {
+  left: 984px;
+  top: 0px;
+  background-color: rgb(200,200,200);
+}
+.next-slide:hover {
+  background: url(/software/pages/item_down.png) no-repeat center;
+  background-size: 100% 100%;
+}
+.next-page {
+  left: 1004px;
+  top: 0px;
+}
+.next-page:hover {
+  background: url(/software/pages/page_down.png) no-repeat center;
+  background-size: 100% 100%;
+}
+
+.ctrl-getdrop {
+  margin: 8px 20px 4px 20px;
+  width: 60px;
+  height: 60px;
+  border: 1px dashed #888;
+  background: url(/software/pages/preview_add.png) no-repeat center;
+}
+.ctrl-draghover {
+  border-color: #f00;
+  border-style: solid;
+  box-shadow: inset 0 3px 4px #888;
+}
+</style>
+
+<div id='slide-api'></div>
+<ul id='slide-menu'></ul>
+
+<div class="plugin-code"></div>
+<section class='slides template-default noselect-txt'>
+<style id='background-css'>
+body {background:rgba(0,0,0,0);}
+</style>
+<style id='logo-css'>
+.slides.template-default > article:not(.nologo) {}
+</style>
+</section>
+
+<div class='ctrl-panel prev-page noselect-txt'></div>
+<div class='ctrl-panel prev-slide noselect-txt'></div>
+<div class='ctrl-panel next-slide noselect-txt'></div>
+<div class='ctrl-panel next-page noselect-txt'></div>
+<div class='ctrl-mask noselect-txt' draggable='true'></div>
+
+<div class='ctrl-adding noselect-txt'>
+  <div class='ctrl-getdrop' title='New page with dropped background image'></div>
+  <button title='New empty page' style='margin:2px 20px; width:60px; height:30px'><img src='/software/pages/preview_add2.png'></button>
+</div>
+
+<div class='ctrl-delete noselect-txt'><img title='delete this page' src='/software/pages/res_remove.png'></div>
+<img class='ctrl-pageimg' style='position:absolute; left:-1024px; top:0px' src='/software/pages/prj_page.png'>

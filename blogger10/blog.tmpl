@@ -4,7 +4,6 @@
 <head>
 <meta charset='utf-8'>
 <script type='text/javascript' src='/software/blogger10/js/marked.js'></script>
-<script type='text/javascript' src='/software/slide11/$script/ctrlbar2.js'></script>
 <title>PINP Blog</title>
 
 <script type="text/javascript">
@@ -68,9 +67,10 @@ function handleWinLoaded(event) {
     }
     node.innerHTML = sTit;
   };
-  var addScriptToHead_ = function(sSrc,fn) {
+  var addScriptToHead_ = function(sSrc,fn,async) {
     var node = document.createElement('script');
     if (typeof fn == 'function') node.onload = fn;
+    if (async) node.async = 1;
     node.src = sSrc;
     headNode.appendChild(node);
   };
@@ -126,6 +126,8 @@ function handleWinLoaded(event) {
         catch(e) {}
       }
     }
+    
+    addScriptToHead_(location.hostname == 'localhost'?'':'//www.pinp.me/software/slide11/$script/ctrlbar2.js',null,true);
   });
 }
 
