@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<link rel='bookmark' type='text/css' href='/software/slide11/$script/styles.css' />
+<script type='text/javascript' src='/software/slide11/$plugins/esl.js'></script>
+<script type='text/javascript' src='/software/slide11/$script/config.js'></script>
+<script type='text/javascript' src='/software/slide11/$script/slides.js'></script>
+<title>Presentation</title>
+</head>
+
+<body style='display: none'>
+<div id='slide-api'></div>
+<div id='position-hint'></div>
+<ul id='slide-menu'></ul>
+
+<script type="text/javascript">
+SLIDE_LOAD_TXT = true;
+SLIDE_RELEASED = true;
+SLIDE_START_STYLE = "narrow";
+SLIDE_NO_TURNING = 0;
+SLIDE_PAGE_UPDN = "";
+SLIDE_PAGE_TAG = 5;
+SLIDE_PAGE_FORMAT = "<table style='width:100%; border:0px; font-size:12px; text-align:center;'><tr><td style='width:10%;'></td><td style='width:10%;'></td><td></td><td style='width:10%;'>%current% / %total%</td><td style='width:2%;'></td></tr></table>";
+SLIDE_TITLE = "Presentation";
+</script>
+
+<div class="plugin-code">
+<div name="slideshow-img"><script type='text/javascript'>
+document.addEventListener('DOMContentLoaded', function(event){
+  var renewFn = pluginOf('slideshow-img').refresh;
+  var nodes = document.querySelectorAll('article > div.slideshow-img > img');
+  for (var i=0,item; item=nodes[i]; i++) {
+    if (apiNode.beenReadonly()) {
+      var txtNode = item.nextSibling;
+      if (txtNode && txtNode.classList.contains('rotate-txt')) txtNode.onclick = function(event){
+        var sUrl='', node=event.target.previousSibling;
+        if (node && node.nodeName == 'IMG') sUrl = node.getAttribute('_jump');
+        if (sUrl) {
+          event.preventDefault(); event.stopPropagation();
+          window.open(sUrl,'_blank');
+        }
+      };
+    }
+    item.onload = function(ev) {
+      var targ=ev.target, owner=targ.parentNode;
+      renewFn(owner,targ);
+    };
+  }
+},false);
+(function(){
+  window.addEventListener('resize', function(event){
+    if (!PINP_FIX_FIT_X && !PINP_FIX_FIT_Y) return;
+    setTimeout( function(){
+      var renewFn = pluginOf('slideshow-img').refresh;
+      var nodes = document.querySelectorAll('article > div.slideshow-img > img');
+      for (var i=0,node; node=nodes[i]; i++) {
+        renewFn(node.parentNode,node);
+      }
+    },0);
+  },false);
+  var dMod = pluginOf('slideshow-img');
+  if (!dMod.title) {
+    dMod.title = 'slideshow image';
+    var refreshFunc = function(owner,targ) {
+      if (!owner || !owner.classList.contains('fullsize-fixed')) return;
+      if (!targ) targ = owner.querySelector('img');
+      if (!targ || !targ.complete) return;
+      var wdFull = SLIDE_HALF_WIDTH + SLIDE_HALF_WIDTH;
+      var hiFull = SLIDE_HALF_HEIGHT + SLIDE_HALF_HEIGHT;
+      var x,y, iWd=wdFull, iHi=hiFull;
+      if (owner.classList.contains('fit-contain')) {
+        x = -SLIDE_HALF_WIDTH; y = -SLIDE_HALF_HEIGHT;
+      } else {
+        var f = targ.naturalWidth / targ.naturalHeight;
+        var f0 = SLIDE_HALF_WIDTH / SLIDE_HALF_HEIGHT;
+        if (f >= f0)
+          iHi = Math.floor(wdFull / f + 0.5);
+        else iWd = Math.floor(hiFull * f + 0.5);
+        x = 0 - Math.floor(iWd * 0.5 + 0.5);
+        y = 0 - Math.floor(iHi * 0.5 + 0.5);
+      }
+      owner.setAttribute('_left',x+'');
+      owner.setAttribute('_top',y+'');
+      owner.setAttribute('_width',iWd+'');
+      owner.setAttribute('_height',iHi+'');
+      owner.style.left   = (SLIDE_HALF_WIDTH + x) + 'px';
+      owner.style.top    = (SLIDE_HALF_HEIGHT + y) + 'px';
+      owner.style.width  = iWd + 'px';
+      owner.style.height = iHi + 'px';
+      setTimeout(function(){apiNode.unselect();},0);
+    };
+    dMod.refresh = refreshFunc;
+    dMod['contain-fit'] = refreshFunc;
+    dMod['fit-contain'] = refreshFunc;
+    dMod['fullsize-fixed'] = refreshFunc;
+    dMod['fixed-fullsize'] = function(owner){
+      if (!owner) return;
+      var targ = owner.querySelector('img');
+      if (!targ) return;
+      var wd=400, hi=300;
+      if (targ.complete) {
+        wd = Math.floor(targ.naturalWidth); hi = Math.floor(targ.naturalHeight);
+      };
+      owner.setAttribute('_width',wd+'');
+      owner.setAttribute('_height',hi+'');
+      owner.style.width  = wd + 'px';
+      owner.style.height = hi + 'px';
+      setTimeout(function(){apiNode.unselect();},0);
+    };
+    dMod.getPluginMenu = function(node) {
+      return [['bind URL',function(node) {
+        var imgNode = node.querySelector('div.slideshow-img > img');
+        if (imgNode) {
+          var s = prompt('Input URL',imgNode.getAttribute('_jump')||'');
+          if (typeof s == 'string') {
+            if (!s)
+              imgNode.removeAttribute('_jump');
+            else imgNode.setAttribute('_jump',s);
+            apiNode.setPageModified();
+          }
+        }
+      }]];
+    };
+  }
+})();
+</script></div>
+<div name="slideshow-info"><script type='text/javascript'>
+(function() {
+  var refreshWdgt = function() {
+    var nodes = document.querySelectorAll('article > div.slideshow-info');
+    for (var i=0,owner; owner=nodes[i]; i++) {
+      var iHi = parseInt(owner.getAttribute('_height') || 140);
+      iHi = Math.min(iHi,SLIDE_HALF_HEIGHT+SLIDE_HALF_HEIGHT);
+      owner.setAttribute('_left','-'+SLIDE_HALF_WIDTH);
+      owner.setAttribute('_top',(SLIDE_HALF_HEIGHT-iHi)+'');
+      owner.setAttribute('_width',(SLIDE_HALF_WIDTH+SLIDE_HALF_WIDTH)+'');
+      owner.setAttribute('_height',iHi+'');
+      owner.style.left   = '0px';
+      owner.style.top    = (SLIDE_HALF_HEIGHT + SLIDE_HALF_HEIGHT - iHi) + 'px';
+      owner.style.width  = (SLIDE_HALF_WIDTH+SLIDE_HALF_WIDTH) + 'px';
+      owner.style.height = iHi + 'px';
+    }
+  };
+  document.addEventListener('DOMContentLoaded', function(event){
+    refreshWdgt();
+  },false);
+  window.addEventListener('resize', function(event){
+    if (PINP_FIX_FIT_X || PINP_FIX_FIT_Y) setTimeout(refreshWdgt,0);
+  },false);
+})();
+</script><style>
+div.slideshow-info {color:#fff; overflow:hidden;}
+div.slideshow-info > p {padding-left:10px; padding-right:10px;}
+</style></div>
+<div name="slideshow-frame"><script type="text/javascript">
+(function(){
+  var dMod = pluginOf('slideshow-frame');
+  if (!dMod.title) {
+    dMod.title = 'slideshow frame';
+    dMod.remake = function(node) {
+      if (startByReadonly_) return;
+      var divNode = node.querySelector('div.slideshow-frame > div');
+      if (divNode) divNode.style.display = 'block';
+    };
+    dMod.oncreated = function(event) {
+      if (event.target) pluginOf('slideshow-frame').remake(event.target);
+    };
+    dMod.getPluginMenu = function(node) {
+      return [['bind URL',function(node) {
+        var frmNode = node.querySelector('div.slideshow-frame > iframe');
+        if (frmNode) {
+          var s = prompt('Input URL',frmNode.getAttribute('src')||'');
+          if (typeof s == 'string') {
+            frmNode.setAttribute('src',s);
+            apiNode.setPageModified();
+          }
+        }
+      }]];
+    };
+  };
+  document.addEventListener('DOMContentLoaded', function(event) {
+    var sShow = startByReadonly_?'none':'block';
+    var nodes = document.querySelectorAll('div.slideshow-frame > div');
+    for (var i=0,item; item=nodes[i]; i++) {item.style.display = sShow;}
+  },false);
+})();
+</script><style>
+.slideshow-frame {overflow:hidden}
+.slideshow-frame > div {display:none; position:relative; left:0px; top:-100%; width:100%; height:100%;}
+</style></div>
+</div>
+
+<section class="slides template-default">
+<style id="logo-css">
+.slides.template-default > article:not(.nologo) {}
+</style>
+</section>
+
+</body>
+</html>
