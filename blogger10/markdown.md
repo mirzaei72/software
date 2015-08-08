@@ -81,15 +81,15 @@ PINP uses [formal markdown syntax][md_syntax] and some html tags
 that help embedding one or more PINP documents. For example, insert an 
 `<iframe>` by following code:
 
-      <iframe frameborder="0" width="100%" height="700" src="/www/$$doc/sample_doc/?size=0x0"></iframe>
+      <iframe frameborder="0" width="500" height="280" src="/software/slide11/$ext/3rd-slideshow/ad.sshow/?size=0x0&autoplay=3&background-color=rgb(255,255,255)&no-frame=1"></iframe>
 
-<iframe frameborder="0" width="100%" height="700" src="/www/$$doc/sample_doc/?size=0x0"></iframe>
+<iframe frameborder="0" width="500" height="280" src="/software/slide11/$ext/3rd-slideshow/ad.sshow/?size=0x0&autoplay=3&background-color=rgb(255,255,255)&no-frame=1"></iframe>
 
 ### How to edit markdown file in PINP
 
 There are two ways to create and edit PINP blog, one is online editing 
-that requires user login to [PINP website][pinp] and create or edit
-a blog online. Another way is offline editing, follow these steps: 
+that requires user login to [PINP website][pinp] (or your github PINP editor),
+then create or edit a blog online. Another way is offline editing, follow these steps: 
 
  1. Install *PINP client tool* in your local machine
  2. Create a blog folder in Windows Explorer, the folder name should 

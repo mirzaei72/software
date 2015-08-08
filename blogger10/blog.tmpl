@@ -71,8 +71,8 @@ function handleWinLoaded(event) {
     var node = document.createElement('script');
     if (typeof fn == 'function') node.onload = fn;
     if (async) node.async = 1;
-    node.src = sSrc;
     headNode.appendChild(node);
+    node.src = sSrc;
   };
   
   var sContent = getSynRequest('$index.md');
@@ -127,7 +127,8 @@ function handleWinLoaded(event) {
       }
     }
     
-    addScriptToHead_(location.hostname == 'localhost'?'':'//www.pinp.me/software/slide11/$script/ctrlbar2.js',null,true);
+    if (location.hostname != 'localhost')
+      addScriptToHead_('//www.pinp.me/software/slide11/$script/ctrlbar2.js',null,true);
   });
 }
 
