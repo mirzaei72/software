@@ -64,14 +64,8 @@ function gotoEditor() {
 }
 
 window.addEventListener('load', function(event) {
-  sAccToken = getCookie__('git_tok');
-  if (sAccToken) {
-    var b = location.pathname.split('/');
-    b.pop();
-    delCookie__('git_tok',b.join('/'));
-  }
-  
   var param = parseParam(location.search);
+  sAccToken = param.tok || '';
   sAccTask = param.task || '';
   sAccSak = param.info || '';
   if (!sAccToken || !sAccSak) return;
