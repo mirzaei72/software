@@ -8,7 +8,8 @@
 <script type='text/javascript'>
 var sAccSak   = '';
 var sAccTask  = '';
-var sAccToken = '';
+
+var PINP_HOST_DOMAIN = 'www.pinp.me';
 
 function getCookie__(name) {
   if (document.cookie.length > 0) {
@@ -58,18 +59,18 @@ function parseParam(sArg) {
 }
 
 function gotoEditor(sName) {
-  var sUrl = '//www.pinp.me/software/pages/blogger/goto_task.action?info=' + sAccSak;
+  var sUrl = '//' + PINP_HOST_DOMAIN + '/software/pages/blogger/goto_task.action?info=' + sAccSak;
   sUrl += '&task=editor&login=' + sName;
   location.replace(sUrl);
 }
 
 window.addEventListener('load', function(event) {
   var param = parseParam(location.search);
-  sAccToken = param.tok || '';
   sAccTask = param.task || '';
   sAccSak = param.info || '';
-  if (!sAccToken || !sAccSak) return;
+  if (!sAccTask || !sAccSak) return;
   
+  var accessToken = '';
   var processErrName = '';
   var processErrDesc = '';
   var currUser = null;
@@ -85,7 +86,8 @@ window.addEventListener('load', function(event) {
     }
   }
   
-  var nextStep = function() {
+  // step 3: show result
+  var showResultGui = function() {
     var sHtml = '';
     if (processErrName) {
       sHtml = '<div class="info-box"><div class="info-header"><h2>Login failed</h2></div>';
@@ -104,58 +106,76 @@ window.addEventListener('load', function(event) {
     document.body.innerHTML = sHtml;
   };
   
-  if (!sAccToken || !sAccSak) {
-    processErrName = 'Unauthorized';
-    processErrDesc = 'authorization failed';
-    nextStep();
-    return;
-  }
-  
-  $.ajax({ type: 'GET',
-    url: 'https://api.github.com/user?access_token=' + sAccToken,
-    
-    success: function(res) {
-      currUser = res;
+  // step 2: read config
+  var readBlogCfg = function() {
+    $.ajax({ type: 'GET',
+      url: 'https://api.github.com/user?access_token=' + accessToken,
       
-      $.ajax({ type: 'GET',
-        url: '//' + currUser.login + '.github.io/software/blogger10.json',
+      success: function(res) {
+        currUser = res;
         
-        success: function(res) { // exists 'software' repo
-          nextStep();
-        },
-        
-        error: function(res) {
-          if (res.status == '404') {
-            $.ajax({ type: 'GET',
-              url: 'https://api.github.com/user/orgs?access_token=' + sAccToken,
-              success: function(res) {
-                if (!(res instanceof Array) || res.length != 1) {
-                  processErrName = 'REPO_NOT_READY';
-                  processErrDesc = 'no proper organization found';
-                }
-                else currUser = res[0];
-                nextStep();
-              },
-              error: function(res) {
-                processErrName = 'GET_USER_ERR';
-                processErrDesc = 'get organization failed (' + ajaxErrDesc(res,'message') + ')';
-                nextStep();
-              },
-            });
-          }
-          else {
-            processErrName = 'GET_CONFIG_ERR';
-            processErrDesc = 'read blogger10.json failed (' + ajaxErrDesc(res) + ')';
-            nextStep();
-          }
-        },
-      });
+        $.ajax({ type: 'GET',
+          url: '//' + currUser.login + '.github.io/software/blogger10.json',
+          
+          success: function(res) { // exists 'software' repo
+            showResultGui();
+          },
+          
+          error: function(res) {
+            if (res.status == '404') {
+              $.ajax({ type: 'GET',
+                url: 'https://api.github.com/user/orgs?access_token=' + accessToken,
+                success: function(res) {
+                  if (!(res instanceof Array) || res.length != 1) {
+                    processErrName = 'REPO_NOT_READY';
+                    processErrDesc = 'no proper organization found';
+                  }
+                  else currUser = res[0];
+                  showResultGui();
+                },
+                error: function(res) {
+                  processErrName = 'GET_USER_ERR';
+                  processErrDesc = 'get organization failed (' + ajaxErrDesc(res,'message') + ')';
+                  showResultGui();
+                },
+              });
+            }
+            else {
+              processErrName = 'GET_CONFIG_ERR';
+              processErrDesc = 'read blogger10.json failed (' + ajaxErrDesc(res) + ')';
+              showResultGui();
+            }
+          },
+        });
+      },
+      
+      error: function(res) { // new Error(res.responseText)
+        processErrName = 'GET_USER_ERR';
+        processErrDesc = 'get user failed (' + ajaxErrDesc(res,'message') + ')';
+        showResultGui();
+      },
+    });
+  };
+  
+  // step 1: get access token
+  $.ajax( { type: 'GET',
+    url: '//' + PINP_HOST_DOMAIN + '/software/pages/blogger/get_token.action?info=' + sAccSak,
+    success: function(res) {
+      if (res instanceof Array && res.length) {
+        accessToken = res[0] || '';
+        if (accessToken) {
+          readBlogCfg();
+          return;
+        }
+      }
+      processErrName = 'Unauthorized';
+      processErrDesc = 'Query authorization failed!';
+      showResultGui();
     },
-    
-    error: function(res) { // new Error(res.responseText)
-      processErrName = 'GET_USER_ERR';
-      processErrDesc = 'get user failed (' + ajaxErrDesc(res,'message') + ')';
-      nextStep();
+    error: function(res) {
+      processErrName = 'Unauthorized';
+      processErrDesc = 'Query authorization failed!';
+      showResultGui();
     },
   });
 },false);

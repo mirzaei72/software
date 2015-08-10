@@ -498,8 +498,7 @@ var ProjList = {
             else alert('Query authorization failed!');
           },
           error: function(res) {
-            // console.log('error:',ajaxErrDesc(res));
-            alert('Query authorization failed!');
+            alert('Query authorization failed: ' + ajaxErrDesc(res));
           },
         });
       }
