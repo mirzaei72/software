@@ -57,9 +57,9 @@ function parseParam(sArg) {
   return d;
 }
 
-function gotoEditor() {
+function gotoEditor(sName) {
   var sUrl = '//www.pinp.me/software/pages/blogger/goto_task.action?info=' + sAccSak;
-  sUrl += '&task=editor&login=' + currUser.login;
+  sUrl += '&task=editor&login=' + sName;
   location.replace(sUrl);
 }
 
@@ -96,7 +96,7 @@ window.addEventListener('load', function(event) {
         sHtml = '<div class="info-box"><div class="info-header"><h2>Login successful</h2></div>';
         sHtml += '<div class="info-body"><p>Hi ' + htmlEncode(currUser.name || currUser.login) + ',<br><br>You have logined with github account!</p>';
         if (sAccTask == 'editor') {
-          sHtml += '<p><br><button onclick="gotoEditor()">Open Online Editor<button></p>';
+          sHtml += '<p><br><button onclick=\'gotoEditor("' + currUser.login + '")\'>Open Online Editor</button></p>';
         }
         sHtml += '</div></div>';
       }
