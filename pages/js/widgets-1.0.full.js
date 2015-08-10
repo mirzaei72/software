@@ -385,7 +385,7 @@ var ProjList = {
       });
     };
     
-    var getGitUserInfo = function(sToken,sSess,nextStep,notify) {
+    var getGitUserInfo = function(sToken,sSess,nextStep) {
       $.ajax({ type: 'GET',
         url: 'https://api.github.com/user?access_token=' + sToken,
         
@@ -397,7 +397,7 @@ var ProjList = {
             
             success: function(res) { // exists 'software' repo
               githubRootCfg = res;
-              if (notify) notifyGitUser(sSess);
+              notifyGitUser(sSess);
               nextStep();
             },
             
@@ -425,7 +425,7 @@ var ProjList = {
                             url: '//' + githubUser.login + '.github.io/software/blogger10.json',
                             success: function(res) { // exists 'software' repo
                               githubRootCfg = res;
-                              if (notify) notifyGitUser(sSess);
+                              notifyGitUser(sSess);
                               nextStep();
                             },
                             error: function(res) {
@@ -478,7 +478,7 @@ var ProjList = {
             alert(processErrName + ': ' + processErrDesc);
           }
           else self.initGitLogin();
-        },true);
+        });
       }
       else { // maybe refresh
         $.ajax( { type: 'GET',
@@ -493,7 +493,7 @@ var ProjList = {
                   alert(processErrName + ': ' + processErrDesc);
                 }
                 else self.initGitLogin();
-              },false);
+              });
             }
             else alert('Query authorization failed!');
           },
