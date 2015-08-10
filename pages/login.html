@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset='utf-8'>
+<title>Setup github blog</title>
+
+<script src='js/jquery-2.1.0.min.js'></script>
+
+<script type='text/javascript'>
+var sAccSak   = '';
+var sAccTask  = '';
+var sAccToken = '';
+
+function getCookie__(name) {
+  if (document.cookie.length > 0) {
+    var iEnd, iStart = document.cookie.indexOf(name + "=");
+    if (iStart != -1) {
+      iStart = iStart + name.length + 1;
+      iEnd = document.cookie.indexOf(";",iStart);
+      if (iEnd == -1) iEnd = document.cookie.length;
+      return unescape(document.cookie.substring(iStart,iEnd));
+    }
+  }
+  return "";
+}
+
+function setCookie__(name,value,expireDays,path) {
+  expireDays = expireDays || 1;
+  var exDate = new Date();
+  exDate.setTime(exDate.getTime() + expireDays*24*60*60*1000);
+  path = path || '/';
+  document.cookie = name + "=" + escape(value) + ";expires=" + exDate.toGMTString() + ";path=" + path + ";";
+}
+
+function delCookie__(name,path) {
+  if (document.cookie.length > 0) {
+    var iStart = document.cookie.indexOf(name + "=");
+    if (iStart != -1) {
+      var exp = new Date();
+      exp.setTime(exp.getTime() - 1);
+      path = path || '/';
+      document.cookie = name + "=;expires=" + exp.toGMTString() + ";path=" + path + ";";
+    }
+  }
+}
+
+function htmlEncode(s) {
+  return s.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
+}
+
+function parseParam(sArg) {
+  if (sArg) sArg = sArg.slice(1); // remove '?'
+  var d={}, b=sArg.split('&');
+  for (var i=b.length-1; i >= 0; i--) {
+    var item=b[i], b2=item.split('='), s1=(b2[0]||'').trim();
+    if (s1) d[s1] = b2[1] || '';
+  }
+  return d;
+}
+
+function gotoEditor() {
+  var sUrl = '//www.pinp.me/software/pages/blogger/goto_task.action?info=' + sAccSak;
+  sUrl += '&task=editor&login=' + currUser.login;
+  location.replace(sUrl);
+}
+
+window.addEventListener('load', function(event) {
+  var param = parseParam(location.search);
+  sAccToken = getCookie__('git_tok');
+  if (sAccToken) {
+    var b = location.pathname.split('/');
+    b.pop();
+    delCookie__('git_tok',b.join('/'));
+  }
+  sAccTask = param.task || '';
+  sAccSak = param.info || '';
+  if (!sAccToken || !sAccSak) return;
+  
+  var processErrName = '';
+  var processErrDesc = '';
+  var currUser = null;
+  
+  function ajaxErrDesc(res,errMethod) {
+    if (res.readyState < 4)
+      return res.statusText || 'request abort';
+    else {
+      var s = '';
+      if (errMethod && res.responseJSON) // if reply in json format, and json[errMethod] is err-desc
+        s = res.responseJSON[errMethod];
+      return s || res.statusText || 'error code:' + res.status;
+    }
+  }
+  
+  var nextStep = function() {
+    var sHtml = '';
+    if (processErrName) {
+      sHtml = '<div class="info-box"><div class="info-header"><h2>Login failed</h2></div>';
+      sHtml += '<div class="info-body"><p>' + htmlEncode(processErrName + ': ' + processErrDesc) + '</p></div></div>';
+    }
+    else {
+      if (currUser) {
+        sHtml = '<div class="info-box"><div class="info-header"><h2>Login successful</h2></div>';
+        sHtml += '<div class="info-body"><p>Hi ' + htmlEncode(currUser.name || currUser.login) + ',<br><br>You have logined with github account!</p>';
+        if (sAccTask == 'editor') {
+          sHtml += '<p><br><button onclick="gotoEditor()">Open Online Editor<button></p>';
+        }
+        sHtml += '</div></div>';
+      }
+    }
+    document.body.innerHTML = sHtml;
+  };
+  
+  if (!sAccToken || !sAccSak) {
+    processErrName = 'Unauthorized';
+    processErrDesc = 'authorization failed';
+    nextStep();
+    return;
+  }
+  
+  $.ajax({ type: 'GET',
+    url: 'https://api.github.com/user?access_token=' + sAccToken,
+    
+    success: function(res) {
+      currUser = res;
+      
+      $.ajax({ type: 'GET',
+        url: '//' + currUser.login + '.github.io/software/blogger10.json',
+        
+        success: function(res) { // exists 'software' repo
+          nextStep();
+        },
+        
+        error: function(res) {
+          if (res.status == '404') {
+            $.ajax({ type: 'GET',
+              url: 'https://api.github.com/user/orgs?access_token=' + sAccToken,
+              success: function(res) {
+                if (!(res instanceof Array) || res.length != 1) {
+                  processErrName = 'REPO_NOT_READY';
+                  processErrDesc = 'no proper organization found';
+                }
+                else currUser = res[0];
+                nextStep();
+              },
+              error: function(res) {
+                processErrName = 'GET_USER_ERR';
+                processErrDesc = 'get organization failed (' + ajaxErrDesc(res,'message') + ')';
+                nextStep();
+              },
+            });
+          }
+          else {
+            processErrName = 'GET_CONFIG_ERR';
+            processErrDesc = 'read blogger10.json failed (' + ajaxErrDesc(res) + ')';
+            nextStep();
+          }
+        },
+      });
+    },
+    
+    error: function(res) { // new Error(res.responseText)
+      processErrName = 'GET_USER_ERR';
+      processErrDesc = 'get user failed (' + ajaxErrDesc(res,'message') + ')';
+      nextStep();
+    },
+  });
+},false);
+</script>
+
+<style>
+.info-box {
+  width: 400px;
+  margin: 60px auto;
+  
+  box-sizing: border-box;
+  font: 13px/1.4 Helvetica,arial,nimbussansl,liberationsans,freesans,clean,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";
+  color: #333;
+  word-wrap: break-word;
+}
+.info-header {
+  position: relative;
+  padding: 10px 20px;
+  margin: 0px;
+  color: #FFF;
+  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
+  background-color: #829AA8;
+  border: 1px solid #768995;
+  border-radius: 3px 3px 0px 0px;
+}
+.info-box h2 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-size: 16px;
+}
+.info-body {
+  padding: 20px;
+  font-size: 14px;
+  background-color: #FFF;
+  border-width: 0px 1px 1px;
+  border-style: none solid solid;
+  border-color: #D8DEE2 #D8DEE2;
+  border-radius: 0px 0px 3px 3px;
+}
+.info-box .btn {
+  position: relative;
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 20px;
+  color: #333;
+  white-space: nowrap;
+  vertical-align: middle;
+  
+  cursor: pointer;
+  background-color: #EEE;
+  background-image: linear-gradient(#FCFCFC, #EEE);
+  border: 1px solid #D5D5D5;
+  border-radius: 3px;
+  
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+</style>
+</head>
+
+<body>
+</body>
+</html>

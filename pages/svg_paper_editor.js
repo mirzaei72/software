@@ -10,8 +10,6 @@ function setEditingNode(iID,sPath) {
 }
 
 (function() { // be called in DOMContentLoaded
-  handleDomLoaded();
-  
   var taskConfig_={}, apiNode=document.getElementById('slide-api');
   apiNode.taskConfig = function() {
     return taskConfig_;
@@ -53,11 +51,22 @@ function setEditingNode(iID,sPath) {
     // not support text editor
   };
   
-  window.finishEditing = function(isOk) {
-    unselectCurr();
-    setTimeout( function() {
-      if (window.parent.window && window.parent.window.updatePaperContent)
-        window.parent.window.updatePaperContent(isOk,currEditingId_,getOutputHtml());
-    },0);
+  var iCount_ = 0;
+  var registCallback = function() {
+    if (window.finishEditing) {
+      window.finishEditing = function(isOk) { // replace same func in svg_paper.js
+        unselectCurr();
+        setTimeout( function() {
+          if (window.parent.window && window.parent.window.updatePaperContent)
+            window.parent.window.updatePaperContent(isOk,currEditingId_,getOutputHtml());
+        },0);
+      };
+    }
+    else {
+      iCount_ += 1;
+      if (iCount_ < 120)  // retry within 2 minutes
+        setTimeout(registCallback,1000);
+    }
   };
+  registCallback();
 })();

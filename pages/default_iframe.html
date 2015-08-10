@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>iframe window</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript">
+(function() {
+  var ownerFrame_ = null;
+  
+  function getOwnerFrameNode() {
+    var ownerDoc = window.parent.document;
+    if (ownerDoc && ownerDoc !== document) {
+      var ownerFrames=ownerDoc.querySelectorAll('iframe'), i=ownerFrames.length-1;
+      while (i >= 0) {
+        var frameNode = ownerFrames[i];
+        if (frameNode.contentWindow.window === window)
+          return frameNode;
+        i -= 1;
+      }
+    }
+    return null;
+  }
+  
+  function GetMouseOffset(object,off) {
+    if (!object) return;
+    off.x += object.offsetLeft + object.clientLeft;
+    off.y += object.offsetTop + object.clientTop;
+    GetMouseOffset(object.offsetParent,off);
+  }
+  
+  // left/up/right/down/esc/pgup/pgdn/end/home
+  var RsvdKeyEventCode_ = [37,38,39,40,27,33,34,35,36];
+  
+  function docOnKeyDown(event) {
+    var ownerWin = window.parent.window;
+    if (ownerWin.apiNode && ownerWin.apiNode.onWidgetKeydown) {
+      var canPass = false;
+      if (event.ctrlKey || event.altKey)
+        canPass = true;
+      else if (event.keyCode >= 112 && event.keyCode <= 123)  // F1 ~ F12
+        canPass = true;
+      else if (RsvdKeyEventCode_.indexOf(event.keyCode) >= 0)
+        canPass = true;
+      
+      if (canPass) // only ctr+xx / alt+xx / F1~F12 can pass to owner window
+        ownerWin.apiNode.onWidgetKeydown(event);
+    }
+  }
+  
+  function docOnClick(event) {
+    if (ownerFrame_) {
+      if (ownerFrame_.onclick) {
+        var off = {x:0, y:0};
+        GetMouseOffset(ownerFrame_,off);
+        
+        event._target = ownerFrame_;
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerFrame_.onclick(event);
+      }
+    }
+  }
+  
+  function docOnMenu(event) {
+    if (ownerFrame_ && window.parent) {
+      var ownerWin = window.parent.window;
+      if (ownerWin && ownerWin.apiNode && ownerWin.apiNode.onWinContextMenu) {
+        var off = {x:0, y:0};
+        GetMouseOffset(ownerFrame_,off);
+          
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.apiNode.onWinContextMenu(event);
+      }
+    }
+  }
+  
+  function docOnMouseMove(event) {
+    if (ownerFrame_ && window.parent) {
+      var ownerWin = window.parent.window;
+      if (ownerWin && ownerWin.apiNode && ownerWin.apiNode.onWinMouseMove) {
+        var off = {x:0, y:0};
+        GetMouseOffset(ownerFrame_,off);
+          
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.apiNode.onWinMouseMove(event);
+      }
+    }
+  }
+  
+  function docOnMouseUp(event) {
+    if (ownerFrame_ && window.parent) {
+      var ownerWin = window.parent.window;
+      if (ownerWin && ownerWin.apiNode && ownerWin.apiNode.onWinMouseUp) {
+        var off = {x:0, y:0};
+        GetMouseOffset(ownerFrame_,off);
+          
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.apiNode.onWinMouseUp(event);
+      }
+    }
+  }
+  
+  var iframeName_ = '';
+  
+  function handleDomLoaded(event) {
+    ownerFrame_ = getOwnerFrameNode();
+    if (ownerFrame_) {
+      var inDesign=false,node=ownerFrame_.parentNode;
+      while (node) {
+        if (node.classList.contains('web-item')) {
+          inDesign = node.classList.contains('in-design');
+          break;
+        }
+        node = node.parentNode;
+      }
+      
+      if (inDesign && node) {
+        document.body.innerHTML = '<h2>iframe</h2>';
+        
+        setInterval(function() {
+          var sName = node.getAttribute('name') || '';
+          if (sName != iframeName_) {
+            iframeName_ = sName;
+            if (iframeName_)
+              document.body.innerHTML = '<h2>iframe = ' + iframeName_ + '</h2>';
+            else document.body.innerHTML = '<h2>iframe</h2>';
+          }
+        },2000);
+      }
+    }
+  }
+  
+  document.addEventListener('keydown',docOnKeyDown,false);
+  document.addEventListener('click',docOnClick,false);
+  document.addEventListener('contextmenu',docOnMenu,false);
+  document.addEventListener('mousemove',docOnMouseMove,false);
+  document.addEventListener('mouseup',docOnMouseUp,false);
+  document.addEventListener('DOMContentLoaded',handleDomLoaded,false);
+})();
+</script>
+
+</head>
+
+<body>
+</body>
+</html>

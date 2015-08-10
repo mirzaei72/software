@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>Table editor</title>
+<script type='text/javascript' src='js/messenger.js'></script>
+
+<script type="text/javascript" src="/software/slide11/$plugins/popline/scripts/jquery.min.js"></script>
+<script type="text/javascript" src="/software/slide11/$plugins/jquery.handsontable.full.js"></script>
+<link rel="stylesheet" media="screen" href="/software/slide11/$plugins/jquery.handsontable.full.css">
+
+<script type="text/javascript">
+var hasInit = false;
+var editNodeId = 0;
+
+var DCF_ = null;
+var getDCF_ = function() {
+  if (!DCF_)
+    DCF_ = new Messenger.DCF(); // messenger.js must loaded
+  return DCF_;
+};
+
+function initTableData(nodeId,data,iRows,iCols,sFont,sHint) {
+  if (hasInit) return;
+  hasInit = true;
+  editNodeId = nodeId;
+  
+  if (sFont) {
+    var el = document.createElement('style');
+    el.innerHTML = ".handsontable {font-family: " + sFont + ";} textarea.handsontableInput {font-family: " + sFont + ";}";
+    document.body.appendChild(el);
+  }
+  
+  $('#example').handsontable({
+    data: data,           // [[]],
+    minRows: iRows || 4,
+    minCols: iCols || 4,
+    manualColumnResize: true,
+    minSpareCols: 0,
+    minSpareRows: 1,
+    autoWrapRow: true,
+    rowHeaders: true,
+    colHeaders: true,
+    contextMenu: true,
+  });
+  $('.ver').text($('#example').data('handsontable').version);
+  
+  if (sHint) document.getElementById('hint-text').innerHTML = sHint;
+}
+
+function finishEditing() {
+  var bOut = [];
+  if (hasInit) {
+    var ht = $('#example').handsontable('getInstance');
+    bOut = ht.getData();
+  }
+  getDCF_().call('parent','saveTableData',[editNodeId,bOut]);
+}
+
+document.addEventListener('DOMContentLoaded',function(event) {
+  getDCF_().regist('initTableData', function(bArgs) {
+    initTableData(bArgs[0],bArgs[1],bArgs[2],bArgs[3],bArgs[4],bArgs[5]);
+  });
+},false);
+</script>
+
+<style>
+body {
+  margin: 0px;
+  padding: 0px;
+  overflow: auto;
+}
+</style>
+</head>
+
+<body name='dlgTabEditor'>
+
+<table style='width:100%; margin:0px; padding:2px; border:1px solid gray; border-spacing:0px;'>
+<tr><td><p id='hint-text'>&nbsp;</p></td>
+<td style='min-width:150px'>
+  <p style='text-align:right'>
+    <input type='button' style='width:60px' value='Apply' onclick='finishEditing()' />&nbsp;
+  </p>
+</td></tr>
+</table>
+
+<div id="example"></div>
+
+</body>
+</html>
