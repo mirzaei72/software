@@ -64,13 +64,14 @@ function gotoEditor() {
 }
 
 window.addEventListener('load', function(event) {
-  var param = parseParam(location.search);
   sAccToken = getCookie__('git_tok');
   if (sAccToken) {
     var b = location.pathname.split('/');
     b.pop();
     delCookie__('git_tok',b.join('/'));
   }
+  
+  var param = parseParam(location.search);
   sAccTask = param.task || '';
   sAccSak = param.info || '';
   if (!sAccToken || !sAccSak) return;
@@ -227,5 +228,6 @@ window.addEventListener('load', function(event) {
 </head>
 
 <body>
+<p>Loading...</p>
 </body>
 </html>
