@@ -15,6 +15,9 @@
 <ul id='slide-menu'></ul>
 
 <script type="text/javascript">
+var CURR_USR_PATH = document.location.pathname;
+if (CURR_USR_PATH.slice(-1) != "/") CURR_USR_PATH = CURR_USR_PATH.slice(0,CURR_USR_PATH.lastIndexOf("/")+1);
+
 SLIDE_LOAD_TXT = true;
 SLIDE_RELEASED = true;
 SLIDE_START_STYLE = "narrow";
