@@ -138,7 +138,7 @@ function main() {
         desc: item2[4],
         keyword: item2[5],
         thumb: sThumb,
-        flag: iFlag;
+        flag: iFlag,
         modify_at: Math.floor(item2[0]/1000),
         create_at: Math.floor(item2[1]/1000),
       });

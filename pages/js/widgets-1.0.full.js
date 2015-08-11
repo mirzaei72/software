@@ -306,7 +306,10 @@ fileLoader.prototype = {
           
           var dJson = null;
           try {
-            dJson = JSON.parse(aFile.getRawContent());
+            var sRaw = aFile.getRawContent();
+            if (sRaw && sRaw.charCodeAt(0) == 0xFEFF) // remove DOM head
+              sRaw = sRaw.slice(1);
+            dJson = JSON.parse(sRaw);
           } catch(e) {
             alert('JSON format error: ' + sRepo_ + '/config.json');
             self.bErr.push(sRepo_);
@@ -1129,7 +1132,10 @@ var ProjList = {
       
       var dJson = null;
       try {
-        dJson = JSON.parse(aFile.getRawContent());
+        var sRaw = aFile.getRawContent();
+        if (sRaw && sRaw.charCodeAt(0) == 0xFEFF) // remove DOM head
+          sRaw = sRaw.slice(1);
+        dJson = JSON.parse(sRaw);
       } catch(e) {
         alert('JSON format error: ' + sRepo_ + '/config.json');
         stepErrName = 'LOAD_FAILED';
