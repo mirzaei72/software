@@ -936,7 +936,7 @@ var ProjList = {
       rescanPrjList(bList,sCate);
       self.update();
       
-      if (sCate) {
+      if (sCate && node) {
         var sAlias = node.getAttribute('alias');
         var upNode = self.wd.querySelector('.prj-item.prj-up-folder');
         if (upNode) {
