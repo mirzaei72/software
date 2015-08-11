@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Dialog</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="messenger.js"></script>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',function(event) {
+  var DCF = new Messenger.DCF();
+  DCF.regist('initGui', function(bArgs){
+    var sHtml=bArgs[0], sCode=bArgs[1];
+    if (sHtml)
+      document.body.innerHTML = sHtml;
+    if (sCode) {
+      setTimeout(function() {
+        try {
+          window.eval(sCode);
+        }
+        catch(e) {
+          console.log(e);
+        }
+      },0);
+    }
+    return 0;
+  });
+  
+  window.DCF = DCF;
+},false);
+</script>
+
+</head>
+
+<body name='dlgForm'>
+</body>
+</html>

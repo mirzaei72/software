@@ -3938,7 +3938,7 @@ var PopDlgForm = {
     
     var sUrl = param.url;
     if (!sUrl && (param.bodyHtml || param.jsScript))
-      sUrl = '/software/webmaker10/$script/simple_dialog.html';
+      sUrl = '/software/pages/simple_dialog.html';
     if (!sUrl) return;
     
     var fX = percentOf(param.left || 0,window.innerWidth);
@@ -4153,7 +4153,7 @@ var PopDlgForm = {
         left: Math.floor((window.innerWidth-400)/2),
         top: Math.floor((window.innerHeight-iHi)/2),
         width: 400, height: iHi,
-        url: '/software/webmaker10/$script/simple_dialog.html',
+        url: '/software/pages/simple_dialog.html',
         closable: true,
         peerName: 'wdPopDlgForm',
         bodyHtml: sHtml,
@@ -4260,7 +4260,7 @@ var PopDlgForm = {
       left: Math.floor((window.innerWidth-420)/2),
       top: Math.floor((window.innerHeight-hi)/2),
       width: 420, height: hi,
-      url: '/software/webmaker10/$script/simple_dialog.html',
+      url: '/software/pages/simple_dialog.html',
       closable: true,
       peerName: 'wdPopDlgForm',
       bodyHtml: sHtml,
@@ -4299,7 +4299,7 @@ var PopDlgForm = {
       left: Math.floor((window.innerWidth-420)/2),
       top: Math.floor((window.innerHeight-290)/2),
       width: 420, height: 290,
-      url: '/software/webmaker10/$script/simple_dialog.html',
+      url: '/software/pages/simple_dialog.html',
       closable: true,
       peerName: 'wdPopDlgForm',
       bodyHtml: sHtml,
@@ -4377,7 +4377,7 @@ var PopDlgForm = {
       left: Math.floor((window.innerWidth-400)/2),
       top: Math.floor((window.innerHeight-iHi)/2),
       width: 400, height: iHi,
-      url: '/software/webmaker10/$script/simple_dialog.html',
+      url: '/software/pages/simple_dialog.html',
       closable: true,
       peerName: 'wdPopDlgForm',
       bodyHtml: sHtml,
@@ -4458,7 +4458,7 @@ var PopDlgForm = {
       left: Math.floor((window.innerWidth-340)/2),
       top: Math.floor((window.innerHeight-dlgHi)/2),
       width: 340, height: dlgHi,
-      url: '/software/webmaker10/$script/simple_dialog.html',
+      url: '/software/pages/simple_dialog.html',
       closable: true,
       peerName: 'wdPopDlgForm',
       bodyHtml: sHtml,
@@ -4531,7 +4531,7 @@ var PopDlgForm = {
       left: Math.floor((window.innerWidth-360)/2),
       top: Math.floor((window.innerHeight-320)/2),
       width: 360, height: 320,
-      url: '/software/webmaker10/$script/simple_dialog.html',
+      url: '/software/pages/simple_dialog.html',
       closable: true,
       peerName: 'wdPopDlgForm',
       bodyHtml: sHtml,
@@ -4578,7 +4578,7 @@ var PopDlgForm = {
       left: Math.floor((window.innerWidth-wd)/2),
       top: Math.floor((window.innerHeight-hi)/2),
       width: wd, height: hi,
-      url: '/software/webmaker10/$script/simple_dialog.html',
+      url: '/software/pages/simple_dialog.html',
       closable: true,
       peerName: 'wdPopDlgForm',
       bodyHtml: sHtml,

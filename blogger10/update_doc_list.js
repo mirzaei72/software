@@ -52,7 +52,7 @@ function getProjectInfo(bCate) {
     }
     
     var thumFile = path.join(item,'$thumbnail.png');
-    if (!fs.existsSync(absFile)) thumFile = '';
+    if (!fs.existsSync(thumFile)) thumFile = '';
     
     var bb = [path.join(item,'index.html'),path.join(item,'$index.md'),path.join(item,'$index.txt')];
     for (var i2=0,item2; item2=bb[i2]; i2++) {
