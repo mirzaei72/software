@@ -2788,6 +2788,9 @@ var PreviewArea = {
       var holder = this.wd.querySelector('div.preview-ss');
       var holder2 = this.wd.querySelector('div.preview-inst');
       if (holder && holder2) {
+        this.data.frameReady = false;
+        this.data.pages = [];
+        
         var iHi = Math.max(window.innerHeight - 38 - 480 - 10,100);
         var iHi2 = Math.max(window.innerHeight - 38 - 480 - 8,100);
         holder.style.height = iHi + 'px';
@@ -2810,6 +2813,7 @@ var PreviewArea = {
         
         var frmNode = holder.querySelector('iframe');
         if (!frmNode) {
+          R.getDCF().removeTarget('frm-preview');
           frmNode = document.createElement('iframe');
           frmNode.setAttribute('id','frm-preview');
           frmNode.setAttribute('frameborder','0');
@@ -2826,8 +2830,6 @@ var PreviewArea = {
         }
         
         var sUrl = '/' + sProj + '/?editing=1&preview=1';
-        this.data.frameReady = false;
-        this.data.pages = [];
         frmNode.setAttribute('src',sUrl);
         
         var sUrl2 = '/' + sProj + '/?editing=1&inline=1';
