@@ -1,1 +1,4722 @@
-var PINP_HOST_DOMAIN="www.pinp.me";require.config({paths:{basic10:"/software/pages/js/basic10"}});define(["basic10"],function(l){function k(F){if(document.cookie.length>0){var E,D=document.cookie.indexOf(F+"=");if(D!=-1){D=D+F.length+1;E=document.cookie.indexOf(";",D);if(E==-1){E=document.cookie.length}return unescape(document.cookie.substring(D,E))}}return""}function r(D,F,H,G){H=H||1;var E=new Date();E.setTime(E.getTime()+H*24*60*60*1000);G=G||"/";document.cookie=D+"="+escape(F)+";expires="+E.toGMTString()+";path="+G+";"}function A(E,F){if(document.cookie.length>0){var D=document.cookie.indexOf(E+"=");if(D!=-1){var G=new Date();G.setTime(G.getTime()-1);F=F||"/";document.cookie=E+"=;expires="+G.toGMTString()+";path="+F+";"}}}function q(F){if(F){F=F.slice(1)}var J={},D=F.split("&");for(var H=D.length-1;H>=0;H--){var I=D[H],E=I.split("="),G=(E[0]||"").trim();if(G){J[G]=E[1]||""}}return J}function o(E,F,G){var D=null;if(window.XMLHttpRequest){D=new XMLHttpRequest()}else{if(window.ActiveXObject){D=new ActiveXObject("Microsoft.XMLHTTP")}}if(D!=null){D.onreadystatechange=function(){if(D.readyState==4){var H=D.responseText;if(D.status==200){D=null;if(F){F(H)}}else{D=null;if(G){G.push(H);if(F){F("")}}}}};D.open("GET",E,true);D.send(null)}}function a(D){return D.replace(/</gm,"&lt;").replace(/>/gm,"&gt;")}function C(E){var D=document.createElement("a");D.href=E;if(D.host==""){D.href=D.href}return D}var d={__base__:l.BaseWidget,__widget__:["wdProjList","wdPopDlgForm","wdMarkdown","wdResPanel"],init:function(D){this._super(D);var F=this;var J=(F.get("__debug__")||0)&1;if(J){return}var E=F.wd.querySelectorAll(".head-toolbar > img");for(var G=0,I;I=E[G];G++){if(I.name=="refresh"){I.onclick=function(K){if(x){F.wdProjList.r.gotoHome()}else{F.wdProjList.r.fire("refresh")}}}else{if(I.name=="CreatePrj"){I.onclick=function(K){F.wdPopDlgForm.r.createPrj()}}else{if(I.name=="RemovePrj"){I.onclick=function(K){F.wdPopDlgForm.r.removePrj()}}else{if(I.name=="CreateSubPrj"){I.onclick=function(K){F.wdPopDlgForm.r.createSubPrj()}}else{if(I.name=="EditPrj"){I.onclick=function(L){var K=F.wdProjList.r.getCurrProj();if(K){F.wdMarkdown.r.startEditDoc(K)}else{alert("Please select a project node first")}}}else{if(I.name=="SharePrj"){I.onclick=function(K){F.wdPopDlgForm.r.startShareDoc()}}else{if(I.name=="SubmitPrj"){I.onclick=function(K){F.wdMarkdown.r.startSubmitDoc()}}else{if(I.name=="TransPrj"){I.onclick=function(K){F.wdMarkdown.r.startTransDoc()}}}}}}}}}}var H=F.wd.querySelector("img.head-nohover");H.classList.add("head-rotate");F.on("ssHeadbarClick",function(L){var K=L.original.target;if(K&&K.nodeName=="DIV"&&K.classList.contains("head-toolbar")){F.wdMarkdown.r.tryUnselectSS()}});F.on("ssResToolClick",function(L){var K=L.original.target;if(!K){return}var M=K.getAttribute("name");if(M=="collapse"){if(K.classList.contains("head-rotate")){K.classList.remove("head-rotate");F.wdResPanel.r.switch2Narrow();F.wdPopDlgForm.r.setPopupRightWd(28)}else{K.classList.add("head-rotate");F.wdResPanel.r.switch2Wide();F.wdPopDlgForm.r.setPopupRightWd(300)}}else{if(!H.classList.contains("head-rotate")){H.classList.add("head-rotate");F.wdResPanel.r.switch2Wide()}if(M=="syntax"){F.wdResPanel.r.fire("showSyntax")}else{if(M=="files"){F.wdResPanel.r.fire("showFolder")}}}})},selectProj:function(H,D){var F=D+': <a target="_blank" href="/'+H+'/">'+H+"</a>";if(F==this.data.infoTitle){return}var G=this.data.infoId+1;this.data.infoId=G;this.data.infoTitle=F;this.update();var E=this;setTimeout(function(){if(G==E.data.infoId){E.data.infoTitle=E.data.editingTitle;E.update()}},8000)},editProj:function(G,F,D){if(G=="blog"){this.data.submitWd="32px";this.data.transWd="32px"}else{if(G=="sshow"){this.data.submitWd="32px";this.data.transWd="0px"}}var E=D+": "+F;this.data.editingTitle=E;this.data.infoTitle=E;this.update()},clearInfo:function(){this.data.editingTitle="";this.data.infoTitle="";this.update()}};var f=[];var h={};var u="";var x=q(location.search).info||"";var B={};var c={};var s={};var i={};var e=[];function v(E,D){if(D.readyState<4){return D.statusText||"request abort"}else{return E.message||D.statusText||"error code:"+D.status}}function g(D,F){if(D.readyState<4){return D.statusText||"request abort"}else{var E="";if(F&&D.responseJSON){E=D.responseJSON[F]}return E||D.statusText||"error code:"+D.status}}function j(D){if(i.repos_name===D){return i}else{return _.find(e,function(E){return E.repos_name===D})}}function b(){this.succ=0;this.bErr=[];this.bOut=[]}b.prototype={checkRet:function(){if(this.succ+this.bErr.length>=this.bOut.length){this.callback(this.bErr,this.bOut)}},start:function(H,I){this.callback=I;var G=0;var D=this;var E=function(J,K,L){return function(){var M=new Gh3.File({path:"config.json"},B,K,"gh-pages");M.fetchContent(function(P,N){if(!D){return}if(P){D.bErr.push(K);D.checkRet();return}var Q=null;try{var O=M.getRawContent();if(O&&O.charCodeAt(0)==65279){O=O.slice(1)}Q=JSON.parse(O)}catch(R){alert("JSON format error: "+K+"/config.json");D.bErr.push(K);D.checkRet();return}c["/"+K+"/config.json"]=M.sha;D.bOut[J]=[K,L,Q];D.succ+=1;D.checkRet()})}};var F=[];_.each(H,function(K){var L="",J="";if(K instanceof Array&&K.length==2){L=K[0];J=K[1]}else{if(typeof K=="string"){L=K}}if(L){D.bOut.push(L);F.push(D.getAjaxFunc(G,L,J));G+=1}});setTimeout(function(){if(D.succ+D.bErr.length<D.bOut.length){I(D.bErr,D.bOut)}D=null},60000);_.each(F,function(J){J()})}};var y={__base__:l.BaseWidget,__widget__:["wdPopDlgForm","wdSplitterA","wdMarkdown","wdResPanel","wdToolbar","wdPreviewArea"],init:function(K){this._super(K);var R=this;var E=(R.get("__debug__")||0)&1;if(E){return}var L=navigator.userAgent.toLowerCase();if(L.match(/trident.*rv[ :]*([\d.]+)/)||L.match(/msie ([\d.]+)/)){window.WEB_IE_BROWSER=true}else{window.WEB_IE_BROWSER=false}var H="";var O="";var M=function(S){$.ajax({type:"GET",url:"//"+PINP_HOST_DOMAIN+"/software/pages/blogger/has_login.action",data:{info:S,login:B.login,uid:B.id,type:B.type=="User"?"user":"orgn"},success:function(T){},error:function(T){}})};var I=function(T,U,S){$.ajax({type:"GET",url:"https://api.github.com/user?access_token="+T,success:function(V){B=new Gh3.User(V.login,V);$.ajax({type:"GET",url:"//"+B.login+".github.io/software/blogger10.json",success:function(W){s=W;M(U);S()},error:function(W){if(W.status=="404"){$.ajax({type:"GET",url:"https://api.github.com/user/orgs?access_token="+T,success:function(Y){if(!(Y instanceof Array)||Y.length!=1){H="REPO_NOT_READY";O="no proper organization found";S()}else{var X=Y[0];B=new Gh3.User(X.login);B.fetch(function(aa,Z){if(aa){H="REPO_NOT_READY";O="unrecognized user: "+X.login;S()}else{$.ajax({type:"GET",url:"//"+B.login+".github.io/software/blogger10.json",success:function(ab){s=ab;M(U);S()},error:function(ab){H="GET_USER_ERR";O="read /software/blogger10.json failed ("+g(ab)+")";S()}})}})}},error:function(X){H="GET_USER_ERR";O="get organization failed ("+g(X,"message")+")";S()}})}else{H="GET_USER_ERR";O="read /software/blogger10.json failed ("+g(W)+")";S()}}})},error:function(V){H="GET_USER_ERR";O="get github user failed ("+g(V,"message")+")";S()}})};if(x){u=k("git_tok")||"";if(u){var Q=location.pathname.split("/");Q.pop();A("git_tok",Q.join("/"));Gh3.access_token=u;I(u,x,function(){if(H){R.data.errMsg="load config failed";R.update();alert(H+": "+O)}else{R.initGitLogin()}})}else{$.ajax({type:"GET",url:"//"+PINP_HOST_DOMAIN+"/software/pages/blogger/get_token.action?info="+x,success:function(S){if(S instanceof Array&&S.length){u=S[0];I(u,x,function(){if(H){R.data.errMsg="load config failed";R.update();alert(H+": "+O)}else{R.initGitLogin()}})}else{alert("Query authorization failed!")}},error:function(S){alert("Query authorization failed: "+g(S))}})}}var P=function(X,ab){var S=R.wd.querySelectorAll(".prj-item.prj-sub2-item");for(var Y=0,ag;ag=S[Y];Y++){ag.parentNode.removeChild(ag)}S=R.wd.querySelectorAll(".prj-item.prj-show");for(var Y=0,ag;ag=S[Y];Y++){ag.classList.remove("prj-show")}S=R.wd.querySelectorAll(".prj-item.prj-selected");for(var Y=0,ag;ag=S[Y];Y++){ag.classList.remove("prj-selected")}S=R.wd.querySelectorAll(".prj-item.prj-selected2");for(var Y=0,ag;ag=S[Y];Y++){ag.classList.remove("prj-selected2")}var Z={};for(var Y=0,ag;ag=f[Y];Y++){var ac=ag.title;if(ab&&ac.indexOf(ab)!=0){continue}var af=ac.split("/");var W=ac.indexOf("$$",ab.length);var V=ac.indexOf("/",ab.length);if(W==ab.length&&V>W){var U=ac.indexOf("/$$",ab.length);var aa=ab+ac.slice(W,V+1);if(!Z[aa]){var ae="folder.png",T=Y,ad=ac;while(true){if(ad.indexOf("$$",aa.length)==aa.length){ae="folder_sub.png";break}T+=1;if(T>=f.length){break}ad=f[T].title;if(!ad||ad.indexOf(aa)!=0){break}}Z[aa]=true;X.push({isFolder:true,hasThumb:false,logoUrl:ae,itemCls:"prj-cate-folder",title:ac.slice(W+2,V),alias:ag.alias,cateProj:ag.alias+"/"+aa})}if(U!=V){var ae=ag.hidden?"prj_unrelease.png":(ag.hasThumb?"prj_item.png":"prj_item_web.png");X.push({isFolder:false,hasThumb:ag.hasThumb,hasSub:ag.hasSub,logoUrl:ae,itemCls:"prj-sub-item",title:af[af.length-1],alias:ag.alias,cateProj:ag.alias+"/"+ac,canWrite:ag.canWrite,prjType:ag.type,prjSize:ag.size,prjAcl:ag.acl})}}else{if(W<0&&V<0&&ac.length>ab.length){var ae=ag.hidden?"prj_unrelease.png":(ag.hasThumb?"prj_item.png":"prj_item_web.png");var ad=ac.slice(ab.length);X.push({isFolder:false,hasThumb:ag.hasThumb,hasSub:ag.hasSub,logoUrl:ae,itemCls:"prj-curr-item",title:ad,alias:ag.alias,cateProj:ag.alias+"/"+ac,canWrite:ag.canWrite,prjType:ag.type,prjSize:ag.size,prjAcl:ag.acl})}}}};var D=function(X){var W=R.wd.querySelector(".prj-item.prj-selected");if(W){if(W===X){return}W.classList.remove("prj-selected")}var T=R.wd.querySelectorAll(".prj-item.prj-show");for(var U=0,V;V=T[U];U++){V.classList.remove("prj-show")}T=R.wd.querySelectorAll(".prj-item.prj-selected2");for(var U=0,V;V=T[U];U++){V.classList.remove("prj-selected2")}T=R.wd.querySelectorAll(".prj-item.prj-sub2-item");for(var U=0,V;V=T[U];U++){V.parentNode.removeChild(V)}X.classList.add("prj-selected");var S=X.getAttribute("title");if(!S){return}X=X.nextElementSibling;while(X&&X.classList.contains("prj-sub-item")){if(X.getAttribute("title").indexOf(S)!=0){break}X.classList.add("prj-show");X=X.nextElementSibling}};var J=function(V,ad){var ab=R.data.items[ad];if(!ab){return}var Y=ab.cateProj;if(!Y){return}var Z=Y.indexOf("/");if(Z<=0){return}var T=Y;var aa=Y.slice(0,Z);Y=Y.slice(Z+1);var S=R.wd.querySelectorAll(".prj-item.prj-selected2");for(var Z=0,af;af=S[Z];Z++){af.classList.remove("prj-selected2")}if(!ab.hasSub){V.classList.add("prj-selected2");return}var ac=function(ak){if(!V.parentNode){return}if(ab!==R.data.items[ad]){return}if(ak.length<=0){return}var ap=ab.prjAcl||"private";var ai=V.nextElementSibling;for(var aj=0,ao;ao=ak[aj];aj++){var an=T+"/$$/"+ao[0];if(R.wd.querySelector('.prj-item[title="'+an+'"]')){continue}var ah=ao[1];var am=ah?"prj_item.png":"prj_item_web.png";var al=document.createElement("div");al.setAttribute("title",an);al.setAttribute("allow",ap);al.setAttribute("alias",aa);al.setAttribute("thumb",ah?"1":"0");al.className="prj-item prj-sub2-item";al.innerHTML='<img class="noselect-txt" draggable="true" src="'+am+'"><span draggable="true">'+a(ao[0])+"</span>";if(ai){V.parentNode.insertBefore(al,ai)}else{V.parentNode.appendChild(al)}}};V.classList.add("prj-selected2");var X=V.nextElementSibling;if(X&&X.classList.contains("prj-sub2-item")){return}var ae=h[T];if(ae instanceof Array){ac(ae)}else{if(x){var U=[];var W=function(){if(U.length==0){ab.hasSub=false;h[T]=[]}else{var ah=[];_.each(U,function(ai){ah.push([ai,false])});h[T]=ah;ac(ah)}};var ag=new Gh3.Dir({path:Y+"/$$"},B,aa,"gh-pages");ag.fetchContents(function(ai,ah){if(ai){if(ah.status!=404){alert("List files ("+Y+"/$$/) failed: "+ai.message);return}W();return}ag.eachContent(function(aj){if(aj.type=="dir"){var ak=aj.name;if(ak[0]!="."&&ak[0]!="$"){U.push(ak)}}});W()});return}}};R.on("ssPrjClick",function(S){var Z=S.original.target,W=null;while(Z){if(Z.nodeName=="DIV"){if(Z.classList.contains("web-item")){break}if(Z.classList.contains("prj-item")){W=Z;break}}Z=Z.parentNode}if(W){var T=R.wd.querySelectorAll(".prj-item.prj-selected3");for(var Y=0,ac;ac=T[Y];Y++){ac.classList.remove("prj-selected3")}if(W.classList.contains("prj-cate-folder")){D(W)}else{if(W.classList.contains("prj-sub-item")||W.classList.contains("prj-curr-item")){var ab=W.getAttribute("title");if(ab){var V=W.getAttribute("allow")||"private";R.wdToolbar.r.selectProj(ab,V)}if(W.classList.contains("prj-selected2")){return}var X=W.getAttribute("name");if(X&&X.indexOf("prj-")==0){var aa=parseInt(X.slice(4));J(W,aa)}}else{if(W.classList.contains("prj-sub2-item")){W.classList.add("prj-selected3");var ab=W.getAttribute("title");if(ab){var T=R.wd.querySelectorAll(".prj-item.prj-selected2");for(var Y=0,ac;ac=T[Y];Y++){ac.classList.remove("prj-selected2")}var U=W.previousElementSibling;while(U){if(U.classList.contains("prj-sub-item")||U.classList.contains("prj-curr-item")){U.classList.add("prj-selected2");break}else{if(!U.classList.contains("prj-sub2-item")){break}}U=U.previousElementSibling}var V=W.getAttribute("allow")||"private";R.wdToolbar.r.selectProj(ab,V)}}}}}});R.on("ssPrjDblclick",function(T){var S=T.original.target;setTimeout(function(){var V=null,aa=S;while(aa){if(aa.nodeName=="DIV"){if(aa.classList.contains("web-item")){break}if(aa.classList.contains("prj-item")){V=aa;break}}aa=aa.parentNode}if(!V){return}var W=[],ae="",X=false,Z="";var Y=V.getAttribute("alias");if(!Y){return}if(V.classList.contains("prj-cate-folder")){if(!V.classList.contains("prj-selected")){return}ae=V.getAttribute("title");if(ae.indexOf(Y+"/")==0){ae=ae.slice(Y.length+1)}else{ae=""}X=true}else{if(V.classList.contains("prj-up-folder")){Z=R.data.currCate;var ac=Z.split("/$$");if(x&&ac.length<=2){ae=""}else{if(ac.length<=1){ae=""}else{ac.pop();ae=ac.join("/$$")+"/"}}X=true}else{if(V.classList.contains("prj-sub-item")||V.classList.contains("prj-curr-item")||V.classList.contains("prj-sub2-item")){var ad=V.getAttribute("title");if(ad){var U=V.getAttribute("allow")||"private";R.wdResPanel.r.selectProj(ad,U)}}}}if(X){R.data.items=W;R.data.currCate=ae;P(W,ae);R.update();if(ae){var ab=R.wd.querySelector(".prj-item.prj-up-folder");if(ab){ab.setAttribute("title",Y+"/"+ae);ab.setAttribute("alias",Y)}}if(Z){setTimeout(function(){var af=R.wd.querySelector('.prj-cate-folder[title="'+Y+"/"+Z+'"]');if(af){D(af)}},0)}}},0)});var G=function(S){var Y=S.target;while(Y){if(Y.nodeName=="DIV"){if(Y.classList.contains("prj-item")){break}else{if(Y.classList.contains("prj-root-node")){return}}}Y=Y.parentNode}var ab=0,Z="",T=false,V=1;if(Y.classList.contains("prj-sub-item")){ab=1;Z=Y.getAttribute("title")||"";V=(Z.slice(Z.length-5)==".blog"?3:1);var W=Y.getAttribute("name");if(W&&W.indexOf("prj-")==0){var aa=parseInt(W.slice(4));var X=R.data.items[aa];if(X){T=X.hasThumb;V=X.prjType}}}else{if(Y.classList.contains("prj-sub2-item")){ab=2;Z=Y.getAttribute("title")||"";T=parseInt(Y.getAttribute("thumb")||"0");V=(Z.slice(Z.length-5)==".blog"?3:1)}}var ac=(ab?Y.querySelector("img"):null);if(ab&&Z&&ac){r("drag_task","put_prj");var U="project,"+(T?"1":"0")+","+V;S.dataTransfer.effectAllowed="copy";S.dataTransfer.setData(window.WEB_IE_BROWSER?"text":"text/args",U+","+Z);if(S.dataTransfer.setDragImage){S.dataTransfer.setDragImage(ac,0,0)}}};R.on("ssDragStart",function(S){R.wdMarkdown.r.saveCaretPos();G(S.original)});R.on("ssDragEnd",function(S){A("drag_task")});R.on("refreshShow",function(U){var W="";var T=R.wd.querySelector(".prj-cate-folder.prj-selected");if(T){W=T.getAttribute("title")}var X=[],S=R.data.currCate;R.data.items=X;P(X,S);R.update();if(S&&T){var V=T.getAttribute("alias");var Y=R.wd.querySelector(".prj-item.prj-up-folder");if(Y){Y.setAttribute("title",V+"/"+S);Y.setAttribute("alias",V)}}if(W){setTimeout(function(){var Z=R.wd.querySelector('.prj-cate-folder[title="'+W+'"]');if(Z){D(Z)}},0)}});R.on("refresh",function(S){});var N=R.wdMarkdown.parentNode.parentNode.parentNode;var F=function(X,W){var V=Math.max(R.wd.clientHeight,R.wdMarkdown.parentNode.clientHeight+R.wdPreviewArea.clientHeight);V=Math.max(window.innerHeight-R.wdToolbar.parentNode.clientHeight,V);R.wdSplitterA.style.height=V+"px";var T=N.parentNode.clientWidth-4-60-R.wdResPanel.clientWidth;var S=Math.max(1,Math.min(T,X+W));var U=N.parentNode.clientWidth-R.wdSplitterA.clientWidth-S;R.wd.parentNode.style.width=S+"px";N.style.width=U+"px";if(R.wdMarkdown.r){R.wdMarkdown.r.fire("resized")}if(R.wdPreviewArea.r){R.wdPreviewArea.r.fire("resized")}};document.body.addEventListener("mousemove",function(U){var V=R.wdSplitterA.r.data;if(V.inMoving){var S=U.clientX,T=S-V.moveFromX;if(!V.moved&&Math.abs(T)>=4){V.moved=true}if(V.moved){F(V.leftWidth,T)}}},false);document.body.addEventListener("mouseup",function(T){var U=R.wdSplitterA.r.data;if(U.inMoving){var S=T.clientX-U.moveFromX;if(U.moved){F(U.leftWidth,S)}U.inMoving=false}},false);document.getElementById("web-body")["on-resize"]=function(S,T){F(R.wd.parentNode.clientWidth,0)};R.on("resized",function(S){F(R.wd.parentNode.clientWidth,0)});R.on("resized2",function(S){F(R.wd.parentNode.clientWidth,R.data.resizeGap||0)})},initGitLogin:function(){if(!B.login){return}var G=this;G.data.errMsg="loading...";G.update();c={};e=[];f=[];h={};var F="";var J="";var E=function(L){for(var O=-1;O<L.length;O++){var P=i,Q="",N="";if(O>=0){var M=L[O];Q=M[0];P=M[2];if(Q!==P.repos_name){P.repos_name=Q}N=M[1]||Q;e.push(P)}else{Q=P.repos_name;N=P.repos_desc||""}var K=P.doc_list;K.sort(function(S,R){if(S.path>R.path){return 1}else{if(S.path===R.path){return 0}else{return -1}}});_.each(K,function(T){var S=T.path,V=S.slice(-5);var R=T.flag||3,X=(R&255)!=3,U=(R&256)!=0;var W={title:S,alias:Q,time:T.modify_at,hidden:U?1:0,type:V==".blog"?3:1,size:0,acl:"public",canWrite:X?0:1};W.hasSub=true;W.hasThumb=!!T.thumb;f.push(W)})}G.data.currCate="";G.data.friendGroup=[];if(f.length==0){G.data.errMsg="No project exists";G.update()}else{G.data.errMsg="";G.data.currCate="";G.fire("refreshShow")}};var H=function(){if(F){G.data.errMsg="loading config failed";G.update();alert(F+": "+J)}else{var L=i.builtin_repos||[],K=new b();if(L.length==0){G.data.errMsg="";G.update();E([]);return}K.start(L,function(O,M){if(O.length){var Q="load failed";_.each(O,function(R){Q+=", "+R+"/config.json"});G.data.errMsg="loading config failed";G.update();alert(Q);return}for(var N=0,P;P=M[N];N++){if(typeof P=="string"){G.data.errMsg="loading config failed";G.update();alert("load file failed: "+P+"/config.json");return}}G.data.errMsg="";G.update();E(M)})}};var I=s.home_repository;var D=new Gh3.File({path:"config.json"},B,I,"gh-pages");D.fetchContent(function(M,K){if(M){F="LOAD_FAILED";J="load config.json failed";H();return}var N=null;try{var L=D.getRawContent();if(L&&L.charCodeAt(0)==65279){L=L.slice(1)}N=JSON.parse(L)}catch(O){alert("JSON format error: "+I+"/config.json");F="LOAD_FAILED";J="load config.json failed";H();return}c["/"+I+"/config.json"]=D.sha;i=N;H()})},addPrjNode:function(E){if(E.length<9){return}var H=E[0],D=E[1];var I={title:D,alias:H,time:E[2],type:E[3],size:E[4],hidden:E[5],acl:E[6],canWrite:1,hasThumb:E[7],hasSub:E[8]};for(var F=0,G;G=f[F];F++){if(H==G.alias&&D<G.title){f.splice(F,0,I);I=null;break}}if(I){f.push(I)}this.data.errMsg="";this.fire("refreshShow")},afterSharePrj:function(G,D,H){for(var E=0,F;F=f[E];E++){if(G==F.alias&&D==F.title){F.hidden=0;F.hasThumb=H;break}}this.data.errMsg="";this.fire("refreshShow")},addSubPrjNode:function(J,E){if(E.length<2){return}var F=E.shift();if(!F){return}for(var G=0,H;H=f[G];G++){if(J==H.alias&&F==H.title){H.hasSub=true;break}}var I=J+"/"+F;if(x){var D=h[I];if(!D){D=[];h[I]=D}for(var G=0,H;H=E[G];G++){D.push(H)}}else{h[I]=E}this.data.errMsg="";this.fire("refreshShow")},rmvPrjNode:function(I,E,G){var J=I.indexOf("/");if(J<=0){return}var N=I.slice(0,J),M=I.slice(J+1);var H=this.wdResPanel.r.data.currProj;var O=!!E[0];if(O){for(var K=0,Q;Q=f[K];K++){if(N==Q.alias&&M==Q.title){f.splice(K,1);if(I==H||(H&&H.indexOf(I+"/")==0)){this.wdResPanel.r.resetFolder()}break}}delete h[I]}else{if(x){G=[];var P=h[I]||[];for(var K=0,Q;Q=P[K];K++){var R=false,D=false;for(var F=1,L;L=E[F];F++){if(L==Q[0]){R=true;break}}if(!R){G.push([Q[0],Q[1]])}}}h[I]=G;if(H&&H.indexOf(I+"/")==0){this.wdResPanel.r.resetFolder()}}this.data.errMsg="";this.fire("refreshShow")},getCurrProj:function(){var H=[],G="",I=null;var J=this.wd.querySelector(".prj-item.prj-selected2");if(J){G=J.getAttribute("title");var K=J.getAttribute("name");if(K&&K.indexOf("prj-")==0){var D=parseInt(K.slice(4));I=this.data.items[D]}}if(G&&I){H.push([J.getAttribute("allow")||"private",G,I.canWrite]);var F=this.wd.querySelector(".prj-item.prj-selected3");var E=F?F.getAttribute("title"):"";if(E){H.push([F.getAttribute("allow")||"private",E,I.canWrite])}}if(H.length){return H}else{return null}},resize2Width:function(D,F){if(D<8){return}var E=this.wd.parentNode.clientWidth;if(F&&E<D){return}this.data.resizeGap=D-E;this.fire("resized2")},gotoHome:function(){location.replace("//www.pinp.me/software/pages/blogger/editor.action")}};var p={__base__:l.BaseWidget,__widget__:["wdProjList"],init:function(D){this._super(D);var E=this;var F=(E.get("__debug__")||0)&1;if(F){return}E.wd.addEventListener("mousedown",function(G){E.data.inMoving=true;E.data.moved=false;E.data.moveFromX=G.clientX;E.data.leftWidth=E.wdProjList.parentNode.clientWidth},false)}};var w={__base__:l.BaseWidget,__widget__:["wdToolbar","wdProjList","wdResPanel","wdPopDlgForm","wdPreviewArea"],init:function(E){this._super(E);var G=this;var H=(G.get("__debug__")||0)&1;if(H){return}G.on("resized",function(J){var I=G.wd.parentNode.parentNode.clientWidth-G.wdResPanel.clientWidth-1;G.wd.parentNode.style.width=I+"px"});G.on("ssChanged",function(I){G.data.changed=true});var F=function(I){var J=G.wd.querySelector("textarea.markdown-editor");if(!J){return}J.focus();setTimeout(function(){var M=G.data.caretPos;if(M>=0){var K=J.value;if(M>K.length){M=K.length}J.value=K.substring(0,M)+I+K.substring(M)}else{if(document.selection){var L=document.selection.createRange();if(L){L.text=I}}else{if("selectionStart" in J){M=J.selectionStart;var K=J.value;if(M>K.length){M=K.length}J.value=K.substring(0,M)+I+K.substring(M)}else{J.value=I+"\n"+J.value}}}},0)};var D=l.getDCF();D.regist("dropTextInfo",function(I){G.wdPopDlgForm.r.hideDlg();var J=I[0];if(J){F(J)}});D.regist("saveSlideShow",function(O){var R=O[0],T=O[1];if(!R||!T){return}var M=R.indexOf("/");if(M<=0){return}var P=R.slice(0,M),U=R.slice(M+1);var S=false;var N=G.wdToolbar.querySelector('img[name="SubmitPrj"]');N.src="loading.gif";setTimeout(function(){if(!S){S=true;N.src="prj_submit.png"}},20000);var J=function(W){if(!S){S=true;N.src="prj_submit.png"}if(W){alert(W)}};if(x){var K=U+"/$index.txt";var I=(new Date()).toLocaleDateString();var Q=c["/"+P+"/"+K];var L=function(){$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+P+"/contents/"+K+"?access_token="+u,data:JSON.stringify({path:K,message:I,content:Gh3.Base64.encode(T),sha:Q,branch:"gh-pages"}),success:function(W){c["/"+P+"/"+K]=W.content.sha;G.data.changed=false;J("Submit project successful")},error:function(W){c["/"+P+"/"+K]="";J("Upload failed: "+g(W,"message"))}})};if(!Q){var V=new Gh3.Dir({path:U},B,P,"gh-pages");V.fetchContents(function(Y,X){if(Y){J("List files ("+U+") failed: "+Y.message);return}var W=V.getFileByName("$index.txt");if(!W){J("Read file failed: "+K);return}Q=W.sha;c["/"+P+"/"+K]=Q;L()})}else{L()}return}});G.on("ssDragOver",function(I){var J=k("drag_task");if(J=="put_prj"||J=="put_img"){I.original.preventDefault();I.original.dataTransfer.dropEffect="copy"}});G.on("ssDragDrop",function(I){var V;if(window.WEB_IE_BROWSER){V=I.original.dataTransfer.getData("text")||""}else{V=I.original.dataTransfer.getData("text/args")||""}var R=V.split(",");if(R.length<=3){return}var N=R.slice(3).join(",");if(!N){return}if(R[0]=="project"){I.original.preventDefault();var P="",J=parseInt(R[1]||"0"),U=R[2]||"3";if(J){if(x){var M=N.indexOf("/");if(M>0){var O=N.slice(0,M),S=N.slice(M+1);var Q=j(O);if(Q){var T=_.find(Q.doc_list,function(W){return W.path==S});if(T){P=T.thumb||"";if(P[0]=="$"&&P[1]=="$"){P="/"+O+"/"+Q.repos_name+"/"+P}}}}}else{P="/"+N+"/$thumbnail.png"}}G.wdPopDlgForm.r.addDropPrjFrame(P,U,N)}else{if(R[0]=="image"){var L=parseInt(R[1]||"0"),K=parseInt(R[2]||"0");if(L&&K){I.original.preventDefault();G.wdPopDlgForm.r.addDropImgFrame(L,K,N)}}}})},saveCaretPos:function(){this.data.caretPos=-1;if(this.data.isMarkdown){var D=this.wd.querySelector("textarea.markdown-editor");if(D&&("selectionStart" in D)){this.data.caretPos=D.selectionStart}}},tryResetAcl:function(E,D){if(this.data.currProj==E){this.data.currAcl=D;if(this.data.editingCss=="block"){this.update()}}},startEditDoc:function(D){if(!D||D.length<=0){return}var N=D[D.length-1],R=N[0],M=N[1],H=N[2];if(!H){alert("Project is not blog or slideshow, online editing is not supported!");return}if(this.data.editingCss!="none"&&this.data.currProj){if(M&&this.data.currProj==M){if(!confirm("The project already in editing, do you want reload it?")){return}}if(this.data.changed&&!confirm("A project already in editing, do you want to contine (without submit previous one)?")){return}}if(typeof M!="string"){return}var K=M.indexOf("/");if(K<=0){return}var L=M.slice(0,K),O=M.slice(K+1);if(M.slice(M.length-5)==".blog"){this.el.style.background="url(loading2.gif) no-repeat center";this.data.isMarkdown=true;this.data.editingCss="none";this.update();var P=this;var E=function(S){P.el.style.background="";if(S){alert(S)}};var I=function(T){P.wdToolbar.r.editProj("blog",M,R);P.wdResPanel.r.editProj("blog");P.wdPreviewArea.r.editProj("blog",M);var V=P.data.hasPreview;var S=P.wdPreviewArea.querySelector(".preview-md");if(S){S.innerHTML=""}P.data.hasPreview=false;var U=P.wd.querySelector("textarea.markdown-editor");U.onkeydown=function(W){if(W.ctrlKey&&!W.shiftKey&&!W.altKey&&W.keyCode==77){var X=P.data.currProj;if(P.data.editingCss=="none"||!X){return}if(X.slice(X.length-5)!=".blog"){return}W.stopPropagation();W.preventDefault();P.startTransDoc()}};U.value=T;P.data.changed=false;P.data.currAcl=R;P.data.currProj=M;P.data.editingCss="block";P.update();if(V){P.wdProjList.r.fire("resized")}};if(x){var G=new Gh3.File({path:O+"/$index.md"},B,L,"gh-pages");G.fetchContent(function(T,S){if(T){E("Load file failed: $index.md");return}c["/"+L+"/"+O+"/$index.md"]=G.sha;I(G.getRawContent())});return}}else{if(M.slice(M.length-6)==".sshow"){this.el.style.background="url(loading2.gif) no-repeat center";this.data.isMarkdown=false;this.data.editingCss="none";this.update();var J=this.wd.querySelector("iframe.markdown-frame");if(!J){return}var P=this;var E=function(S){P.el.style.background="";if(S){alert(S)}};var F="/"+M+"/?editing=1";var I=function(){J.onerror=function(S){E(S+"")};J.onload=function(T){E("");P.wdToolbar.r.editProj("sshow",M,R);P.wdResPanel.r.editProj("sshow");P.wdPreviewArea.r.editProj("sshow",M);P.data.hasPreview=false;P.data.changed=false;P.data.currAcl=R;P.data.currProj=M;P.data.editingCss="block";P.update();var S=window.innerWidth-300-616-4;P.wdProjList.r.resize2Width(S,true)};J.src=F};if(x){var Q=new Gh3.Dir({path:O},B,L,"gh-pages");Q.fetchContents(function(U,T){if(U){E("List files ("+O+") failed: "+U.message);return}var S=Q.getFileByName("$index.txt");if(!S){E("Read file failed: "+O+"/$index.txt");return}c["/"+L+"/"+O+"/$index.txt"]=S.sha;I()});return}}}},startSubmitDoc:function(){var L=this.data.currProj;if(this.data.editingCss=="none"||!L){alert("No project in editing");return}if(!this.data.changed){alert("no changes, submition canceled");return}if(L.slice(-5)==".blog"){var H=L.indexOf("/");if(H<=0){return}var J=L.slice(0,H),P=L.slice(H+1);var F=this.wd.querySelector("textarea.markdown-editor");var N=F.value;var M=false;var I=this.wdToolbar.querySelector('img[name="SubmitPrj"]');I.src="loading.gif";setTimeout(function(){if(!M){M=true;I.src="prj_submit.png"}},20000);var Q=this;var E=function(T){if(!M){M=true;I.src="prj_submit.png"}if(T){alert(T)}};var G=function(T){E();if(typeof T=="string"&&T){T=JSON.parse(T);if(typeof T=="string"){if(T=="OK"){Q.data.changed=false;if(Q.data.hasPreview){Q.startTransDoc()}alert("Submit project successful")}else{if(T=="NOT_LOGIN"){Q.wdPopDlgForm.r.checkLogin(true,"submit")}else{alert(T)}}}}};if(x){var O=P+"/$index.md";var D=(new Date()).toLocaleDateString();var K=c["/"+J+"/"+O];var S=function(){$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+J+"/contents/"+O+"?access_token="+u,data:JSON.stringify({path:O,message:D,content:Gh3.Base64.encode(N),sha:K,branch:"gh-pages"}),success:function(T){c["/"+J+"/"+O]=T.content.sha;G('"OK"')},error:function(T){c["/"+J+"/"+O]="";E("Upload failed: "+g(T,"message"))}})};if(!K){var R=new Gh3.Dir({path:P},B,J,"gh-pages");R.fetchContents(function(V,U){if(V){E("List files ("+P+") failed: "+V.message);return}var T=R.getFileByName("$index.md");if(!T){E("Read file failed: "+O);return}K=T.sha;c["/"+J+"/"+O]=K;S()})}else{S()}return}}else{if(L.slice(L.length-6)==".sshow"){this.postSlideMsg("startSave",[L])}}},startTransDoc:function(){var I=this.data.currProj;if(this.data.editingCss=="none"||!I){alert("No project in editing");return}if(I.slice(I.length-5)==".blog"){var E=this;var F=E.wd.querySelector("textarea.markdown-editor");var H=E.wdPreviewArea.querySelector(".preview-md");if(H){var G=(E.data.hasPreview)?H.scrollTop:0;var D=E.data.hasPreview&&H.scrollTop>0&&(H.scrollTop+H.clientHeight>H.scrollHeight-10);require(["js/marked.min"],function(J){var K=J(F.value);H.innerHTML=K;E.data.hasPreview=true;E.wdProjList.r.fire("resized");setTimeout(function(){if(D){H.scrollTop=H.scrollHeight}else{H.scrollTop=G}},500)})}}},prjInEditing:function(D){var E=this.data.currProj;if(this.data.editingCss=="none"||!E){return""}if(!this.data.changed){return""}if(E==D){return"*"}else{if(E.indexOf(D+"/$$/")==0){return E.slice(D.length+4)}else{return""}}},cancelEditing:function(){var G=this.data.currProj;if(this.data.editingCss=="none"||!G){return}var F=this.data.hasPreview;var D=this.wdPreviewArea.querySelector(".preview-md");if(D){D.innerHTML=""}this.data.hasPreview=false;var E=this.wd.querySelector("textarea.markdown-editor");if(E){E.value=""}this.data.changed=false;this.data.currProj="";this.data.editingCss="none";this.update();this.wdToolbar.r.clearInfo();if(F){this.wdProjList.r.fire("resized")}},projState:function(){var E=this.data.currProj;if(this.data.editingCss=="none"||!E){return""}var D=E.length;if(D>5&&E.slice(D-5)==".blog"){return"blog"}else{if(D>6&&E.slice(D-6)==".sshow"){return"sshow"}else{return""}}},postSlideMsg:function(D,F){var G=this.wd.querySelector("iframe.markdown-frame");if(G){var E="[PINPSLIDE_11]"+JSON.stringify({method:D,param:F});G.contentWindow.postMessage(E,"*")}},tryUnselectSS:function(){var E=this.wd.querySelector("iframe.markdown-frame");if(E){var D="[PINPSLIDE_11]"+JSON.stringify({method:"tryUnselect",param:[]});E.contentWindow.postMessage(D,"*")}}};var t=[];var n={__base__:l.BaseWidget,__widget__:["wdProjList","wdMarkdown","wdPopDlgForm"],init:function(K){this._super(K);var Q=this;var E=(Q.get("__debug__")||0)&1;if(E){return}Q.on("rewidth",function(U){var T=Q.data.sWidth=="100%"?300:1;var S=Q.wdMarkdown.parentNode;S.style.width=(S.parentNode.clientWidth-T-1)+"px";Q.wd.parentNode.style.width=T+"px"});Q.on("showSyntax",function(S){if(Q.data.pages[0].show!="block"){Q.data.pages[0].show="block";Q.data.pages[1].show="none";Q.update()}});Q.on("showFolder",function(S){if(Q.data.pages[1].show!="block"){Q.data.pages[1].show="block";Q.data.pages[0].show="none";Q.update()}});Q.on("ssDropClick",function(T){var S=Q.wd.querySelector("div.res-dropholder > input");S.click()});Q.on("ssFileChange",function(T){var S=T.original.target;if(S&&S.files&&S.files.length){R(S.files)}});Q.on("ssDragStart",function(S){Q.wdMarkdown.r.saveCaretPos();var aa=S.original.target,U=null;while(aa){if(aa.nodeName=="DIV"){if(aa.classList.contains("res-imgitem")){U=aa;break}else{if(aa.classList.contains("res-files")){return}}}aa=aa.parentNode}if(!U){return}var ad=U.querySelector("img");if(ad&&ad.complete){var Z=null;var ab=parseInt(U.getAttribute("idx")||"0");for(var Y=0,ae;ae=t[Y];Y++){if(ae.id===ab){Z=ae;break}}if(!Z||!Z.realUrl){return}var X,W,V=ad.getAttribute("_size");if(V){var ac=V.split("x");if(ac.length!=2){return}X=ac[0];W=ac[1]}else{X=ad.naturalWidth+"";W=ad.naturalHeight+""}r("drag_task","put_img");var T=S.original.dataTransfer;T.effectAllowed="copy";T.setData(window.WEB_IE_BROWSER?"text":"text/args","image,"+X+","+W+","+Z.realUrl);if(T.setDragImage){T.setDragImage(ad,0,0)}}});Q.on("ssDragEnd",function(S){A("drag_task")});Q.on("ssTempDragStart",function(V){var U=V.original.target;if(U&&U.nodeName=="IMG"){var T=U.getAttribute("src");r("drag_task","run_js");var S=V.original.dataTransfer;S.effectAllowed="copy";S.setData(window.WEB_IE_BROWSER?"text":"text/args","image,0,0,"+T);if(S.setDragImage){S.setDragImage(U,0,0)}}});Q.on("ssTempDragEnd",function(S){A("drag_task")});var N=0;var J=".jpg.jpeg.png.gif.ico.tiff.bmp.svg.svgz.";var O=".jpg.jpeg.png.gif.ico.tiff.bmp.";var F=function(S,U,T){};var G=function(W){var T="res-imgitem";if(W.cls){T+=" "+W.cls}var V=document.createElement("div");V.className=T;V.setAttribute("idx",W.id+"");var S=document.createElement("img");S.setAttribute("draggable","true");S.setAttribute("title",W.title);S.onload=function(X){var af=X.target;if(af.nodeName!="IMG"||!af.naturalHeight){return}var ad=af.parentNode.classList.contains("res-uploading");if(ad){return}var Y=af.getAttribute("src");if(Y=="warning.jpg"||Y=="uploading.gif"){return}var ae=af.getAttribute("_size");if(ae){var Z=af.naturalWidth,aa=af.naturalHeight;af.style.marginLeft=Math.floor((90-Z)/2+0.5)+"px";af.style.marginTop=Math.floor((80-aa)/2+0.5)+"px";af.style.width=Z+"px";af.style.height=aa+"px";return}var ac=af.naturalWidth/af.naturalHeight;if(ac<1.125){var Z=Math.floor(80*ac+0.5);af.style.width=Z+"px";af.style.marginLeft=Math.floor((90-Z)/2+0.5)+"px"}else{var aa=Math.floor(90/ac+0.5);af.style.height=aa+"px";af.style.marginTop=Math.floor((80-aa)/2+0.5)+"px"}var ab=af.getAttribute("_error");if(ab){af.title=ab}else{af.title=af.naturalWidth+"x"+af.naturalHeight}};S.src=W.url;V.appendChild(S);var U=document.createElement("div");U.className="res-rmvimg";U.onclick=function(Y){var ai=Y.target,Z=null;while(ai){if(ai.nodeName=="DIV"){if(ai.classList.contains("res-imgitem")){Z=ai;break}else{if(ai.classList.contains("res-files")){break}}}ai=ai.parentNode}if(!Z){return}var af=null,ak=parseInt(Z.getAttribute("idx")||"0");if(ak>0){for(var ad=0,am;am=t[ad];ad++){if(am.id==ak){af=am;break}}}if(!af||!af.realUrl){return}var ag=C(af.realUrl);var ac=ag.pathname,ae=af.alias;if(ac[0]!="/"){ac="/"+ac}if(ac.indexOf("/"+ae+"/")==0){ac=ac.slice(1);var aj=ac.split("/").pop();if(!confirm("Do you want remove file ("+aj+")?")){return}var X=function(){if(!Z.parentNode){return}Z.parentNode.removeChild(Z);for(var ao=0,ap;ap=t[ao];ao++){if(ap.id==ak){t.splice(ao,1);break}}};if(x){var al=ac.slice(ae.length+1);var ab=al.slice(0,al.length-aj.length-1);var ah=af.sha||"";var aa=function(){$.ajax({type:"DELETE",url:"https://api.github.com/repos/"+B.login+"/"+af.alias+"/contents/"+al+"?access_token="+u,data:JSON.stringify({path:al,message:(new Date()).toLocaleDateString(),sha:ah,branch:"gh-pages"}),success:function(ao){X()},error:function(ao){alert("Remove file failed: "+aj)}})};if(!ah){var an=new Gh3.Dir({path:ab},B,ae,"gh-pages");an.fetchContent(function(aq,ap){var ao=null;if(!aq){ao=an.getFileByName(aj)}if(!ao){alert("Remove file failed: "+aj);return}ah=ao.sha;aa()})}else{aa()}return}}};V.appendChild(U);return V};var L=function(){var U=Q.wd.querySelector("div.res-btm-line");if(!U){return}var T=Q.wd.querySelectorAll("div.res-imgitem");for(var V=0,X;X=T[V];V++){X.parentNode.removeChild(X)}if(!t.length){return}var S=U.parentNode;for(var V=0,Y;Y=t[V];V++){var W=G(Y);S.insertBefore(W,U)}};var P=function(U){var S=Q.wd.querySelector("div.res-btm-line");if(!S){return}var T=G(U);S.parentNode.insertBefore(T,S)};Q.on("loadRes",function(W){var Z=Q.data.currProj;if(!Z){return}var Y=Z.indexOf("/");if(Y<=0){return}var X=Z.slice(0,Y),T=Z.slice(Y+1);if(x){var V=[];var S=function(){t=[];var aa=Q.data.pages[1].canModifyCss=="block"?"res-canrmv":"";_.each(V,function(ab){var ac=ab[0];N+=1;var ad={realUrl:"//"+B.login+".github.io/"+Z+"/"+ac,cls:aa,alias:X,title:ac,id:N,sha:ab[1]};ad.url=ad.realUrl;t.push(ad)});L()};var U=new Gh3.Dir({path:T},B,X,"gh-pages");U.fetchContents(function(ab,aa){if(ab){Q.showMsg("load image resource failed");return}U.eachContent(function(ac){if(ac.type=="file"){var ae=ac.name,ad=ae.split(".").pop();if(J.indexOf("."+ad+".")>=0){V.push([ae,ac.sha])}}});S()});return}});var M=function(an,ab,ac,ah,aa){var T=Q.data.currProj,ae=Q.data.currAllow;if(!T){return false}var X=T.indexOf("/");if(X<=0){return false}var ap=T.slice(0,X),am=T.slice(X+1);var ad="",aj="",Y="bin",ak=false;if(an){var al=an.name.split(".");ab=an.type;aj=al.pop();ad=al.join(".");if(x){ak=true}}else{if(!aa){return false}ad=ac;aj=ah;Y="base64"}if(!ab||!ad||!aj){return false}var Z=ad+"."+aj;var ao=1,W=_.find(t,function(aq){return Z==(aq.realUrl||"").split("/").pop()});while(W){ao+=1;Z=ad+ao+"."+aj;W=_.find(t,function(aq){return Z==(aq.realUrl||"").split("/").pop()})}N+=1;var ag=N;var af={id:ag,url:"uploading.gif",cls:"res-uploading",title:Z,alias:ap};t.push(af);P(af);var V=function(ar,aq,au){if(aq!="warning.jpg"){af.realUrl=aq}af.url=aq;af.cls="";ar.classList.remove("res-uploading");var at=ar.querySelector("img");if(at){if(au){at.setAttribute("_error",au)}else{if(Q.data.pages[1].canModifyCss=="block"){ar.classList.add("res-canrmv")}}at.setAttribute("src",aq)}};if(x){var ai=function(au,aq,at,ar){af.realUrl=aq;af.url=aq;af.cls="";au.classList.remove("res-uploading");var av=au.querySelector("img");if(av){if(Q.data.pages[1].canModifyCss=="block"){au.classList.add("res-canrmv")}av.src=at+ar}};var U=function(at){var ar=at.indexOf(";base64,"),aq="";if(ar>0&&ar<64){aq=at.slice(0,ar+8);at=at.slice(ar+8)}var au=am+"/"+Z;$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+ap+"/contents/"+au+"?access_token="+u,data:JSON.stringify({path:au,message:(new Date()).toLocaleDateString(),content:at,branch:"gh-pages"}),success:function(av){var aw=Q.wd.querySelector('div.res-uploading[idx="'+ag+'"]');if(!aw){return}af.sha=av.content.sha;aw.style.backgroundSize="40px 2px";setTimeout(function(){aw.style.backgroundSize="70px 2px";setTimeout(function(){var ax="//"+B.login+".github.io/"+ap+"/"+au;ai(aw,ax,aq,at)},500)},500)},error:function(av){var aw=Q.wd.querySelector('div.res-uploading[idx="'+ag+'"]');if(!aw){return}aw.style.backgroundSize="70px 2px";V(aw,"warning.jpg","upload failed: "+Z)}})};if(ak){var S=new FileReader();S.onload=function(aq){U(S.result)};S.readAsDataURL(an)}else{if(!aa||Y!="base64"){return false}U(aa)}return true}};var I=function(U){var S;if(window.WEB_IE_BROWSER){S=U.dataTransfer.getData("text")||""}else{S=U.dataTransfer.getData("text/args")||""}if(S.indexOf("project,")==0||S.indexOf("image,")==0){return}U.stopPropagation();U.preventDefault();var T=U.target;if(T&&T.classList.contains("res-dropholder")){if(U.type=="dragover"){T.classList.add("res-draghover")}else{T.classList.remove("res-draghover")}}};var R=function(V){var Y=[],X=0;for(var T=0,W;W=V[T];T++){var S=W.name.split("."),U=S[S.length-1];if(S.length>1&&U&&J.indexOf("."+U+".")>=0){if(M(W)){X+=1;if(X>=64){break}}}else{Y.push(W.name)}}if(Y.length){alert("Only image file can upload, following ignored: "+Y.join(","))}if(X){Q.update()}};var H=function(T,V,U){var S=new Image();S.onload=function(){var X=document.createElement("canvas");var W=X.getContext("2d");X.width=this.width;X.height=this.height;W.drawImage(this,0,0);var Y=X.toDataURL(U);V(Y);X=null};S.crossOrigin="Anonymous";S.src=T};var D=function(V){I(V);var U=V.target.files||V.dataTransfer.files;if(U.length){R(U)}else{var Y="",T="",W="",Z=V.dataTransfer.getData("url")||"";if(Z){Y=Z.split("?")[0].split("/").pop()}if(Y){var S=Y.split(".");if(S.length>=2){W=S.pop();T=S.join(".")}}if(T&&W&&J.indexOf("."+W+".")>=0){var X="image/"+W;H(Z,function(aa){M(null,X,T,W,aa)},X)}}};if(window.File&&window.FileList&&window.FileReader&&window.XMLHttpRequest&&(new XMLHttpRequest()).upload){Q.set("pages[1].canUpload",true);setTimeout(function(){var S=document.getElementById("dragndropimage");if(S){S.addEventListener("dragover",I,false);S.addEventListener("dragleave",I,false);S.addEventListener("drop",D,false)}},0)}Q.on("ssTempDbclick",function(V){var T=V.original.target,U=null;while(T){if(T.nodeName=="DIV"){if(T.classList.contains("res-temp-folder")){U=T;break}else{if(T.classList.contains("res-template")){break}}}T=T.parentNode}if(!U){return}var S=U.getAttribute("_url");if(S){Q.loadTemplate(S,U.querySelector("img.res-temp-loading"))}});Q.on("ssTempRefresh",function(U){var T=U.original.target,S=null;if(T.nodeName=="IMG"){T=T.parentNode}if(T.nodeName=="DIV"&&T.classList.contains("res-temp-refresh")){S=T.querySelector("img.res-temp-loading")}Q.loadTemplate("software/pages/template",S)})},switch2Wide:function(){if(this.data.sWidth=="100%"){return}this.data.showPage="block";this.data.sWidth="100%";this.update();this.fire("rewidth")},switch2Narrow:function(){if(this.data.sWidth!="100%"){return}this.data.showPage="none";this.data.sWidth="1px";this.update();this.fire("rewidth")},pageState:function(){if(this.data.sWidth=="100%"){if(this.data.pages[0].show=="block"){return"syntax"}else{return"files"}}else{return""}},showMsg:function(D){var E=this.wd.querySelector(".res-show-info");if(E){E.innerHTML=a(D);E.style.display="block";setTimeout(function(){E.style.display="none"},5000)}},tryResetAcl:function(F,E){if(this.data.currProj!=F){return}this.data.currAllow=E;var H=this.wd.querySelector(".res-proj-info");if(H){var D=H.getAttribute("title")||"";var I=D.indexOf(":");if(I>0){var G=D.slice(0,I).trim();if(G=="public"||G=="protected"||G=="private"){H.setAttribute(E+D.slice(I))}}}},selectProj:function(K,F){if(this.pageState()!="files"){return}var J="none",E=this.wdMarkdown.r.data.currProj;if(E==K||(E&&K.indexOf(E+"/")==0)){J="block"}if(this.data.currProj==K&&this.data.pages[1].canModifyCss==J){if(!confirm("Do you want reload image resource?")){return}}var I=this.wd.querySelector(".res-proj-info");if(I){var G,H=K.indexOf("/");if(H>0){G=K.slice(H+1)}else{G=K}var D=G.split("/");I.innerHTML="<p> "+a(G)+"</p>";I.setAttribute("title",F+": "+D[D.length-1])}t=[];this.data.pages[1].canModifyCss=J;this.data.currProj=K;this.data.currAllow=F;this.update();this.fire("loadRes")},resetFolder:function(){var D=this.wd.querySelector(".res-proj-info");if(D){D.innerHTML="";D.removeAttribute("title")}t=[];this.data.pages[1].canModifyCss="none";this.data.currProj="";this.update()},editProj:function(E){if(E=="blog"){this.data.pages[0].isTemplate=false;this.update()}else{if(E=="sshow"){this.data.pages[0].isTemplate=true;this.update();var D=this.wd.querySelector("div.res-temp-refresh");if(D){this.loadTemplate("software/pages/template")}}}},loadTemplate:function(E,F){if(!this.data.pages[0].isTemplate){return}if(!E){return}if(E[E.length-1]=="/"){E=E.slice(0,-1)}var K=E.indexOf("/");if(K<=0){return}if(F){F.style.visibility="visible"}var G=function(L){if(L){alert(L)}if(F){F.style.visibility="hidden"}};var D=this,I=E.slice(0,K),J=E.slice(K+1);if(x){var H=new Gh3.Dir({path:J},B,I,"gh-pages");H.fetchContents(function(Q,N){if(Q){G("load template ("+J+") failed: "+Q.message);return}var L=[],R={};H.eachContent(function(U){if(U.type=="dir"){L.push([U.name,U.path])}else{if(U.type=="file"){var W=U.path,V=W.slice(-7);if(V==".png.js"||V==".gif.js"){var X=W.slice(0,-3);var T=R[X]||0;if(T){R[X]=T+2}else{R[X]=2}}else{V=W.slice(-4);if(V==".png"||V==".gif"){var T=R[W]||0;if(T){R[W]=T+1}else{R[W]=1}}}}}});var P=[];_.each(R,function(U,T){if(U==3){P.push(T)}});P.sort();L.sort(function(U,T){U=U[0];T=T[0];if(U>T){return 1}else{if(U===T){return 0}else{return -1}}});var S=[];var O="pages/template";if(J.length>O.length){var M=J.split("/");M.pop();S.push({isDir:true,name:"..",img:"file_up.png",url:I+"/"+M.join("/")})}_.each(L,function(T){S.push({isDir:true,name:T[0],img:"file_folder.png",url:I+"/"+T[1]})});_.each(P,function(U){var T=U.split("/").pop();S.push({isDir:false,name:T,img:"/"+I+"/"+U})});G();if(S.length==0){D.data.pages[0].res=[{isDir:true,name:"",img:"file_refresh.png",url:"software/pages/template"}]}else{D.data.pages[0].res=S}D.update()});return}}};var z={__base__:l.IFrame,__widget__:["wdMarkdown"],init:function(E){this._super(E);var F=this;var G=(F.get("__debug__")||0)&1;if(G){return}window.setPopContent=function(M,L,N,K,H){var I=F.wd.querySelector("div.preview-ss");var J=F.wd.querySelector("div.preview-inst > iframe");if(I&&J&&J.contentWindow.setContent){I.style.display="none";J.parentNode.style.display="block";J.contentWindow.setContent(M,L,N,K,H)}};window.getPopContent=function(I){var H=F.wd.querySelector("div.preview-inst > iframe");if(H&&H.contentWindow.getContent){return H.contentWindow.getContent(I)}};window.hidePopContent=function(){var H=F.wd.querySelector("div.preview-ss");var I=F.wd.querySelector("div.preview-inst > iframe");if(H&&I&&I.contentWindow.hideContent){I.contentWindow.hideContent();H.style.display="block";I.parentNode.style.display="none"}};var D=l.getDCF();D.regist("previewPlugLib",function(H){if(F.data.frameReady){H.unshift(F.data.pages);H.push(F.wd.clientWidth);D.call("frm-preview","setPlugLib",H)}});D.regist("previewPageHtml",function(H){if(F.data.frameReady){H.unshift(F.data.pages);D.call("frm-preview","setPageHtml",H)}});D.regist("previewPageModi",function(H){F.wdMarkdown.r.data.changed=true;if(F.data.frameReady){H.unshift(null);D.call("frm-preview","setPageHtml",H)}});D.regist("onSlideLoad",function(H){F.data.pages=H;if(H.length&&F.data.frameReady){F.initPreviewPg()}});D.regist("slideDelPage",function(I){var H=I.shift();F.data.pages=I;F.wdMarkdown.r.data.changed=true;if(F.data.frameReady){D.call("frm-preview","setPageHtml",[I,H])}});D.regist("slideAddPage",function(I){var H=I.shift();F.data.pages=I;F.wdMarkdown.r.data.changed=true;if(F.data.frameReady){D.call("frm-preview","setPageHtml",[I,H])}});D.regist("slideChangeOrder",function(I){var H=I.shift();F.data.pages=I;F.wdMarkdown.r.data.changed=true;if(F.data.frameReady){D.call("frm-preview","setPageHtml",[I,H])}});D.regist("nav_shift",function(H){if(F.data.frameReady){D.call("frm-preview","nav_shift",H)}});D.regist("turnSlideTo",function(H){F.wdMarkdown.r.postSlideMsg("turnSlideTo",H)});D.regist("delSlidePage",function(H){F.wdMarkdown.r.postSlideMsg("delSlidePage",H)});D.regist("addSlidePage",function(H){F.wdMarkdown.r.postSlideMsg("addSlidePage",H)});F.on("resized",function(H){var J=F.wd.querySelector("div.preview-ss > iframe");if(J){D.call("frm-preview","setVisibleWidth",[F.wd.clientWidth])}var I=F.wd.querySelector("div.preview-inst > iframe");if(I&&I.contentWindow.setVisibleWidth){I.contentWindow.setVisibleWidth(F.wd.clientWidth)}})},editProj:function(D,J){if(D=="blog"){this.data.frameReady=false;this.data.isTemplate=false;this.update()}else{if(D=="sshow"){this.data.isTemplate=true;this.update();var L=this.wd.querySelector("div.preview-ss");var F=this.wd.querySelector("div.preview-inst");if(L&&F){this.data.frameReady=false;this.data.pages=[];var G=Math.max(window.innerHeight-38-480-10,100);var I=Math.max(window.innerHeight-38-480-8,100);L.style.height=G+"px";F.style.height=I+"px";var K=F.querySelector("iframe");if(!K){K=document.createElement("iframe");K.setAttribute("frameborder","0");K.setAttribute("width",window.innerWidth+"");K.setAttribute("height",I+"");F.appendChild(K);var N=this;K.onload=function(O){if(K.contentWindow.setVisibleWidth){K.contentWindow.setVisibleWidth(N.wd.clientWidth)}}}var H=L.querySelector("iframe");if(!H){l.getDCF().removeTarget("frm-preview");H=document.createElement("iframe");H.setAttribute("id","frm-preview");H.setAttribute("frameborder","0");H.setAttribute("width",window.innerWidth+"");H.setAttribute("height",G+"");L.appendChild(H);var N=this;H.onload=function(O){N.data.frameReady=true;if(N.data.pages.length){N.initPreviewPg()}}}var E="/"+J+"/?editing=1&preview=1";H.setAttribute("src",E);var M="/"+J+"/?editing=1&inline=1";K.setAttribute("src",M)}}}},initPreviewPg:function(){this.wdMarkdown.r.postSlideMsg("notiGetPlugLib",[]);var D=this;setTimeout(function(){for(var E=0,F;F=D.data.pages[E];E++){D.wdMarkdown.r.postSlideMsg("notiGetPageHtml",[F])}},1000)}};var m={__base__:l.IFrame,__widget__:["wdInfoMask","wdToolbar","wdProjList","wdMarkdown","wdResPanel","wdPreviewArea"],init:function(F){this._super(F);var L=this;var D=(L.get("__debug__")||0)&1;if(D){return}L.wd.style.display="none";L.wdInfoMask.style.display="none";L.wdInfoMask.onclick=function(M){if(M.target===L.wdInfoMask&&L.wd.style.display=="block"){if(L.data.finished&&L.tryHideDlg()){M.stopPropagation()}}};var J=null,K=0;var E=l.getDCF();E.regist("onResetLogin",function(M){L.data.login.hasLogin=false});var G=function(P,O){for(var M=0,N;N=P[M];M++){if(O.indexOf(N)>=0){return true}}return false};E.regist("closeForm",function(M){L.data.retData=M;L.data.finished=true;L.wdInfoMask.style.display="none";L.wd.style.display="none"});E.regist("shareProject",function(af){var an=af[0],Y=af[1],ae=af[2];var T=af[3],am=af[4],ai=af[5],N=af[6];var U=af[7]||"",ag=af[8]||"";var R=(x?[]:L.wdProjList.r.data.friendGroup);var W=(an==0?"public":(an==1?"protected":"private"));var ab="";if(W=="private"){if(Y>0&&Y<=R.length){ab=R[Y-1]||""}}var Q=ae.indexOf("/");if(Q<=0){return}var al=ae.slice(0,Q),X=ae.slice(Q+1);var ak=false;var S=L.wdToolbar.querySelector('img[name="SharePrj"]');S.src="loading.gif";setTimeout(function(){if(!ak){ak=true;S.src="prj_share.png"}},20000);var O=function(){if(!ak){ak=true;S.src="prj_share.png"}alert("Share project successful!");L.hideDlg();if(!x){L.wdMarkdown.r.tryResetAcl(ae,W);L.wdResPanel.r.tryResetAcl(ae,W)}L.wdProjList.r.afterSharePrj(al,X,!!N)};var Z=function(ao){if(!ak){ak=true;S.src="prj_share.png"}alert(ao);if(x){L.hideDlg()}};if(x){var ac=X+"/$abstract.txt";if(N.slice(0,2)=="$$"){N="/"+al+"/"+N}var ad=null,ah=j(al);if(!ah){Z("System error: can not find repository");return}ad=_.find(ah.doc_list,function(ao){return ao.path==X});if(!ad){Z("System error: can not find document: "+X);return}var M=(new Date()).toLocaleDateString();var V=c["/"+al+"/config.json"];var P=function(){$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+al+"/contents/config.json?access_token="+u,data:JSON.stringify({path:"config.json",message:M,content:Gh3.Base64.encode(JSON.stringify(ah)),sha:V,branch:"gh-pages"}),success:function(ao){c["/"+al+"/config.json"]=ao.content.sha;O()},error:function(ao){c["/"+al+"/config.json"]="";Z("Save config.json failed: "+g(ao,"message"))}})};var aa=function(){var ao=T+"\r\n"+am+"\r\n"+(ai?"<"+ai+">":"")+"\r\n";if(ag){ao+=ag}var ap={path:ac,message:M,content:Gh3.Base64.encode(ao),branch:"gh-pages"};if(U){ap.sha=U}$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+al+"/contents/"+ac+"?access_token="+u,data:JSON.stringify(ap),success:function(aq){ad.title=T;ad.desc=am;ad.keyword=ai;ad.thumb=N;ad.modify_at=parseInt((new Date()).valueOf()/1000);ad.flag=(ad.flag&255);P()},error:function(aq){Z("Save $abstract.txt failed: "+g(aq,"message"))}})};if(!V){var aj=new Gh3.File({path:"config.json"},B,al,"gh-pages");aj.fetchContent(function(ap,ao){if(ap){Z("Read config.json failed: "+g(ao,"message"));return}V=aj.sha;c["/"+al+"/config.json"]=V;aa()})}else{aa()}return}});var I=function(P,af,U,Q,R){var O=new Date();var N=O.toLocaleDateString();O=Math.floor(O.valueOf()/1000);var W="",Y=U.split("/");var S=Y.pop();if(Q){Y.pop();W=Y.join("/")}var T=c["/"+af+"/config.json"];var ac=U+"/$index.md";var aa=U+"/index.html";var Z=function(ah){if(typeof R=="function"){R(ah)}};var ab=function(){if(Q){L.wdProjList.r.addSubPrjNode(af,[W,[S,false]]);L.hideDlg();Z()}else{var ai=P.doc_list;var al={path:U,title:S,keyword:"",desc:"",thumb:"",flag:256+3,create_at:O,modify_at:O};for(var ak=0,ah;ah=ai[ak];ak++){if(U<ah.path){ai.splice(ak,0,al);al=null;break}}if(al){ai.push(al)}var am=3,aj=1;L.wdProjList.r.addPrjNode([af,U,O,am,0,aj,"public",0,0]);L.hideDlg();$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+af+"/contents/config.json?access_token="+u,data:JSON.stringify({path:"config.json",message:N,sha:T,content:Gh3.Base64.encode(JSON.stringify(P)),branch:"gh-pages"}),success:function(an){c["/"+af+"/config.json"]=an.content.sha;Z()},error:function(an){c["/"+af+"/config.json"]="";Z("Create project successful, but regist it failed, you can publish it later")}})}};var V=function(al,aj){var ah="";if(aj){var ai=aj.getFileByName("index.html");if(ai){if(!confirm(aa+" already exists, do you want overwrite it?")){ab();return}ah=ai.sha}}var ak={path:aa,message:N,content:Gh3.Base64.encode(al),branch:"gh-pages"};if(ah){ak.sha=ah}$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+af+"/contents/"+aa+"?access_token="+u,data:JSON.stringify(ak),success:function(am){ab()},error:function(am){Z("Write ("+aa+") failed: "+g(am,"message"))}})};var ad=function(ak,am,aj){var ah="";if(aj){var ai=aj.getFileByName("$index.md");if(ai){if(!confirm(ac+" already exists, do you want overwrite it?")){V(am,aj);return}ah=ai.sha}}var al={path:ac,message:N,content:Gh3.Base64.encode(ak),branch:"gh-pages"};if(ah){al.sha=ah}$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+af+"/contents/"+ac+"?access_token="+u,data:JSON.stringify(al),success:function(an){V(am,aj)},error:function(an){Z("Write ("+ac+") failed: "+g(an,"message"))}})};var X=function(ai,aj){var ah=new Gh3.Dir({path:U},B,af,"gh-pages");ah.fetchContents(function(al,ak){if(al){if(ak.status==404){ad(ai,aj,null);return}Z("List directory ("+U+") failed: "+g(ak,"message"));return}ad(ai,aj,ah)})};var ag=function(ah){$.ajax({type:"GET",url:"//"+B.login+".github.io/software/blogger10/blog.tmpl",dataType:"html",success:function(ai){X(ah,ai)},error:function(ai){Z("Read file failed: /software/blogger10/blog.tmpl")}})};var M=function(){$.ajax({type:"GET",url:"//"+B.login+".github.io/software/blogger10/markdown.md",dataType:"text",success:function(ah){ag(ah)},error:function(ah){Z("Read file failed: /software/blogger10/markdown.md")}})};if(!T){var ae=new Gh3.File({path:"config.json"},B,af,"gh-pages");ae.fetchContent(function(ai,ah){if(ai){Z("Read config.json failed: "+g(ah,"message"));return}T=ae.sha;c["/"+af+"/config.json"]=T;M()})}else{M()}};var H=function(O,ae,T,P,Q){var N=new Date();var M=N.toLocaleDateString();N=Math.floor(N.valueOf()/1000);var V="",Y=T.split("/");var R=Y.pop();if(P){Y.pop();V=Y.join("/")}var S=c["/"+ae+"/config.json"];var W=T+"/$index.txt";var aa=T+"/index.html";var Z=function(ag){if(typeof Q=="function"){Q(ag)}};var ab=function(){if(P){L.wdProjList.r.addSubPrjNode(ae,[V,[R,false]]);L.hideDlg();Z()}else{var ah=O.doc_list;var ak={path:T,title:R,keyword:"",desc:"",thumb:"",flag:256+3,create_at:N,modify_at:N};for(var aj=0,ag;ag=ah[aj];aj++){if(T<ag.path){ah.splice(aj,0,ak);ak=null;break}}if(ak){ah.push(ak)}var al=3,ai=1;L.wdProjList.r.addPrjNode([ae,T,N,al,0,ai,"public",0,0]);L.hideDlg();$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+ae+"/contents/config.json?access_token="+u,data:JSON.stringify({path:"config.json",message:M,sha:S,content:Gh3.Base64.encode(JSON.stringify(O)),branch:"gh-pages"}),success:function(am){c["/"+ae+"/config.json"]=am.content.sha;Z()},error:function(am){c["/"+ae+"/config.json"]="";Z("Create project successful, but regist it failed, you can publish it later")}})}};var U=function(ak,ai){var ag="";if(ai){var ah=ai.getFileByName("index.html");if(ah){if(!confirm(aa+" already exists, do you want overwrite it?")){ab();return}ag=ah.sha}}var aj={path:aa,message:M,content:Gh3.Base64.encode(ak),branch:"gh-pages"};if(ag){aj.sha=ag}$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+ae+"/contents/"+aa+"?access_token="+u,data:JSON.stringify(aj),success:function(al){ab()},error:function(al){Z("Write ("+aa+") failed: "+g(al,"message"))}})};var ac=function(al,aj){var ah="";if(aj){var ai=aj.getFileByName("$index.txt");if(ai){if(!confirm(W+" already exists, do you want overwrite it?")){U(al,aj);return}ah=ai.sha}}var ag='COMPONENT_OF_PINP_SLIDE,2,<page/>\nCOMPONENT_OF_PINP_SLIDE,1,<div class="ebook-title" _zindex="1000" _config="default-large-small default-looser-impacted default-hidden" _left="-348" _top="-144" _width="680"><h1>Title Goes Here Up<br>To Two Lines</h1></div>\n<div class="p1-p2-p3-p0" _zindex="1000" _config="default-large-small default-looser-impacted p1-p2-p3-p0" _left="-344" _top="2" _width="500"><p>Your name<br>May 1, 2015</p></div>';var ak={path:W,message:M,content:Gh3.Base64.encode(ag),branch:"gh-pages"};if(ah){ak.sha=ah}$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+ae+"/contents/"+W+"?access_token="+u,data:JSON.stringify(ak),success:function(am){U(al,aj)},error:function(am){Z("Write ("+W+") failed: "+g(am,"message"))}})};var X=function(ah){var ag=new Gh3.Dir({path:T},B,ae,"gh-pages");ag.fetchContents(function(aj,ai){if(aj){if(ai.status==404){ac(ah,null);return}Z("List directory ("+T+") failed: "+g(ai,"message"));return}ac(ah,ag)})};var af=function(){$.ajax({type:"GET",url:"//"+B.login+".github.io/software/blogger10/slideshow.tmpl",dataType:"html",success:function(ag){X(ag)},error:function(ag){Z("Read file failed: /software/blogger10/slideshow.tmpl")}})};if(!S){var ad=new Gh3.File({path:"config.json"},B,ae,"gh-pages");ad.fetchContent(function(ah,ag){if(ah){Z("Read config.json failed: "+g(ag,"message"));return}S=ad.sha;c["/"+ae+"/config.json"]=S;af()})}else{af()}};E.regist("createProject",function(Z){var Q=(Z[0]||"").trim();var ab=(Z[1]||"").trim();var W=(Z[2]?1:2);var Y=Z[4]||0;var R=(Z[3]||"").trim();if(!R){alert("Project name can not empty!");return}else{if(G('?*|:"<>\\/',R)){alert('Project name can not contains: ? * | : " < > \\ /');return}}if(W==1&&R.slice(-5)!=".blog"){R+=".blog"}else{if(W==2&&R.slice(-6)!=".sshow"){R+=".sshow"}}if(ab&&ab[ab.length-1]=="/"){ab=ab.slice(0,-1)}if(Q&&Q[Q.length-1]=="/"){Q=Q.slice(0,-1)}var O=Q;if(ab){if(O){O+="/"+ab}else{O=ab}}var T=O.split("/");if(T.length<2){if(x){alert("Invalid 'repository/category' name")}else{alert("Category name lost")}return}var M=null,ad=T.shift();if(x){M=j(ad);if(!M){alert("Invalid repository name: "+ad);return}}else{if(ad!=L.data.login.alias){alert("Invalid alias name");return}}for(var X=T.length-1;X>=0;X--){var aa=T[X];if(!aa){alert("Invalid category name");return}if(G('?*|:"<>\\',aa)){alert('Category name can not contains: ? * | : " < > \\');return}var O=aa.slice(0,2);if(O!="$$"){if(O[0]=="$"){T[X]="$"+aa}else{T[X]="$$"+aa}}}ab=T.join("/");var U=ab+"/"+R;if(x){var S=_.find(M.doc_list,function(ae){return ae.path==U});if(S){alert("Error: project ("+U+") already exists");return}}var ac=false;var P=L.wdToolbar.querySelector('img[name="CreatePrj"]');P.src="loading.gif";setTimeout(function(){if(!ac){ac=true;P.src="prj_add.png"}},20000);var N=function(){if(!ac){ac=true;P.src="prj_add.png"}alert("Add project successful")};var V=function(ae){if(!ac){ac=true;P.src="prj_add.png"}alert(ae)};if(x){if(W==1){I(M,ad,U,false,function(ae){if(ae){V(ae)}else{N()}})}else{H(M,ad,U,false,function(ae){if(ae){V(ae)}else{N()}})}return}});E.regist("createSubProject",function(R){var O=(R[0]||"").trim();var N=(R[1]?1:2);var X=(R[2]||"").trim();if(!X){alert("Project name can not empty!");return}else{if(G('?*|:"<>\\/',X)){alert('Project name can not contains: ? * | : " < > \\ /');return}}if(N==1&&X.slice(-5)!=".blog"){X+=".blog"}else{if(N==2&&X.slice(-6)!=".sshow"){X+=".sshow"}}var Q=O.indexOf("/");if(Q<=0){alert("Invalid project owner name");return}var S=O.slice(0,Q),Z=O.slice(Q+1);var T=null;if(x){T=j(S);if(!T){alert("Invalid repository name: "+S);return}var Y=_.find(T.doc_list,function(aa){return aa.path==Z});if(!Y){alert("Error: project ("+Z+") inexistent");return}}var U=false;var P=L.wdToolbar.querySelector('img[name="CreateSubPrj"]');P.src="loading.gif";setTimeout(function(){if(!U){U=true;P.src="prj_addsub.png"}},20000);var M=function(){if(!U){U=true;P.src="prj_addsub.png"}alert("Add sub-project successful")};var W=function(aa){if(!U){U=true;P.src="prj_addsub.png"}alert(aa)};if(x){if(N==1){var V=Z+"/$$/"+X;I(T,S,V,true,function(aa){if(aa){W(aa)}else{M()}})}else{var V=Z+"/$$/"+X;H(T,S,V,true,function(aa){if(aa){W(aa)}else{M()}})}return}});E.regist("removeProject",function(ae){var aa=ae.shift(),ah=false;var ad=(ae[0]||"").trim(),U=[],Y=ae.length;if(!ad){return}for(var ab=1;ab<Y;ab++){var ag=ae[ab];U.push(ag);if(ab==1&&ag){if(aa){ah=true}break}if(ab>1&&ag==aa){ah=true}}if(U.length==1&&!U[0]){alert("No project selected, nothing removed!");L.hideDlg();return}else{if(!confirm("Do you want remove selected project?")){return}}var Q=ad.indexOf("/");if(Q<=0){return}var ak=ad.slice(0,Q),V=ad.slice(Q+1);var aj=false;var R=L.wdToolbar.querySelector('img[name="RemovePrj"]');R.src="loading.gif";setTimeout(function(){if(!aj){aj=true;R.src="prj_rmv.png"}},20000);var P=function(){if(!aj){aj=true;R.src="prj_rmv.png"}alert("Remove project successful");if(ah){L.wdMarkdown.r.cancelEditing()}};var W=function(al){if(!aj){aj=true;R.src="prj_rmv.png"}alert(al)};if(x){var ac=null,af=j(ak);if(!af){alert("System error: can not find repository");return}ac=_.find(af.doc_list,function(al){return al.path==V});if(!ac){alert("System error: can not find document: "+V);return}var N=new Date();var M=N.toLocaleDateString();N=Math.floor(N.valueOf()/1000);var T=c["/"+ak+"/config.json"];var X=!!U[0],S=[];if(X){S.push(V)}else{for(var ab=1,ag;ag=U[ab];ab++){S.push(V+"/$$/"+ag)}}var Z=null;var O=function(al){Z=null;if(al){W(al);return}L.wdProjList.r.rmvPrjNode(ad,U,[]);L.hideDlg();if(!X){P()}else{var am=af.doc_list.indexOf(ac);if(am<0){P();return}af.doc_list.splice(am,1);$.ajax({type:"PUT",url:"https://api.github.com/repos/"+B.login+"/"+ak+"/contents/config.json?access_token="+u,data:JSON.stringify({path:"config.json",message:M,content:Gh3.Base64.encode(JSON.stringify(af)),sha:T,branch:"gh-pages"}),success:function(an){c["/"+ak+"/config.json"]=an.content.sha;P()},error:function(an){c["/"+ak+"/config.json"]="";W("Save config.json failed: "+g(an,"message"))}})}};Z=function(){var al=false,ap=0,at=0,ar=0,av=0;var an=false;var ao=function(){if(an){return}an=true;if(al||av){O("Delete project failed (some files not removed), please try again!")}else{O("")}};var aq=function(aw,ax){$.ajax({type:"DELETE",url:"https://api.github.com/repos/"+B.login+"/"+ak+"/contents/"+aw+"?access_token="+u,data:JSON.stringify({path:aw,message:M,sha:ax,branch:"gh-pages"}),success:function(ay){ar+=1;if(ar+av>=ap){ao()}},error:function(ay){av+=1;if(ar+av>=ap){ao()}}})};var am=function(aw,ax){at+=1;aw.fetchContents(function(aB,az){if(aB){if(az.status!=404){al=true}ax();return}var ay=[],aC=[],aD=0;aw.eachContent(function(aE){if(aE.type=="file"){aD+=1;ay.push([aE.path,aE.sha])}else{if(aE.type=="dir"){aD+=1;aC.push(aE)}}});if(aD){ap+=ay.length;var aA=function(){var aE=aC.pop();if(aE){am(aE,aA)}else{aE=ay.pop();if(aE){setTimeout(function(){aq(aE[0],aE[1]);aA()},500)}else{ax()}}};aA()}else{ax()}})};var au=function(){var aw=S.shift();if(aw){am(new Gh3.Dir({path:aw},B,ak,"gh-pages"),au)}else{if(ap==0){ao()}}};au()};if(!T){var ai=new Gh3.File({path:"config.json"},B,ak,"gh-pages");ai.fetchContent(function(am,al){if(am){W("Read config.json failed: "+g(al,"message"));return}T=ai.sha;c["/"+ak+"/config.json"]=T;Z()})}else{Z()}return}});E.regist("editPrepost",function(M){L.editPrepost(M[0],M[1],M[2])});E.regist("savePrepost",function(M){L.wdMarkdown.r.postSlideMsg("savePrepost",M);L.hideDlg()});E.regist("editSlideTxt",function(M){if(!L.data.finished){alert("System error: previous task not finished yet!");L.hideDlg();return}L.editSlideTxt(M[0],M[1])});E.regist("saveSlideTxt",function(M){L.wdMarkdown.r.postSlideMsg("saveSlideTxt",M);L.hideDlg()});E.regist("editTableData",function(M){L.editTableData(M[0],M[1],M[2],M[3],M[4],M[5])});E.regist("saveTableData",function(M){L.wdMarkdown.r.postSlideMsg("saveTableData",M);L.hideDlg()});E.regist("editShapeData",function(M){L.editShapeData(M[0],M[1],M[2],M[3],M[4],M[5])});E.regist("saveShapeData",function(M){L.wdMarkdown.r.postSlideMsg("saveShapeData",M);L.hideDlg()});E.regist("editPaperData",function(M){L.editPaperData(M[0],[M[1],M[2],M[3],M[4],M[5],M[6],M[7],M[8]])});window.updatePaperContent=function(M,O,N){L.wdResPanel.style.height="100%";L.wdPreviewArea.style.display="block";L.hideDlg();if(M){L.wdMarkdown.r.postSlideMsg("savePaperData",[O,N])}};window.copyToClipboard_=function(N,M,P){var O=L.wdMarkdown.querySelector("iframe");if(O&&O.contentWindow.apiNode){O.contentWindow.apiNode.copyToClipboard(N,M,P)}};window.textOfClipboard_=function(){var M=L.wdMarkdown.querySelector("iframe");if(M&&M.contentWindow.apiNode){return M.contentWindow.apiNode.textOfClipboard()}else{return""}};L.on("afterLogin",function(M){L.wdProjList.r.fire("refresh");setTimeout(function(){L.hideDlg();if(L.data.taskAtLogin){if(L.data.taskAtLogin=="submit"&&L.wdMarkdown.r.data.currProj){L.wdMarkdown.r.startSubmitDoc()}L.data.taskAtLogin=""}},1500)})},showDlg:function(F){var I=function(P,O){if(P<1){if(P<0){return 0}else{if(P<0.9999){return Math.floor(P*O+0.5)}else{return O}}}else{return Math.floor(P+0.5)}};var E=F.url;if(!E&&(F.bodyHtml||F.jsScript)){E="/software/pages/simple_dialog.html"}if(!E){return}var K=I(F.left||0,window.innerWidth);var J=I(F.top||0,window.innerHeight);var L=I(F.width||0.9999,window.innerWidth);var H=I(F.height||0.9999,window.innerHeight);var G=this.wdToolbar.parentNode.clientHeight+Math.max(this.wdProjList.clientHeight,this.wdMarkdown.parentNode.clientHeight+this.wdPreviewArea.clientHeight);this.wdInfoMask.style.width=window.innerWidth+"px";this.wdInfoMask.style.height=Math.max(window.innerHeight,G)+"px";this.wdInfoMask.style.display="block";this.wd.style.left=K+"px";this.wd.style.top=J+"px";this.wd.style.width=L+"px";this.wd.style.height=H+"px";this.wd.style.display="block";var D=this.wd.querySelector("div.dlg-loading");D.style.display="block";var N=this,M=this.wd.querySelector("iframe");M.onload=function(P){D.style.display="none";if(F.closable){N.data.finished=true}var O=function(){l.getDCF().call("wdPopDlgForm","initGui",[F.bodyHtml||"",F.jsScript||""],3000,function(Q){if(F.onReady){F.onReady()}},function(Q){alert("System error")})};if(F.peerName||F.bodyHtml||F.jsScript){if(F.peerName){l.getDCF().setPeerName("wdPopDlgForm",F.peerName,3000,function(Q){if(Q.state=="OK"){if(F.bodyHtml||F.jsScript){O()}else{if(F.onReady){F.onReady()}}}else{alert("System error")}})}else{if(F.bodyHtml||F.jsScript){O()}else{if(F.onReady){F.onReady()}}}}else{if(F.onReady){F.onReady()}}};this.data.finished=false;this.refreshUrl(E)},hideDlg:function(){this.wdInfoMask.style.display="none";this.wd.style.display="none"},tryHideDlg:function(){if(this.data.finished){this.wdInfoMask.style.display="none";this.wd.style.display="none";return true}return false},checkLogin:function(E,D){if(!E&&this.data.login.hasLogin&&this.data.login.failCount==0){return}if(D){this.data.taskAtLogin=D}this.showDlg({left:Math.floor(window.innerWidth/2-310),top:Math.floor(window.innerHeight/2-180),width:620,height:360,url:"//"+PINP_HOST_DOMAIN+"/admin/writer/relay?check=1",closable:false})},startShareDoc:function(){var I="",F=true,G=this.wdProjList.querySelector(".prj-item.prj-selected2");if(G&&(G.classList.contains("prj-sub-item")||G.classList.contains("prj-curr-item"))){I=G.getAttribute("title");var K=G.getAttribute("name");if(K&&K.indexOf("prj-")==0){var M=this.wdProjList.r.data.items[parseInt(K.slice(4))];if(M){F=M.canWrite}}}if(!I){alert("Please select a project first!");return false}if(!F){alert("Can not share this project: not online document");return false}if(I==this.wdMarkdown.r.data.currProj&&this.wdMarkdown.r.data.changed){if(!confirm("The project still in editing, do you want continue?")){return false}}var J=I.indexOf("/");if(J<=0){return}var L=I.slice(0,J),O=I.slice(J+1);var D=G.getAttribute("allow")||"private";var N=x?[]:this.wdProjList.r.data.friendGroup;var P=this;var H=function(Y,Z,V,Q,W,S){var U='var gitSha = "'+(W||"")+"\";\nvar gitCfgLine = '"+S.replace(/'/gm,"\\'")+"';\nvar initAclIndex = "+(D=="public"?"0":(D=="protected"?"1":"2"))+';\nvar inputTitle = "'+Y+'";\nvar inputDesc = "'+Z+'";\nvar inputKeyword = "'+V+'";\nfunction location__(href) {\n  var location = document.createElement("a");\n  location.href = href;\n  if (location.host == "")\n    location.href = location.href;\n  return location;\n}\nfunction applySharePrj() {\n  var sPath = "'+I+'";\n  var frm = document.querySelector("form");\n  var iAcl=0, iGroup=0;\n  if (frm.prjAcl) {\n    iAcl = frm.prjAcl[0].checked?0:(frm.prjAcl[1].checked?1:2);\n    var iGroup = 0; for (var i=0,item; item=frm.aclGroup[i]; i++) {\n      if (item.checked) {iGroup = i; break;}\n    }\n  }\n  var sTitle = frm.prjTitle.value.trim().slice(0,160);\n  var sDesc = frm.prjDesc.value.trim().slice(0,256);\n  var sKeyword = frm.prjKeyword.value.trim().slice(0,160);\n  sTitle = sTitle.replace(/"/gm,""); sDesc = sDesc.replace(/"/gm,""); sKeyword = sKeyword.replace(/"/gm,"");\n  var sThumb = frm.prjThumb.value.trim();\n  if (sThumb && frm.prjAcl) sThumb = location__(sThumb).href;\n  document.getElementById("btn-apy").disabled = true;\n  DCF.call("parent","shareProject",[iAcl,iGroup,sPath,sTitle,sDesc,sKeyword,sThumb,gitSha,gitCfgLine]);\n}\nfunction cfgModified(event) {\n  document.getElementById("btn-apy").disabled = false;\n}\nfunction checkAcl() {\n  document.getElementById("btn-apy").disabled = false;\n  var frm = document.querySelector("form");\n  var isReadonly = !frm.prjAcl[2].checked;\n  document.getElementById("acl-group").style.color = isReadonly?"#ccc":"black";\n  for (var i=0,item; item=frm.aclGroup[i]; i++) {\n    item.disabled = isReadonly;\n  }\n}\nfunction initInputData(i) {\n  var frm = document.querySelector("form");\n  frm.prjTitle.value = inputTitle;\n  frm.prjDesc.value = inputDesc;\n  frm.prjKeyword.value = inputKeyword;\n  if (frm.prjAcl) {\n    frm.prjAcl[i].setAttribute("checked","checked");\n    checkAcl();\n  }\n}\ninitInputData(initAclIndex);';var X='<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Share project</div><div style="width:100; height:28px"></div>\n';X+='<p style="font-size:14px; word-break:break-all; color:gray">Owner: '+a(I)+"</p>\n<form>\n";if(!x){X+='<p>Project type<br><input type="radio" name="prjAcl" onclick="checkAcl()" checked>public&nbsp;&nbsp;&nbsp;<input type="radio" name="prjAcl" onclick="checkAcl()">protected&nbsp;&nbsp;&nbsp;<input type="radio" name="prjAcl" onclick="checkAcl()">private</p>\n';X+='<div id="acl-group">&nbsp;&nbsp;&nbsp;<input type="radio" name="aclGroup" onclick="cfgModified(event)" checked>Only for myself\n';for(var T=0,aa;aa=N[T];T++){X+='<br>&nbsp;&nbsp;&nbsp;<input type="radio" name="aclGroup" onclick="cfgModified(event)">'+a(aa)+"\n"}X+="</div>\n"}X+='<p>Document title<br><input name="prjTitle" type="text" style="width:340px" onchange="cfgModified(event)"><br>\n';X+='Description <span style="font-size:14px; color:gray">(within 140 characters)</span><br><textarea name="prjDesc" style="width:340px; height:70px" onchange="cfgModified(event)"></textarea><br>\n';X+='Document Keyword<br><input name="prjKeyword" type="text" placeholder="keyword1,keyword2,..." style="width:340px" onchange="cfgModified(event)"><br>';X+='Thumbnail picture <span style="font-size:14px; color:gray">(input image URL)</span><br><input name="prjThumb" type="text" style="width:340px" value="'+Q+'" onchange="cfgModified(event)"></p>\n';X+='</form>\n<p><button id="btn-apy" onclick="applySharePrj()">Apply</button></p>';var R=N.length<=4?540:(N.length<=8?580:620);if(x){R-=80}P.showDlg({left:Math.floor((window.innerWidth-400)/2),top:Math.floor((window.innerHeight-R)/2),width:400,height:R,url:"/software/pages/simple_dialog.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:X,jsScript:U})};if(x){var E=new Gh3.File({path:O+"/$abstract.txt"},B,L,"gh-pages");E.fetchContent(function(R,X){var Z="",aa="",V="",W="",Q="",S="";var U=j(L);var ab=_.find(U.doc_list,function(ac){return ac.path==O});if(ab){Q=ab.thumb||""}if(Q.slice(0,2)=="$$"){Q="/"+L+"/"+Q}if(!R){W=E.sha;var T=E.getRawContent(),Y=T.split("\n");Z=(Y[0]||"").trim().replace(/"/gm,"");aa=(Y[1]||"").trim().replace(/"/gm,"");V=(Y[2]||"").trim().replace(/"/gm,"");S=(Y[3]||"").trim();if(V&&V[0]=="<"&&V[V.length-1]==">"){V=V.slice(1,-1)}}H(Z,aa,V,Q,W,S)});return}},createPrj:function(){var G="",F=this.wdProjList.querySelector(".prj-item.prj-selected2");if(F&&(F.classList.contains("prj-sub-item")||F.classList.contains("prj-curr-item"))){G=F.getAttribute("title")||""}else{F=this.wdProjList.querySelector(".prj-item.prj-selected");if(F&&F.classList.contains("prj-cate-folder")){G=F.getAttribute("title")||""}else{if(x){G=""}else{G=this.data.login.alias+"/"+this.wdProjList.r.data.currCate}}}if(!x&&!G){return false}var K=G.split("/");if(K.length>1){K.pop()}var D=false,I=true;if(x){if(!G){D=true}else{if(K.length>=2){I=false}}}else{if(K.length>=2){I=false}}var J=K.join("/");var H='function applyCreatePrj() {\n  var sOwner = "'+J+'";\n  var frm = document.querySelector("form");\n  var sCate = frm.prjPath.value.trim();\n  var iFlag = 0; if (frm.prjShare) iFlag = frm.prjShare[0].checked?0:(frm.prjShare[1].checked?1:2);\n  var bArgs = [sOwner,sCate,frm.prjType[0].checked,frm.prjName.value,iFlag];\n  document.getElementById("btn-apy").disabled = true;\n  DCF.call("parent","createProject",bArgs);\n}\nfunction cfgModified(event) {\n  document.getElementById("btn-apy").disabled = false;\n}';var L='<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Create project</div><div style="width:100; height:28px"></div>\n';if(J){L+='<p style="font-size:14px; word-break:break-all; color:gray">Owner: '+a(J+"/")+"</p>\n"}L+='<form><p>Project type<br><input type="radio" name="prjType" onclick="cfgModified(event)" checked>blog&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="prjType" onclick="cfgModified(event)">slideshow</p>\n';if(!x){L+='<p>Sharing<br><input type="radio" name="prjShare" onclick="cfgModified(event)"><span title="for all visitor">public</span>&nbsp;&nbsp;<input type="radio" name="prjShare" onclick="cfgModified(event)"><span title="for all logined visitor">protected</span>&nbsp;&nbsp;<input type="radio" name="prjShare" onclick="cfgModified(event)" checked><span title="only for yourself">private</span></p>\n'}L+='<p>Category <span style="font-size:14px; color:gray">(';if(D){L+="repository/category"}else{if(I){L+="category"}else{L+="category or leave it empty"}}L+=')</span><br><input name="prjPath" type="text" style="width:340px" value="" onchange="cfgModified(event)"></p>\n';L+='<p>Project name<br><input type="text" name="prjName" style="width:340px" value="" onchanged="cfgModified(event)"></p></form>\n';L+='<p><button id="btn-apy" onclick="applyCreatePrj()">Apply</button></p>';var E=380;if(x){E-=36}this.showDlg({left:Math.floor((window.innerWidth-420)/2),top:Math.floor((window.innerHeight-E)/2),width:420,height:E,url:"/software/pages/simple_dialog.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:L,jsScript:H});return true},createSubPrj:function(){var D="",E=this.wdProjList.querySelector(".prj-item.prj-selected2");if(E&&(E.classList.contains("prj-sub-item")||E.classList.contains("prj-curr-item"))){D=E.getAttribute("title")}if(!D){alert("Please select a project first!");return false}var G='function applyCreatePrj() {\n  var frm = document.querySelector("form");\n  var bArgs = ["'+D+'",frm.prjType[0].checked,frm.prjName.value];\n  document.getElementById("btn-apy").disabled = true;\n  DCF.call("parent","createSubProject",bArgs);\n}\nfunction cfgModified(event) {\n  document.getElementById("btn-apy").disabled = false;\n}';var F='<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Create sub-project</div><div style="width:100; height:28px"></div>\n';F+='<p style="font-size:14px; word-break:break-all; color:gray">Owner: '+a(D)+"</p>\n";F+='<form><p>Project type<br><input type="radio" name="prjType" onclick="cfgModified(event)" checked>blog&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="prjType" onclick="cfgModified(event)">slideshow</p>\n';F+='<p>Project name<br><input type="text" name="prjName" style="width:340px" value="" onchange="cfgModified(event)"></p></form>\n';F+='<p><button id="btn-apy" onclick="applyCreatePrj()">Apply</button></p>';this.showDlg({left:Math.floor((window.innerWidth-420)/2),top:Math.floor((window.innerHeight-290)/2),width:420,height:290,url:"/software/pages/simple_dialog.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:F,jsScript:G});return true},removePrj:function(){var G="",K=[],F=this.wdProjList.querySelector(".prj-item.prj-selected2");if(F&&(F.classList.contains("prj-sub-item")||F.classList.contains("prj-curr-item"))){G=F.getAttribute("title");if(G){var H=F.nextElementSibling;while(H&&H.classList.contains("prj-sub2-item")){var O=H.getAttribute("title");if(O&&O.indexOf(G)==0){var L=O.split("/");K.push(L[L.length-1])}H=H.nextElementSibling}}}if(!G){return false}var D=this.wdMarkdown.r.prjInEditing(G);if(D){var P=D=="*"?"Selected project current in editing,":"One of sub-project in editing,";if(!confirm(P+" continue to remove?")){return false}}var J='var editingFlag = "'+D+'";\nfunction applyRemovePrj() {\n  var bArgs=[editingFlag], nodes=document.querySelectorAll("input[_name]");\n  for (var i=0,node; node=nodes[i]; i++) {\n    var sName = node.getAttribute("_name");\n    if (i == 0) {\n      bArgs.push(sName);\n      if (node.checked) { bArgs.push("*"); break; }\n      else bArgs.push("");\n    } else {\n      if (node.checked) bArgs.push(sName);\n    }\n  }\n  document.getElementById("btn-apy").disabled = true;\n  DCF.call("parent","removeProject",bArgs);\n}\nfunction rootChanged(event,rootNode) {\n  var bRet=[], nodes = document.querySelectorAll("input[_sub]");\n  for (var i=0,item; item=nodes[i]; i++) {\n    if (rootNode.checked && !item.checked) item.checked = true;\n    item.disabled = rootNode.checked? true: false;\n  }\n  document.getElementById("btn-apy").disabled = false;\n}\nfunction subChanged(event) {\n  document.getElementById("btn-apy").disabled = false;\n}';var M='<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Remove project</div><div style="width:100; height:28px"></div>\n';M+='<p style="font-size:14px; word-break:break-all; color:gray">Project: '+a(G)+"</p>\n";M+='<p><input _name="'+G+'" type="checkbox" onclick="rootChanged(event,this)">Whole project<br>\n';for(var I=0,N;N=K[I];I++){M+='&nbsp;&nbsp;<input _sub="true" _name="'+N+'" type="checkbox" onclick="subChanged(event)">'+a(N)+"<br>\n"}M+="</p>";M+='<p><button id="btn-apy" onclick="applyRemovePrj()">Apply</button></p>';var E=(K.length>=10?400:(K.length>=2?320:250));this.showDlg({left:Math.floor((window.innerWidth-400)/2),top:Math.floor((window.innerHeight-E)/2),width:400,height:E,url:"/software/pages/simple_dialog.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:M,jsScript:J});return true},addDropPrjFrame:function(E,N,G){var J=G.split("/"),L=J[J.length-1];var F,I=this.wdMarkdown.r.data.currProj;if(I&&G.indexOf(I+"/")==0){F=G.slice(I.length+1)+"/"}else{if(x){F=B.login+".github.io"}else{F=PINP_HOST_DOMAIN}F=location.protocol+"//"+F+"/"+G+"/"}var H='var sPrjUrl = "'+F+'";\nvar sBareName = "'+L+'";\nvar sThumb = "'+E+'";\nvar sPrjFlag = "'+N+'";\nfunction lnkTypeChanged() {\n  var frm = document.querySelector("form");\n  var nd = document.getElementById("prj-wdhi");\n  var nodes = nd.querySelectorAll("input");\n  if (!frm.lnkType[0].checked) {\n    nd.style.color = "#222";\n    for (var i=0,item; item=nodes[i]; i++) {\n      item.removeAttribute("readonly");\n      item.style.backgroundColor = "#fff";\n    }\n  } else {\n    nd.style.color = "#ccc";\n    for (var i=0,item; item=nodes[i]; i++) {\n      item.setAttribute("readonly","readonly");\n      item.style.backgroundColor = "#ccc";\n    }\n  }\n}\nfunction applyInsertLnk(event) {\n  event.preventDefault(); event.stopPropagation();\n  var sOut="", frm=document.querySelector("form");\n  if (frm.lnkType[0].checked) {\n    if (sThumb)\n      sOut = \'<a target="_blank" href="\' + sPrjUrl + \'">\' + \'<img alt="\' + sBareName + \'" src="\' + sThumb + \'"></a>\';\n    else sOut = "[" + sBareName + "](" + sPrjUrl + ")";\n  } else {\n    var sWd = document.getElementById("input-wd").value.trim().replace(/px/gi,"") || "100%";\n    var sHi = document.getElementById("input-hi").value.trim().replace(/px/gi,"") || "300";\n    var pgNode = document.getElementById("input-pg");\n    var sPage = (pgNode? pgNode.value.trim(): "");\n    if (pgNode) sPrjUrl += "?size=0x0";\n    if (sPage) sPrjUrl += "#" + sPage;\n    sOut = \'<iframe frameborder="0" width="\' + sWd + \'" height="\' + sHi + \'" src="\' + sPrjUrl + \'"></iframe>\';\n  }\n  DCF.call("parent","dropTextInfo",[sOut]);\n}\n';var D=false;var K='<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Insert project linker</div><div style="width:100; height:28px"></div>\n';K+='<p style="font-size:14px; word-break:break-all; color:gray">Project: '+a(G)+"</p>\n";K+='<form><p><input type="radio" name="lnkType" onclick="lnkTypeChanged()" checked>insert a linker</p><p><input type="radio" name="lnkType" onclick="lnkTypeChanged()">embed a frame</p>\n';K+='<div id="prj-wdhi" style="color:#ccc; margin-left:20px; margin-top:-8px">Width <span style="font-size:14px; color:gray">(percent or pixes)</span><br><input id="input-wd" type="text" style="background-color:#ccc; width:220px" value="100%" readonly>\n';K+='<br>Height <span style="font-size:14px; color:gray">(percent or pixes)</span><br><input id="input-hi" type="text" style="background-color:#ccc; width:220px" value="300" readonly>\n';if(N=="1"||N=="2"||G.slice(G.length-6)==".sshow"){D=true;K+='<br>Show page <span style="font-size:14px; color:gray">(page number)</span><br><input id="input-pg" type="text" style="background-color:#ccc; width:220px" value="1" readonly>\n'}K+='</div></form><p>&nbsp;<button onclick="applyInsertLnk(event)">Apply</button></p>\n';var M=(D?356:310);this.showDlg({left:Math.floor((window.innerWidth-340)/2),top:Math.floor((window.innerHeight-M)/2),width:340,height:M,url:"/software/pages/simple_dialog.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:K,jsScript:H})},addDropImgFrame:function(F,E,G){var D=G.split("/"),J=D[D.length-1];var I='var sImgUrl = "'+G+'";\nvar sImgBare = "'+J+'";\nvar sNatureWd = "'+F+'";\nvar sNatureHi = "'+E+'";\nfunction lnkTypeChanged() {\n  var frm = document.querySelector("form");\n  var nd = document.getElementById("img-wdhi");\n  var nodes = nd.querySelectorAll("input");\n  if (!frm.lnkType[0].checked) {\n    nd.style.color = "#222";\n    for (var i=0,item; item=nodes[i]; i++) {\n      item.removeAttribute("readonly");\n      item.style.backgroundColor = "#fff";\n    }\n  } else {\n    nd.style.color = "#ccc";\n    for (var i=0,item; item=nodes[i]; i++) {\n      item.setAttribute("readonly","readonly");\n      item.style.backgroundColor = "#ccc";\n    }\n  }\n}\nfunction applyInsertLnk(event) {\n  event.preventDefault(); event.stopPropagation();\n  var sOut="", frm=document.querySelector("form");\n  if (frm.lnkType[0].checked) {\n    sOut = \'<a target="_blank" href="\' + sImgUrl + \'">\' + sImgBare + \'</a>\';\n  } else {\n    var sWd = document.getElementById("input-wd").value.trim().replace(/px/gi,"");\n    var sHi = document.getElementById("input-hi").value.trim().replace(/px/gi,"");\n    if (!sWd || sWd == sNatureWd) {\n      if (!sHi || sHi == sNatureHi)\n        sOut = "![" + sImgBare + "](" + sImgUrl + ")";\n      else {\n        sHi += (sHi.indexOf("%") > 0? "": "px");\n        sOut = \'<img style="width:\' + sNatureWd + \'px; height:\' + sHi + \'" src="\' + sImgUrl + \'">\';\n      }\n    } else {\n      sWd += (sWd.indexOf("%") > 0? "": "px");\n      if (!sHi)\n        sOut = \'<img style="width:\' + sWd + \'" src="\' + sImgUrl + \'">\';\n      else {\n        sHi += (sHi.indexOf("%") > 0? "": "px");\n        sOut = \'<img style="width:\' + sWd + \'; height:\' + sHi + \'" src="\' + sImgUrl + \'">\';\n      }\n    }\n  }\n  DCF.call("parent","dropTextInfo",[sOut]);\n}\n';var H='<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Insert image</div><div style="width:100; height:28px"></div>\n';H+='<p style="font-size:14px; word-break:break-all; color:gray">File: '+a(J)+"</p>\n";H+='<form><p><input type="radio" name="lnkType" onclick="lnkTypeChanged()">insert a linker</p><p><input type="radio" name="lnkType" onclick="lnkTypeChanged()" checked>embed an image</p>\n';H+='<div id="img-wdhi" style="color:#222; margin-left:20px; margin-top:-8px">Width <span style="font-size:14px; color:gray">(percent, pixes or leave it blank)</span><br><input id="input-wd" type="text" style="background-color:#fff; width:270px" value="'+F+'"><br>\n';H+='Height <span style="font-size:14px; color:gray">(percent, pixes or leave it blank)</span><br><input id="input-hi" type="text" style="background-color:#fff; width:270px" value="'+E+'"></div>\n';H+='</form><p>&nbsp;<button onclick="applyInsertLnk(event)">Apply</button></p>\n';this.showDlg({left:Math.floor((window.innerWidth-360)/2),top:Math.floor((window.innerHeight-320)/2),width:360,height:320,url:"/software/pages/simple_dialog.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:H,jsScript:I})},editPrepost:function(G,F,E){var D=Math.floor(window.innerHeight*0.99);this.showDlg({left:Math.floor((window.innerWidth-700)/2),top:Math.floor((window.innerHeight-D)/2),width:700,height:D,url:"prepost_editor.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:"",jsScript:"",onReady:function(){l.getDCF().call("wdPopDlgForm","initPrePost",[G,F,E])}})},editSlideTxt:function(H,E){var F=Math.floor(window.innerWidth*0.8);var D=Math.floor(window.innerHeight*0.8);var I="var iEditNodeId = "+H+';\nfunction finishEditing() {\n  var txtNode = document.querySelector("textarea");\n  var bArgs = [iEditNodeId,txtNode.value];\n  DCF.call("parent","saveSlideTxt",bArgs);\n}\ndocument.querySelector("textarea").value = '+JSON.stringify(E)+";";var G='<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Plain text editor</div><div style="width:100; height:28px"></div>\n';G+='<textarea style="width:'+(F-24)+"px; height:"+(D-110)+'px; resize:none"></textarea>\n';G+='<p><button onclick="finishEditing()">Apply</button></p>';this.showDlg({left:Math.floor((window.innerWidth-F)/2),top:Math.floor((window.innerHeight-D)/2),width:F,height:D,url:"/software/pages/simple_dialog.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:G,jsScript:I})},editTableData:function(K,D,J,G,I,F){var H=Math.floor(window.innerWidth*0.9);var E=Math.floor(window.innerHeight*0.9);this.showDlg({left:Math.floor((window.innerWidth-H)/2),top:Math.floor((window.innerHeight-E)/2),width:H,height:E,url:"table_editor.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:"",jsScript:"",onReady:function(){l.getDCF().call("wdPopDlgForm","initTableData",[K,D,J,G,I,F])}})},editShapeData:function(K,F,H,D,I,J){var G=Math.floor(window.innerWidth*0.8);var E=Math.floor(window.innerHeight*0.9);this.showDlg({left:Math.floor((window.innerWidth-G)/2),top:Math.floor((window.innerHeight-E)/2),width:G,height:E,url:"pinp_shape_editor.html",closable:true,peerName:"wdPopDlgForm",bodyHtml:"",jsScript:"",onReady:function(){l.getDCF().call("wdPopDlgForm","initMask",[K,F,H,D,I,J])}})},setPopupRightWd:function(D){if(this.wdInfoMask.style.display!="none"){var E=(window.innerWidth-D)+"px";this.wdInfoMask.style.width=E;this.wd.style.width=E}},editPaperData:function(I,H){var J=this.wdMarkdown.r.data.currProj;if(!J){return}var E="/"+J+"/";var G=window.innerWidth-300;var F=window.innerHeight;var D=this;this.showDlg({left:0,top:0,width:G,height:F,url:E+"?editing=1&paper=1",closable:false,peerName:"",bodyHtml:"",jsScript:"",onReady:function(){var K=D.wd.querySelector("iframe");if(K){K.contentWindow.setEditingNode(I,E);K.contentWindow.initPaper(H);D.wdPreviewArea.style.display="none";D.wdResPanel.style.height=(window.innerHeight-D.wdToolbar.clientHeight-8)+"px";D.setPopupRightWd(300)}}})}};return{Toolbar:d,ProjList:y,SplitterA:p,Markdown:w,ResPanel:n,PreviewArea:z,PopDlgForm:m}});
+// widgets-1.0.js
+// designed by Wayne Chan
+
+var PINP_HOST_DOMAIN = 'www.pinp.me';
+
+require.config({
+  paths: {
+    "basic10": "/software/pages/js/basic10",
+  }
+});
+
+define(['basic10'], function(R) {
+//===================================
+
+function getCookie__(name) {
+  if (document.cookie.length > 0) {
+    var iEnd, iStart = document.cookie.indexOf(name + "=");
+    if (iStart != -1) {
+      iStart = iStart + name.length + 1;
+      iEnd = document.cookie.indexOf(";",iStart);
+      if (iEnd == -1) iEnd = document.cookie.length;
+      return unescape(document.cookie.substring(iStart,iEnd));
+    }
+  }
+  return "";
+}
+
+function setCookie__(name,value,expireDays,path) {
+  expireDays = expireDays || 1;
+  var exDate = new Date();
+  exDate.setTime(exDate.getTime() + expireDays*24*60*60*1000);
+  path = path || '/';
+  document.cookie = name + "=" + escape(value) + ";expires=" + exDate.toGMTString() + ";path=" + path + ";";
+}
+
+function delCookie__(name,path) {
+  if (document.cookie.length > 0) {
+    var iStart = document.cookie.indexOf(name + "=");
+    if (iStart != -1) {
+      var exp = new Date();
+      exp.setTime(exp.getTime() - 1);
+      path = path || '/';
+      document.cookie = name + "=;expires=" + exp.toGMTString() + ";path=" + path + ";";
+    }
+  }
+}
+
+function parseParam(sArg) {
+  if (sArg) sArg = sArg.slice(1); // remove '?'
+  var d={}, b=sArg.split('&');
+  for (var i=b.length-1; i >= 0; i--) {
+    var item=b[i], b2=item.split('='), s1=(b2[0]||'').trim();
+    if (s1) d[s1] = b2[1] || '';
+  }
+  return d;
+}
+
+function getAsynRequest(sRequest,func,bInfo) {
+  var xmlHttp = null;
+  if (window.XMLHttpRequest)      // Firefox, Opera, IE7, etc
+    xmlHttp = new XMLHttpRequest();
+  else if (window.ActiveXObject)  // IE6, IE5
+    xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+    
+  if (xmlHttp != null) {
+    xmlHttp.onreadystatechange = function() {
+      if (xmlHttp.readyState == 4) {
+        var s = xmlHttp.responseText;
+        if (xmlHttp.status == 200) {
+          xmlHttp = null;
+          if (func) func(s);
+        }
+        else {
+          xmlHttp = null;
+          if (bInfo) {
+            bInfo.push(s);
+            if (func) func('');
+          }
+        }
+      }
+    };
+    xmlHttp.open("GET",sRequest,true);
+    xmlHttp.send(null);
+  }
+}
+
+function htmlEncode(s) {
+  return s.replace(/</gm,'&lt;').replace(/>/gm,'&gt;');
+}
+
+function location__(href) {
+  var location = document.createElement('a');
+  location.href = href;
+  if (location.host == '')
+    location.href = location.href;
+  return location;
+}
+
+var Toolbar = {
+  __base__: R.BaseWidget,
+  __widget__: ['wdProjList','wdPopDlgForm','wdMarkdown','wdResPanel'],
+  
+  init: function(cfg) {
+    this._super(cfg);
+    var self = this;
+    
+    var inDesign = (self.get('__debug__') || 0) & 0x01;
+    if (inDesign) return;
+    
+    var nodes = self.wd.querySelectorAll('.head-toolbar > img');
+    for (var i=0,node; node=nodes[i]; i++) {
+      if (node.name == 'refresh') {
+        node.onclick = function(event) {
+          if (githubSess)
+            self.wdProjList.r.gotoHome();
+          else self.wdProjList.r.fire('refresh');
+        };
+      }
+      else if (node.name == 'CreatePrj') {
+        node.onclick = function(event) {
+          self.wdPopDlgForm.r.createPrj();
+        };
+      }
+      else if (node.name == 'RemovePrj') {
+        node.onclick = function(event) {
+          self.wdPopDlgForm.r.removePrj();
+        };
+      }
+      else if (node.name == 'CreateSubPrj') {
+        node.onclick = function(event) {
+          self.wdPopDlgForm.r.createSubPrj();
+        };
+      }
+      else if (node.name == 'EditPrj') {
+        node.onclick = function(event) {
+          var b = self.wdProjList.r.getCurrProj();
+          if (b)
+            self.wdMarkdown.r.startEditDoc(b);
+          else alert('Please select a project node first');
+        };
+      }
+      else if (node.name == 'SharePrj') {
+        node.onclick = function(event) {
+          self.wdPopDlgForm.r.startShareDoc();
+        };
+      }
+      else if (node.name == 'SubmitPrj') {
+        node.onclick = function(event) {
+          self.wdMarkdown.r.startSubmitDoc();
+        };
+      }
+      else if (node.name == 'TransPrj') {
+        node.onclick = function(event) {
+          self.wdMarkdown.r.startTransDoc();
+        };
+      }
+    }
+    
+    var collapseNode = self.wd.querySelector('img.head-nohover');
+    collapseNode.classList.add('head-rotate');
+    
+    self.on('ssHeadbarClick', function(event) {
+      var targ = event.original.target;
+      if (targ && targ.nodeName == 'DIV' && targ.classList.contains('head-toolbar')) {
+        self.wdMarkdown.r.tryUnselectSS();
+      }
+    });
+    
+    self.on('ssResToolClick', function(event) {
+      var targ = event.original.target;
+      if (!targ) return;
+      
+      var sName = targ.getAttribute('name');
+      if (sName == 'collapse') {
+        if (targ.classList.contains('head-rotate')) {
+          targ.classList.remove('head-rotate');
+          self.wdResPanel.r.switch2Narrow();
+          self.wdPopDlgForm.r.setPopupRightWd(28);
+        }
+        else {
+          targ.classList.add('head-rotate');
+          self.wdResPanel.r.switch2Wide();
+          self.wdPopDlgForm.r.setPopupRightWd(300);
+        }
+      }
+      else {
+        if (!collapseNode.classList.contains('head-rotate')) {
+          collapseNode.classList.add('head-rotate');
+          self.wdResPanel.r.switch2Wide();
+        }
+        
+        if (sName == 'syntax')
+          self.wdResPanel.r.fire('showSyntax');
+        else if (sName == 'files')
+          self.wdResPanel.r.fire('showFolder');
+      }
+    });
+  },
+  
+  selectProj: function(sProj,sAcl) {
+    var ss = sAcl + ': <a target="_blank" href="/' + sProj + '/">' + sProj + '</a>';
+    if (ss == this.data.infoTitle) return;
+    var infoId = this.data.infoId + 1;
+    
+    this.data.infoId = infoId;
+    this.data.infoTitle = ss;
+    this.update();
+    
+    var self = this;
+    setTimeout(function() {
+      if (infoId == self.data.infoId) { // not switch to other nodes
+        self.data.infoTitle = self.data.editingTitle;
+        self.update();
+      }
+    },8000);
+  },
+  
+  editProj: function(sType,sProj,sAcl) {
+    if (sType == 'blog') {
+      this.data.submitWd = "32px";
+      this.data.transWd = "32px";
+    }
+    else if (sType == 'sshow') {
+      this.data.submitWd = "32px";
+      this.data.transWd = "0px";
+    }
+    
+    var ss = sAcl + ': ' + sProj;
+    this.data.editingTitle = ss;
+    this.data.infoTitle = ss;
+    this.update();
+  },
+  
+  clearInfo: function() {
+    this.data.editingTitle = '';
+    this.data.infoTitle = '';
+    this.update();
+  },
+};
+
+var orgPrjData = [];  // sorted by title
+var orgPrjSub  = {};  // {alias_cate_prj:[[sSubPrj,hasThumb],...]}, reset when refresh
+
+var githubToken = '';
+var githubSess  = parseParam(location.search).info || '';
+var githubUser  = {};
+var githubCfgSha = {};
+var githubRootCfg = {};
+var githubHomeCfg = {};
+var githubCfgList = [];  // hold builtin repo (from config.json)
+
+function gh3ErrDesc(err,res) {
+  if (res.readyState < 4)
+    return res.statusText || 'request abort';
+  else return err.message || res.statusText || 'error code:' + res.status;
+}
+
+function ajaxErrDesc(res,errMethod) {
+  if (res.readyState < 4)
+    return res.statusText || 'request abort';
+  else {
+    var s = '';
+    if (errMethod && res.responseJSON) // if reply in json format, and json[errMethod] is err-desc
+      s = res.responseJSON[errMethod];
+    return s || res.statusText || 'error code:' + res.status;
+  }
+}
+
+function githubGetCfg(sAlias) {
+  if (githubHomeCfg.repos_name === sAlias)
+    return githubHomeCfg;
+  else return _.find(githubCfgList, function(item) {
+    return item.repos_name === sAlias;
+  });
+}
+
+function fileLoader() {
+  this.succ = 0;
+  this.bErr = [];
+  this.bOut = [];
+}
+
+fileLoader.prototype = {
+  checkRet: function() {
+    if (this.succ + this.bErr.length >= this.bOut.length) { // all finished
+      this.callback(this.bErr,this.bOut);
+    }
+  },
+  
+  start: function(bList,callback) {
+    this.callback = callback;
+    
+    var iCount = 0;
+    var self = this;
+    
+    var getAjaxFn = function(idx,sRepo_,sDesc_) {
+      return function() {
+        var aFile = new Gh3.File({path:'config.json'},githubUser,sRepo_,'gh-pages');
+        aFile.fetchContent( function(err, res) {
+          if (!self) return;
+          if (err) {
+            self.bErr.push(sRepo_);
+            self.checkRet();
+            return;
+          }
+          
+          var dJson = null;
+          try {
+            var sRaw = aFile.getRawContent();
+            if (sRaw && sRaw.charCodeAt(0) == 0xFEFF) // remove DOM head
+              sRaw = sRaw.slice(1);
+            dJson = JSON.parse(sRaw);
+          } catch(e) {
+            alert('JSON format error: ' + sRepo_ + '/config.json');
+            self.bErr.push(sRepo_);
+            self.checkRet();
+            return;
+          }
+          
+          githubCfgSha['/' + sRepo_ + '/config.json'] = aFile.sha;
+          self.bOut[idx] = [sRepo_,sDesc_,dJson];
+          self.succ += 1;
+          self.checkRet();
+        });
+      };
+    };
+    
+    var bFunc = [];
+    _.each(bList, function(item){
+      var sRepo='', sDesc='';
+      if (item instanceof Array && item.length == 2) {
+        sRepo = item[0];
+        sDesc = item[1];
+      }
+      else if (typeof item == 'string')
+        sRepo = item;
+      
+      if (sRepo) {
+        self.bOut.push(sRepo);
+        bFunc.push(self.getAjaxFunc(iCount,sRepo,sDesc));
+        iCount += 1;
+      }
+    });
+    
+    setTimeout(function() {
+      if (self.succ + self.bErr.length < self.bOut.length) // some still not ready when timeout
+        callback(self.bErr,self.bOut);
+      self = null;
+    },60000);  // max wait 60 seconds
+    
+    _.each(bFunc,function(fn){fn()});  // start run ajax
+  },
+};
+
+var ProjList = {
+  __base__: R.BaseWidget,
+  __widget__: ['wdPopDlgForm','wdSplitterA','wdMarkdown','wdResPanel','wdToolbar','wdPreviewArea'],
+  
+  init: function(cfg) {
+    this._super(cfg);
+    var self = this;
+    
+    var inDesign = (self.get('__debug__') || 0) & 0x01;
+    if (inDesign) return;
+    
+    var sUA = navigator.userAgent.toLowerCase();
+    if (sUA.match(/trident.*rv[ :]*([\d.]+)/) || sUA.match(/msie ([\d.]+)/))
+      window.WEB_IE_BROWSER = true;
+    else window.WEB_IE_BROWSER = false;
+    
+    var processErrName = '';
+    var processErrDesc = '';
+    
+    var notifyGitUser = function(sSess) {
+      $.ajax( { type: 'GET',
+        url: '//' + PINP_HOST_DOMAIN + '/software/pages/blogger/has_login.action',
+        data: { info: sSess,
+          login: githubUser.login,
+          uid: githubUser.id,
+          type: githubUser.type == 'User'? 'user': 'orgn',
+        },
+        success: function(res) {
+          // do nothing
+        },
+        error: function(res) {
+          // console.log('error:',ajaxErrDesc(res));
+        },
+      });
+    };
+    
+    var getGitUserInfo = function(sToken,sSess,nextStep) {
+      $.ajax({ type: 'GET',
+        url: 'https://api.github.com/user?access_token=' + sToken,
+        
+        success: function(res) {
+          githubUser = new Gh3.User(res.login,res);
+          
+          $.ajax({ type: 'GET',
+            url: '//' + githubUser.login + '.github.io/software/blogger10.json',
+            
+            success: function(res) { // exists 'software' repo
+              githubRootCfg = res;
+              notifyGitUser(sSess);
+              nextStep();
+            },
+            
+            error: function(res) {
+              if (res.status == '404') {
+                $.ajax({ type: 'GET',
+                  url: 'https://api.github.com/user/orgs?access_token=' + sToken,
+                  success: function(res) {
+                    if (!(res instanceof Array) || res.length != 1) {
+                      processErrName = 'REPO_NOT_READY';
+                      processErrDesc = 'no proper organization found';
+                      nextStep();
+                    }
+                    else {
+                      var dOrg = res[0];
+                      githubUser = new Gh3.User(dOrg.login);
+                      githubUser.fetch( function(err,res) {
+                        if (err) {
+                          processErrName = 'REPO_NOT_READY';
+                          processErrDesc = "unrecognized user: " + dOrg.login;
+                          nextStep();
+                        }
+                        else { // success, by organization
+                          $.ajax({ type: 'GET',
+                            url: '//' + githubUser.login + '.github.io/software/blogger10.json',
+                            success: function(res) { // exists 'software' repo
+                              githubRootCfg = res;
+                              notifyGitUser(sSess);
+                              nextStep();
+                            },
+                            error: function(res) {
+                              processErrName = 'GET_USER_ERR';
+                              processErrDesc = 'read /software/blogger10.json failed (' + ajaxErrDesc(res) + ')';
+                              nextStep();
+                            },
+                          });
+                        }
+                      });
+                    }
+                  },
+                  error: function(res) {
+                    processErrName = 'GET_USER_ERR';
+                    processErrDesc = 'get organization failed (' + ajaxErrDesc(res,'message') + ')';
+                    nextStep();
+                  },
+                });
+              }
+              else {
+                processErrName = 'GET_USER_ERR';
+                processErrDesc = 'read /software/blogger10.json failed (' + ajaxErrDesc(res) + ')';
+                nextStep();
+              }
+            },
+          });
+        },
+        
+        error: function(res) {
+          processErrName = 'GET_USER_ERR';
+          processErrDesc = 'get github user failed (' + ajaxErrDesc(res,'message') + ')';
+          nextStep();
+        },
+      });
+    };
+    
+    if (githubSess) {
+      githubToken = getCookie__('git_tok') || '';
+      if (githubToken) {
+        var bTmp = location.pathname.split('/');
+        bTmp.pop();
+        delCookie__('git_tok',bTmp.join('/'));
+        
+        Gh3.access_token = githubToken;
+        
+        getGitUserInfo(githubToken,githubSess, function() {
+          if (processErrName) {
+            self.data.errMsg = 'load config failed';
+            self.update();
+            alert(processErrName + ': ' + processErrDesc);
+          }
+          else self.initGitLogin();
+        });
+      }
+      else { // maybe refresh
+        $.ajax( { type: 'GET',
+          url: '//' + PINP_HOST_DOMAIN + '/software/pages/blogger/get_token.action?info=' + githubSess,
+          success: function(res) {
+            if (res instanceof Array && res.length) {
+              githubToken = res[0];
+              getGitUserInfo(githubToken,githubSess, function() {
+                if (processErrName) {
+                  self.data.errMsg = 'load config failed';
+                  self.update();
+                  alert(processErrName + ': ' + processErrDesc);
+                }
+                else self.initGitLogin();
+              });
+            }
+            else alert('Query authorization failed!');
+          },
+          error: function(res) {
+            alert('Query authorization failed: ' + ajaxErrDesc(res));
+          },
+        });
+      }
+    }
+    
+    var rescanPrjList = function(bList,currCate) {
+      var nodes = self.wd.querySelectorAll('.prj-item.prj-sub2-item');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.parentNode.removeChild(item); // it is added by manual
+      }
+      nodes = self.wd.querySelectorAll('.prj-item.prj-show');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.classList.remove('prj-show');
+      }
+      nodes = self.wd.querySelectorAll('.prj-item.prj-selected');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.classList.remove('prj-selected');
+      }
+      nodes = self.wd.querySelectorAll('.prj-item.prj-selected2');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.classList.remove('prj-selected2');
+      }
+      
+      var dCates = {};
+      for (var i=0,item; item=orgPrjData[i]; i++) {
+        var sTitle = item.title;
+        if (currCate && sTitle.indexOf(currCate) != 0) continue;
+        
+        var bTmp = sTitle.split('/');
+        var i1 = sTitle.indexOf('$$',currCate.length); // currCate:  ''  '$$cate/'
+        var i2 = sTitle.indexOf('/',currCate.length);
+        if (i1 == currCate.length && i2 > i1) {
+          var i3 = sTitle.indexOf('/$$',currCate.length);
+          var sSubCate = currCate + sTitle.slice(i1,i2+1);
+          if (!dCates[sSubCate]) {
+            // forward scan sub-cate of current cate
+            var sLogoUrl = 'folder.png', i4 = i, sTitle_ = sTitle;
+            while (true) {
+              if (sTitle_.indexOf('$$',sSubCate.length) == sSubCate.length) {
+                sLogoUrl = 'folder_sub.png';
+                break;
+              }
+              
+              i4 += 1; if (i4 >= orgPrjData.length) break;
+              sTitle_ = orgPrjData[i4].title;
+              if (!sTitle_ || sTitle_.indexOf(sSubCate) != 0) break;
+            }
+            
+            dCates[sSubCate] = true;
+            bList.push({ isFolder: true,
+              hasThumb: false,
+              logoUrl: sLogoUrl,
+              itemCls: 'prj-cate-folder',
+              title: sTitle.slice(i1+2,i2),
+              alias: item.alias,
+              cateProj: item.alias + '/' + sSubCate,
+            });
+          }
+          if (i3 != i2) { // is sub-project
+            var sLogoUrl = item.hidden? 'prj_unrelease.png': (item.hasThumb? 'prj_item.png':'prj_item_web.png');
+            bList.push({ isFolder: false,
+              hasThumb: item.hasThumb,
+              hasSub: item.hasSub,
+              logoUrl: sLogoUrl,
+              itemCls: 'prj-sub-item',
+              title: bTmp[bTmp.length-1],
+              alias: item.alias,
+              cateProj: item.alias + '/' + sTitle,
+              canWrite: item.canWrite,
+              // prjTime: item.time,
+              // prjHidden: item.hidden,
+              prjType: item.type,
+              prjSize: item.size,
+              prjAcl: item.acl,
+            });
+          }
+          // else, no need add
+        }
+        else if (i1 < 0 && i2 < 0 && sTitle.length > currCate.length) { // is curr-project
+          var sLogoUrl = item.hidden? 'prj_unrelease.png': (item.hasThumb? 'prj_item.png':'prj_item_web.png');
+          var sTitle_ = sTitle.slice(currCate.length);
+          bList.push({ isFolder: false,
+            hasThumb: item.hasThumb,
+            hasSub: item.hasSub,
+            logoUrl: sLogoUrl,
+            itemCls: 'prj-curr-item',
+            title: sTitle_,
+            alias: item.alias,
+            cateProj: item.alias + '/' + sTitle,
+            canWrite: item.canWrite,
+            // prjTime: item.time,
+            // prjHidden: item.hidden,
+            prjType: item.type,
+            prjSize: item.size,
+            prjAcl: item.acl,
+          });
+        }
+        // else, ignore
+      }
+    };
+    
+    var clickCateNode = function(node) {
+      var last = self.wd.querySelector('.prj-item.prj-selected');
+      if (last) {
+        if (last === node) return;
+        last.classList.remove('prj-selected');
+      }
+      var nodes = self.wd.querySelectorAll('.prj-item.prj-show');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.classList.remove('prj-show');
+      }
+      nodes = self.wd.querySelectorAll('.prj-item.prj-selected2');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.classList.remove('prj-selected2');
+      }
+      nodes = self.wd.querySelectorAll('.prj-item.prj-sub2-item');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.parentNode.removeChild(item);
+      }
+      
+      node.classList.add('prj-selected');
+      var sTitle = node.getAttribute('title');
+      if (!sTitle) return;
+      node = node.nextElementSibling;
+      while (node && node.classList.contains('prj-sub-item')) {
+        if (node.getAttribute('title').indexOf(sTitle) != 0)
+          break;
+        node.classList.add('prj-show');
+        node = node.nextElementSibling;
+      }
+    };
+    
+    var clickPrjItemNode = function(node,idx) {
+      var dCfg = self.data.items[idx];
+      if (!dCfg) return;
+      var sPath = dCfg.cateProj;
+      if (!sPath) return;
+      var i = sPath.indexOf('/');
+      if (i <= 0) return;
+      var sAliasPath = sPath;
+      var sAlias = sPath.slice(0,i);
+      sPath = sPath.slice(i+1); // remove 'alias/'
+      
+      var nodes = self.wd.querySelectorAll('.prj-item.prj-selected2');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.classList.remove('prj-selected2');
+      }
+      if (!dCfg.hasSub) {
+        node.classList.add('prj-selected2');
+        return;
+      }
+      
+      var nextProc = function(b) {
+        if (!node.parentNode) return; // the node has removed
+        if (dCfg !== self.data.items[idx]) return; // has changed
+        if (b.length <= 0) return;
+        
+        var sAcl = dCfg.prjAcl || 'private';
+        var tailNode = node.nextElementSibling;
+        for (var i=0,item; item=b[i]; i++) {
+          var sTitle_ = sAliasPath + '/$$/' + item[0];
+          if (self.wd.querySelector('.prj-item[title="' + sTitle_ + '"]'))
+            continue;  // maybe click twice, avoid add duplicate node
+          
+          var hasThumb = item[1];
+          var sLogoUrl = hasThumb? 'prj_item.png': 'prj_item_web.png';
+          var newNode = document.createElement('div');
+          newNode.setAttribute('title',sTitle_);
+          newNode.setAttribute('allow',sAcl);
+          newNode.setAttribute('alias',sAlias);
+          newNode.setAttribute('thumb',hasThumb?'1':'0');
+          newNode.className = 'prj-item prj-sub2-item';
+          newNode.innerHTML = '<img class="noselect-txt" draggable="true" src="' + sLogoUrl + '"><span draggable="true">' + htmlEncode(item[0]) + '</span>';
+          if (tailNode)
+            node.parentNode.insertBefore(newNode,tailNode);
+          else node.parentNode.appendChild(newNode);
+        }
+      };
+      
+      node.classList.add('prj-selected2');
+      var nextNode = node.nextElementSibling;
+      if (nextNode && nextNode.classList.contains('prj-sub2-item'))
+        return; // already inserted
+      
+      var bSubPrj = orgPrjSub[sAliasPath];
+      if (bSubPrj instanceof Array) {
+        nextProc(bSubPrj);
+      }
+      else {
+        if (githubSess) {
+          var bSubPath = [];
+          var nextStep = function() {
+            if (bSubPath.length == 0) {
+              dCfg.hasSub = false;
+              orgPrjSub[sAliasPath] = [];
+            }
+            else {
+              var b = [];
+              _.each(bSubPath,function(item){b.push([item,false])}); // as no thumbnail
+              orgPrjSub[sAliasPath] = b;
+              nextProc(b);
+            }
+          };
+          
+          var aDir = new Gh3.Dir({path:sPath+'/$$'},githubUser,sAlias,'gh-pages');
+          aDir.fetchContents( function(err, res) { // https://api.github.com/repos/<user>/<repo>/contents/$$doc
+            if (err) {
+              if (res.status != 404) {
+                alert('List files (' + sPath + '/$$/) failed: ' + err.message);
+                return;
+              }
+              nextStep();
+              return;
+            }
+            
+            aDir.eachContent( function(content) {
+              if (content.type == 'dir') {
+                var sName = content.name;
+                if (sName[0] != '.' && sName[0] != '$')
+                  bSubPath.push(sName);
+              }
+            });
+            nextStep();
+          });
+          return;
+        }
+      }
+    };
+    
+    self.on('ssPrjClick', function(event) {
+      var targ = event.original.target, node = null;
+      while (targ) {
+        if (targ.nodeName == 'DIV') {
+          if (targ.classList.contains('web-item'))
+            break;
+          if (targ.classList.contains('prj-item')) {
+            node = targ;
+            break;
+          }
+        }
+        targ = targ.parentNode;
+      }
+      
+      if (node) {
+        var nodes = self.wd.querySelectorAll('.prj-item.prj-selected3');
+        for (var i=0,item; item=nodes[i]; i++) {
+          item.classList.remove('prj-selected3');
+        }
+        
+        if (node.classList.contains('prj-cate-folder'))
+          clickCateNode(node);
+        else if (node.classList.contains('prj-sub-item') || node.classList.contains('prj-curr-item')) {
+          var sTitle = node.getAttribute('title');
+          if (sTitle) {
+            var sAllow = node.getAttribute('allow') || 'private';
+            self.wdToolbar.r.selectProj(sTitle,sAllow);
+          }
+          
+          if (node.classList.contains('prj-selected2'))
+            return;
+          
+          var sName = node.getAttribute('name');
+          if (sName && sName.indexOf('prj-') == 0) {
+            var idx = parseInt(sName.slice(4));
+            clickPrjItemNode(node,idx);
+          }
+        }
+        else if (node.classList.contains('prj-sub2-item')) {
+          node.classList.add('prj-selected3');
+          var sTitle = node.getAttribute('title');
+          if (sTitle) {
+            // try adjust selected project
+            var nodes = self.wd.querySelectorAll('.prj-item.prj-selected2');
+            for (var i=0,item; item=nodes[i]; i++) {
+              item.classList.remove('prj-selected2');
+            }
+            var owner = node.previousElementSibling;
+            while (owner) {
+              if (owner.classList.contains('prj-sub-item') || owner.classList.contains('prj-curr-item')) {
+                owner.classList.add('prj-selected2');
+                break;
+              }
+              else if (!owner.classList.contains('prj-sub2-item'))
+                break;
+              owner = owner.previousElementSibling;
+            }
+            
+            // show project name in toolbar
+            var sAllow = node.getAttribute('allow') || 'private';
+            self.wdToolbar.r.selectProj(sTitle,sAllow);
+          }
+        }
+        // else, ignore others
+      }
+    });
+    
+    self.on('ssPrjDblclick', function(event) {
+      var lastTarg = event.original.target;
+      setTimeout( function() { // let double click take affect after click
+        var node=null, targ=lastTarg;
+        while (targ) {
+          if (targ.nodeName == 'DIV') {
+            if (targ.classList.contains('web-item'))
+              break;
+            if (targ.classList.contains('prj-item')) {
+              node = targ;
+              break;
+            }
+          }
+          targ = targ.parentNode;
+        }
+        if (!node) return;
+        
+        var bList = [], sCate = '', changed = false, oldCate = '';
+        var sAlias = node.getAttribute('alias');
+        if (!sAlias) return;
+        if (node.classList.contains('prj-cate-folder')) {
+          if (!node.classList.contains('prj-selected')) return;
+          
+          sCate = node.getAttribute('title');
+          if (sCate.indexOf(sAlias + '/') == 0)
+            sCate = sCate.slice(sAlias.length+1);
+          else sCate = '';
+          changed = true;
+        }
+        else if (node.classList.contains('prj-up-folder')) {
+          oldCate = self.data.currCate;
+          var b = oldCate.split('/$$');
+          
+          if (githubSess && b.length <= 2) // root-cate from github should be: repo/$$cate
+            sCate = '';
+          else if (b.length <= 1)
+            sCate = '';
+          else {
+            b.pop();
+            sCate = b.join('/$$') + '/';
+          }
+          changed = true;
+        }
+        else if (node.classList.contains('prj-sub-item') || node.classList.contains('prj-curr-item') || node.classList.contains('prj-sub2-item')) {
+          var sTitle = node.getAttribute('title');
+          if (sTitle) {
+            var sAllow = node.getAttribute('allow') || 'private';
+            self.wdResPanel.r.selectProj(sTitle,sAllow);
+          }
+        }
+        
+        if (changed) {
+          self.data.items = bList;
+          self.data.currCate = sCate;
+          rescanPrjList(bList,sCate);
+          self.update();
+          
+          if (sCate) {
+            var upNode = self.wd.querySelector('.prj-item.prj-up-folder');
+            if (upNode) {
+              upNode.setAttribute('title',sAlias + '/' + sCate);
+              upNode.setAttribute('alias',sAlias);
+            }
+          }
+          if (oldCate) {
+            setTimeout(function() {
+              var node = self.wd.querySelector('.prj-cate-folder[title="' + sAlias + '/' + oldCate + '"]');
+              if (node)
+                clickCateNode(node);
+            },0);
+          }
+        }
+      },0);
+    });
+    
+    var prjItemDragStart = function(event) {
+      var targ = event.target;
+      while (targ) {
+        if (targ.nodeName == 'DIV') {
+          if (targ.classList.contains('prj-item'))
+            break;
+          else if (targ.classList.contains('prj-root-node'))
+            return;
+        }
+        targ = targ.parentNode;
+      }
+      
+      var iFlag=0, sTitle='', hasThumb=false, iPrjType=1;
+      if (targ.classList.contains('prj-sub-item')) {
+        iFlag = 1;  // normal project
+        sTitle = targ.getAttribute('title') || '';
+        iPrjType = (sTitle.slice(sTitle.length-5)=='.blog'?3:1);
+        
+        var sName = targ.getAttribute('name');
+        if (sName && sName.indexOf('prj-') == 0) {
+          var idx = parseInt(sName.slice(4));
+          var dCfg = self.data.items[idx];
+          if (dCfg) {
+            hasThumb = dCfg.hasThumb;
+            iPrjType = dCfg.prjType;
+          }
+        }
+      }
+      else if (targ.classList.contains('prj-sub2-item')) {
+        iFlag = 2;  // sub-project
+        sTitle = targ.getAttribute('title') || '';
+        hasThumb = parseInt(targ.getAttribute('thumb') || '0');
+        iPrjType = (sTitle.slice(sTitle.length-5)=='.blog'?3:1);
+      }
+      var imgNode = (iFlag? targ.querySelector('img'): null);
+      
+      if (iFlag && sTitle && imgNode) {
+        setCookie__('drag_task','put_prj');
+        var sText = 'project,' + (hasThumb?'1':'0') + ',' + iPrjType;
+        event.dataTransfer.effectAllowed = 'copy';
+        event.dataTransfer.setData(window.WEB_IE_BROWSER?'text':'text/args',sText + ',' + sTitle);
+        if (event.dataTransfer.setDragImage)   // no setDragImage in IE
+          event.dataTransfer.setDragImage(imgNode,0,0);
+      }
+    };
+    
+    self.on('ssDragStart', function(event) {
+      self.wdMarkdown.r.saveCaretPos();
+      prjItemDragStart(event.original);
+    });
+    
+    self.on('ssDragEnd', function(event) {
+      delCookie__('drag_task');
+    });
+    
+    self.on('refreshShow', function(event) {
+      var oldCate = '';
+      var node = self.wd.querySelector('.prj-cate-folder.prj-selected');
+      if (node)
+        oldCate = node.getAttribute('title');
+      
+      var bList=[], sCate=self.data.currCate;
+      self.data.items = bList;  // self.data.currCate not changed
+      rescanPrjList(bList,sCate);
+      self.update();
+      
+      if (sCate && node) {
+        var sAlias = node.getAttribute('alias');
+        var upNode = self.wd.querySelector('.prj-item.prj-up-folder');
+        if (upNode) {
+          upNode.setAttribute('title',sAlias + '/' + sCate);
+          upNode.setAttribute('alias',sAlias);
+        }
+      }
+      if (oldCate) {
+        setTimeout(function() {
+          var node = self.wd.querySelector('.prj-cate-folder[title="' + oldCate + '"]');
+          if (node)
+            clickCateNode(node);
+        },0);
+      }
+    });
+    
+    self.on('refresh', function(event) {
+      // do nothing
+    });
+    
+    var rightBody_ = self.wdMarkdown.parentNode.parentNode.parentNode;
+    var resizeFun_ = function(leftWidth,detaX) {
+      var hi = Math.max(self.wd.clientHeight,self.wdMarkdown.parentNode.clientHeight + self.wdPreviewArea.clientHeight);
+      hi = Math.max(window.innerHeight - self.wdToolbar.parentNode.clientHeight,hi);
+      self.wdSplitterA.style.height = hi+ 'px';
+      
+      var iMax = rightBody_.parentNode.clientWidth - 4 - 60 - self.wdResPanel.clientWidth;
+      var iX = Math.max(1,Math.min(iMax,leftWidth + detaX));
+      var rightWd = rightBody_.parentNode.clientWidth - self.wdSplitterA.clientWidth - iX;
+      self.wd.parentNode.style.width = iX + 'px';
+      rightBody_.style.width = rightWd + 'px';
+      
+      if (self.wdMarkdown.r)    // maybe r not ready yet
+        self.wdMarkdown.r.fire('resized');
+      if (self.wdPreviewArea.r) // maybe r not ready yet
+        self.wdPreviewArea.r.fire('resized');
+    };
+    
+    document.body.addEventListener('mousemove', function(event){
+      var d = self.wdSplitterA.r.data;
+      if (d.inMoving) {
+        var iX = event.clientX, detaX = iX-d.moveFromX;
+        if (!d.moved && Math.abs(detaX) >= 4)
+          d.moved = true;
+        if (d.moved)
+          resizeFun_(d.leftWidth,detaX);
+      }
+    },false);
+    
+    document.body.addEventListener('mouseup', function(event){
+      var d = self.wdSplitterA.r.data;
+      if (d.inMoving) {
+        var detaX = event.clientX-d.moveFromX;
+        if (d.moved)
+          resizeFun_(d.leftWidth,detaX);
+        d.inMoving = false;
+      }
+    },false);
+    
+    document.getElementById('web-body')['on-resize'] = function(node,noItemResize) {
+      resizeFun_(self.wd.parentNode.clientWidth,0);
+    };
+    
+    self.on('resized',function(event) {
+      resizeFun_(self.wd.parentNode.clientWidth,0);
+    });
+    
+    self.on('resized2',function(event) {
+      resizeFun_(self.wd.parentNode.clientWidth,self.data.resizeGap || 0);
+    });
+  },
+  
+  initGitLogin: function() {
+    if (!githubUser.login) return;
+    var self = this;
+    
+    self.data.errMsg = 'loading...';
+    self.update();
+    
+    githubCfgSha = {}; githubCfgList = [];
+    orgPrjData = []; orgPrjSub = {};
+    
+    var stepErrName = '';
+    var stepErrDesc = '';
+    
+    // has read config.builtin_repos, next try stepup into tree format
+    var setupConfig = function(bOut) {
+      for (var i=-1; i < bOut.length; i++) {
+        var item=githubHomeCfg, sAlias='', sDesc='';
+        if (i >= 0) {
+          var bTmp = bOut[i];
+          sAlias = bTmp[0]; item = bTmp[2];
+          if (sAlias !== item.repos_name)
+            item.repos_name = sAlias;
+          sDesc = bTmp[1] || sAlias;
+          
+          githubCfgList.push(item);
+        }
+        else {
+          sAlias = item.repos_name;
+          sDesc = item.repos_desc || '';
+        }
+        
+        var b=item.doc_list;
+        b.sort( function(a,b) {
+          if (a.path > b.path) return 1;
+          else if (a.path === b.path) return 0;
+          else return -1;
+        });
+        
+        _.each(b, function(item2) {
+          var sTitle=item2.path, sExt=sTitle.slice(-5); // sTitle is cateProj
+          var iFlag=item2.flag||3, readOnly=(iFlag&0xFF)!=3, isHidden=(iFlag&0x100)!=0;
+          var aObj = { title:sTitle, alias:sAlias, time:item2.modify_at, hidden:isHidden?1:0,
+                       type:sExt=='.blog'?3:1, size:0, acl:'public', canWrite:readOnly?0:1, };
+          aObj.hasSub = true;  // dynamic checking
+          aObj.hasThumb = !!item2.thumb;
+          orgPrjData.push(aObj);
+        });
+      }
+      
+      self.data.currCate = '';
+      self.data.friendGroup = []; // not use
+      if (orgPrjData.length == 0) {
+        self.data.errMsg = 'No project exists';
+        self.update();
+      }
+      else {
+        self.data.errMsg = '';
+        self.data.currCate = '';
+        self.fire('refreshShow');
+      }
+    };
+    
+    // has read home-repo/config.json, next try read config.builtin_repos
+    var flowNext = function() {
+      if (stepErrName) {
+        self.data.errMsg = 'loading config failed';
+        self.update();
+        alert(stepErrName + ': ' + stepErrDesc);
+      }
+      else {
+        var bIn=githubHomeCfg.builtin_repos || [], loader=new fileLoader();
+        if (bIn.length == 0) {
+          self.data.errMsg = '';
+          self.update();
+          setupConfig([]);
+          return;
+        }
+        
+        loader.start(bIn, function(bErr,bOut) {
+          if (bErr.length) {
+            var sErr = 'load failed'
+            _.each(bErr,function(item) {
+              sErr += ', ' + item + '/config.json';
+            });
+            
+            self.data.errMsg = 'loading config failed';
+            self.update();
+            alert(sErr);
+            return;
+          }
+          
+          for (var i=0,item; item=bOut[i]; i++) { // item is [sRepo,sDesc,sJson] or sRepo
+            if (typeof item == 'string') { // when item is sRepo means load failed
+              self.data.errMsg = 'loading config failed';
+              self.update();
+              
+              alert('load file failed: ' + item + '/config.json');
+              return;
+            }
+          }
+          
+          self.data.errMsg = '';
+          self.update();
+          setupConfig(bOut);
+        });
+      }
+    };
+    
+    var sRepo_ = githubRootCfg.home_repository;
+    var aFile = new Gh3.File({path:'config.json'},githubUser,sRepo_,'gh-pages');
+    aFile.fetchContent( function(err, res) {
+      if (err) {
+        stepErrName = 'LOAD_FAILED';
+        stepErrDesc = 'load config.json failed';
+        flowNext();
+        return;
+      }
+      
+      var dJson = null;
+      try {
+        var sRaw = aFile.getRawContent();
+        if (sRaw && sRaw.charCodeAt(0) == 0xFEFF) // remove DOM head
+          sRaw = sRaw.slice(1);
+        dJson = JSON.parse(sRaw);
+      } catch(e) {
+        alert('JSON format error: ' + sRepo_ + '/config.json');
+        stepErrName = 'LOAD_FAILED';
+        stepErrDesc = 'load config.json failed';
+        flowNext();
+        return;
+      }
+      
+      githubCfgSha['/' + sRepo_ + '/config.json'] = aFile.sha;
+      githubHomeCfg = dJson;
+      flowNext();
+    });
+  },
+  
+  addPrjNode: function(bRet) {
+    if (bRet.length < 9) return;
+    var sAlias=bRet[0], sPath=bRet[1];
+    var obj = { title:sPath, alias:sAlias, time:bRet[2], type:bRet[3], size:bRet[4], 
+        hidden:bRet[5], acl:bRet[6], canWrite:1, hasThumb:bRet[7], hasSub:bRet[8] };
+    
+    for (var i=0,item; item=orgPrjData[i]; i++) {
+      if (sAlias == item.alias && sPath < item.title) {
+        orgPrjData.splice(i,0,obj);
+        obj = null;
+        break;
+      }
+    }
+    if (obj) orgPrjData.push(obj);
+    
+    this.data.errMsg = '';    // clear history error info
+    this.fire('refreshShow');
+  },
+  
+  afterSharePrj: function(sAlias,sPath,hasThumb) {
+    for (var i=0,item; item=orgPrjData[i]; i++) {
+      if (sAlias == item.alias && sPath == item.title) {
+        item.hidden = 0;
+        item.hasThumb = hasThumb;
+        break;
+      }
+    }
+    this.data.errMsg = '';
+    this.fire('refreshShow');
+  },
+  
+  addSubPrjNode: function(sAlias,bRet) { // bRet:[sCateProj,[sSubPrj,hasThumb],...]
+    if (bRet.length < 2) return;  // at least have one sub project
+    var sCatePrj = bRet.shift();
+    if (!sCatePrj) return;
+    
+    for (var i=0,item; item=orgPrjData[i]; i++) {
+      if (sAlias == item.alias && sCatePrj == item.title) {
+        item.hasSub = true;
+        break;
+      }
+    }
+    
+    var path_ = sAlias + '/' + sCatePrj;
+    if (githubSess) {
+      var bOld = orgPrjSub[path_];
+      if (!bOld) {
+        bOld = [];
+        orgPrjSub[path_] = bOld;
+      }
+      for (var i=0,item; item=bRet[i]; i++) {
+        bOld.push(item); // item is [sSubPrjName,hasThumb]
+      }
+    }
+    else orgPrjSub[path_] = bRet;
+    
+    this.data.errMsg = '';    // clear history error info
+    this.fire('refreshShow');
+  },
+  
+  rmvPrjNode: function(sPath,bSubs,bNewSub) {
+    var iPos = sPath.indexOf('/');
+    if (iPos <= 0) return;
+    var sAlias=sPath.slice(0,iPos), cateProj=sPath.slice(iPos+1);  // remove 'alias/'
+    var resPrj = this.wdResPanel.r.data.currProj;
+    
+    var isWhole = !!bSubs[0];
+    if (isWhole) { // remove whole
+      for (var i=0,item; item=orgPrjData[i]; i++) {
+        if (sAlias == item.alias && cateProj == item.title) {
+          orgPrjData.splice(i,1);
+          if (sPath == resPrj || (resPrj && resPrj.indexOf(sPath+'/') == 0))
+            this.wdResPanel.r.resetFolder();
+          break;
+        }
+      }
+      delete orgPrjSub[sPath];
+    }
+    else {
+      if (githubSess) {
+        bNewSub = [];
+        var b = orgPrjSub[sPath] || [];
+        
+        for (var i=0,item; item=b[i]; i++) {
+          var found = false, hasThumb=false;
+          for (var i2=1,item2; item2=bSubs[i2]; i2++) {
+            if (item2 == item[0]) {
+              found = true;
+              break;
+            }
+          }
+          if (!found)
+            bNewSub.push([item[0],item[1]]);
+        }
+      }
+      orgPrjSub[sPath] = bNewSub;
+      
+      if (resPrj && resPrj.indexOf(sPath+'/') == 0)
+        this.wdResPanel.r.resetFolder(); // maybe sub-project not removed, also reset for safty
+    }
+    
+    this.data.errMsg = '';    // clear history error info
+    this.fire('refreshShow');
+  },
+  
+  getCurrProj: function() {   // [[sAcl,sProj,canWrite],[sAcl,sSubProj,canWrite]]
+    var bRet=[], sTitle='', dCfg = null;
+    var node=this.wd.querySelector('.prj-item.prj-selected2');
+    if (node) {
+      sTitle = node.getAttribute('title');
+      var sName = node.getAttribute('name');
+      if (sName && sName.indexOf('prj-') == 0) {
+        var idx = parseInt(sName.slice(4));
+        dCfg = this.data.items[idx];
+      }
+    }
+    
+    if (sTitle && dCfg) {
+      bRet.push([node.getAttribute('allow') || 'private',sTitle,dCfg.canWrite]);
+      
+      var node2 = this.wd.querySelector('.prj-item.prj-selected3');
+      var sTitle2 = node2? node2.getAttribute('title'): '';
+      if (sTitle2)
+        bRet.push([node2.getAttribute('allow') || 'private',sTitle2,dCfg.canWrite]);
+    }
+    
+    if (bRet.length)
+      return bRet;
+    else return null;
+  },
+  
+  //--------
+  resize2Width: function(iWd,onlyLess) {
+    if (iWd < 8) return;
+    var iCurr = this.wd.parentNode.clientWidth;
+    if (onlyLess && iCurr < iWd) return;
+    
+    this.data.resizeGap = iWd - iCurr;
+    this.fire('resized2');
+  },
+  
+  gotoHome: function() {
+    location.replace('//www.pinp.me/software/pages/blogger/editor.action');
+  },
+};
+
+var SplitterA = {
+  __base__: R.BaseWidget,
+  __widget__: ['wdProjList'],
+  
+  init: function(cfg) {
+    this._super(cfg);
+    var self = this;
+    
+    var inDesign = (self.get('__debug__') || 0) & 0x01;
+    if (inDesign) return;
+    
+    self.wd.addEventListener('mousedown',function(event){
+      self.data.inMoving = true;
+      self.data.moved = false;
+      self.data.moveFromX = event.clientX;
+      self.data.leftWidth = self.wdProjList.parentNode.clientWidth;
+    },false);
+  },
+};
+
+var Markdown = {
+  __base__: R.BaseWidget,
+  __widget__: ['wdToolbar','wdProjList','wdResPanel','wdPopDlgForm','wdPreviewArea'],
+  
+  init: function(cfg) {
+    this._super(cfg);
+    var self = this;
+    
+    var inDesign = (self.get('__debug__') || 0) & 0x01;
+    if (inDesign) return;
+    
+    self.on('resized', function(event) {
+      var wd = self.wd.parentNode.parentNode.clientWidth - self.wdResPanel.clientWidth - 1;
+      self.wd.parentNode.style.width = wd + 'px';
+    });
+    
+    self.on('ssChanged', function(event) {
+      self.data.changed = true;
+    });
+    
+    var insertText_ = function(sOut) {
+      var txtNode = self.wd.querySelector('textarea.markdown-editor');
+      if (!txtNode) return;
+      txtNode.focus();
+      
+      setTimeout( function() {
+        var iPos = self.data.caretPos;
+        if (iPos >= 0) {
+          var ss = txtNode.value;
+          if (iPos > ss.length) iPos = ss.length;
+          txtNode.value = ss.substring(0,iPos) + sOut + ss.substring(iPos);
+        }
+        else if (document.selection) {  // IE
+          var sel = document.selection.createRange();
+          if (sel) sel.text = sOut;
+        }
+        else if ('selectionStart' in txtNode) { // mozilla and others
+          iPos = txtNode.selectionStart;
+          var ss = txtNode.value;
+          if (iPos > ss.length) iPos = ss.length;
+          txtNode.value = ss.substring(0,iPos) + sOut + ss.substring(iPos);
+        }
+        else txtNode.value = sOut + '\n' + txtNode.value;
+      },0);
+    };
+    
+    var DCF = R.getDCF();
+    DCF.regist('dropTextInfo', function(bArgs) {
+      self.wdPopDlgForm.r.hideDlg();
+      var sOut = bArgs[0];
+      if (sOut) insertText_(sOut);
+    });
+    
+    DCF.regist('saveSlideShow', function(bArgs) {
+      var sProj=bArgs[0], sHtml=bArgs[1];
+      if (!sProj || !sHtml) return;
+      var iPos = sProj.indexOf('/');
+      if (iPos <= 0) return;
+      var sAlias=sProj.slice(0,iPos), sPath_=sProj.slice(iPos+1);
+      
+      var restored = false;
+      var toolBtn = self.wdToolbar.querySelector('img[name="SubmitPrj"]');
+      toolBtn.src = 'loading.gif';
+      setTimeout(function(){
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_submit.png';
+        }
+      },20000);
+      
+      var whenDone = function(sInfo) {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_submit.png';
+        }
+        if (sInfo) alert(sInfo);
+      };
+      
+      if (githubSess) {
+        var sTxtFile = sPath_ + '/$index.txt';
+        var sNowDate = (new Date()).toLocaleDateString();
+        var sSha = githubCfgSha['/' + sAlias + '/' + sTxtFile];
+        
+        // step 2: upload txt file
+        var saveIndexTxt = function() {
+          $.ajax( { type:'PUT',
+            url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + sTxtFile + '?access_token=' + githubToken,
+            data: JSON.stringify({ path: sTxtFile,
+              message: sNowDate,
+              content: Gh3.Base64.encode(sHtml),
+              sha: sSha,
+              branch: 'gh-pages',
+            }),
+            
+            success: function(res) {
+              githubCfgSha['/' + sAlias + '/' + sTxtFile] = res.content.sha;
+              self.data.changed = false;
+              whenDone('Submit project successful');
+            },
+            error: function(res) {
+              githubCfgSha['/' + sAlias + '/' + sTxtFile] = '';
+              whenDone('Upload failed: ' + ajaxErrDesc(res,'message'));
+            },
+          });
+        };
+        
+        // step 1: try get sha of $index.txt
+        if (!sSha) {
+          var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
+          aDir.fetchContents( function(err, res) { 
+            if (err) {
+              whenDone('List files (' + sPath_ + ') failed: ' + err.message);
+              return;
+            }
+            var aFile = aDir.getFileByName('$index.txt');
+            if (!aFile) {
+              whenDone('Read file failed: ' + sTxtFile);
+              return;
+            }
+            sSha = aFile.sha;
+            githubCfgSha['/' + sAlias + '/' + sTxtFile] = sSha;
+            saveIndexTxt();
+          });
+        }
+        else saveIndexTxt();
+        
+        return;
+      }
+    });
+    
+    self.on('ssDragOver', function(event) {
+      var sTask = getCookie__('drag_task');
+      if (sTask == 'put_prj' || sTask == 'put_img') {
+        event.original.preventDefault();
+        event.original.dataTransfer.dropEffect = 'copy';
+      }
+    });
+    
+    self.on('ssDragDrop', function(event) {
+      var sArg;
+      if (window.WEB_IE_BROWSER)
+        sArg = event.original.dataTransfer.getData('text') || '';
+      else sArg = event.original.dataTransfer.getData('text/args') || '';
+      var b = sArg.split(',');
+      if (b.length <= 3) return;
+      var sTxt = b.slice(3).join(',');
+      if (!sTxt) return;
+      
+      if (b[0] == 'project') {    // drag from wdProjList: project,hasThumb,iFlag
+        event.original.preventDefault();
+        var thumbUrl='', hasThumb=parseInt(b[1] || '0'), sFlag=b[2] || '3';
+        if (hasThumb) {
+          if (githubSess) {
+            var iPos = sTxt.indexOf('/');
+            if (iPos > 0) {
+              var sAlias = sTxt.slice(0,iPos), sPath_ = sTxt.slice(iPos+1);
+              var d = githubGetCfg(sAlias);
+              if (d) {
+                var oneDoc = _.find(d.doc_list,function(item) {
+                  return item.path == sPath_;
+                });
+                if (oneDoc) {
+                  thumbUrl = oneDoc.thumb || '';
+                  if (thumbUrl[0] == '$' && thumbUrl[1] == '$')
+                    thumbUrl = '/' + sAlias + '/' + d.repos_name + '/' + thumbUrl;
+                }
+              }
+            }
+          }
+          else thumbUrl = '/' + sTxt + '/$thumbnail.png';
+        }
+        self.wdPopDlgForm.r.addDropPrjFrame(thumbUrl,sFlag,sTxt);
+      }
+      else if (b[0] == 'image') { // drag from resPanel: image,wd,hi
+        var wd=parseInt(b[1] || '0'), hi=parseInt(b[2] || '0');
+        if (wd && hi) {
+          event.original.preventDefault();
+          self.wdPopDlgForm.r.addDropImgFrame(wd,hi,sTxt);
+        }
+      }
+    });
+  },
+  
+  saveCaretPos: function() {
+    this.data.caretPos = -1;
+    if (this.data.isMarkdown) {
+      var txtNode = this.wd.querySelector('textarea.markdown-editor');
+      if (txtNode && ('selectionStart' in txtNode))
+        this.data.caretPos = txtNode.selectionStart;
+    }
+  },
+  
+  tryResetAcl: function(sPath,sAcl) {
+    if (this.data.currProj == sPath) {
+      this.data.currAcl = sAcl;
+      if (this.data.editingCss == 'block')
+        this.update();
+    }
+  },
+  
+  startEditDoc: function(bInfo) {
+    if (!bInfo || bInfo.length <= 0) return;
+    var b=bInfo[bInfo.length-1], sAcl=b[0], sProj=b[1], canWrite=b[2];
+    
+    if (!canWrite) {
+      alert('Project is not blog or slideshow, online editing is not supported!');
+      return;
+    }
+    if (this.data.editingCss != 'none' && this.data.currProj) {
+      if (sProj && this.data.currProj == sProj) {
+        if (!confirm('The project already in editing, do you want reload it?'))
+          return;  // ignore re-editing same project
+      }
+      if (this.data.changed && !confirm('A project already in editing, do you want to contine (without submit previous one)?'))
+        return;
+    }
+    if (typeof sProj != 'string') return;
+    
+    var iPos = sProj.indexOf('/');
+    if (iPos <= 0) return;
+    var sAlias=sProj.slice(0,iPos), sPath_=sProj.slice(iPos+1);
+    
+    if (sProj.slice(sProj.length-5) == '.blog') {
+      this.el.style.background = 'url(loading2.gif) no-repeat center';
+      this.data.isMarkdown = true;
+      this.data.editingCss = 'none';  // hide markdown editor
+      this.update();
+      
+      var self = this;
+      var whenDone = function(sInfo) {
+        self.el.style.background = '';
+        if (sInfo) alert(sInfo);
+      };
+      
+      var nextStep = function(sRet) {
+        self.wdToolbar.r.editProj('blog',sProj,sAcl);
+        self.wdResPanel.r.editProj('blog');
+        self.wdPreviewArea.r.editProj('blog',sProj);
+        
+        var beResize = self.data.hasPreview;
+        var node = self.wdPreviewArea.querySelector('.preview-md');
+        if (node) node.innerHTML = '';
+        self.data.hasPreview = false;
+        
+        var txtNode = self.wd.querySelector('textarea.markdown-editor');
+        txtNode.onkeydown = function(event) {
+          if (event.ctrlKey && !event.shiftKey && !event.altKey && event.keyCode == 77) { // ctrl+M
+            var sProj = self.data.currProj;
+            if (self.data.editingCss == 'none' || !sProj) return;
+            if (sProj.slice(sProj.length-5) != '.blog') return;
+            
+            event.stopPropagation();
+            event.preventDefault();
+            self.startTransDoc();
+          }
+        };
+        txtNode.value = sRet;
+        
+        self.data.changed = false;
+        self.data.currAcl = sAcl;
+        self.data.currProj = sProj;
+        self.data.editingCss = 'block';  // show markdown editor
+        self.update();
+        
+        if (beResize) self.wdProjList.r.fire('resized');
+      }
+      
+      if (githubSess) {
+        var aFile = new Gh3.File({path:sPath_+'/$index.md'},githubUser,sAlias,'gh-pages');
+        aFile.fetchContent( function(err, res) {
+          if (err) {
+            whenDone('Load file failed: $index.md');
+            return;
+          }
+          githubCfgSha['/' + sAlias + '/' + sPath_ + '/$index.md'] = aFile.sha;
+          nextStep(aFile.getRawContent());
+        });
+        return;
+      }
+    }
+    else if (sProj.slice(sProj.length-6) == '.sshow') {
+      this.el.style.background = 'url(loading2.gif) no-repeat center';
+      this.data.isMarkdown = false;
+      this.data.editingCss = 'none';
+      this.update();
+      
+      var frmNode = this.wd.querySelector('iframe.markdown-frame');
+      if (!frmNode) return;
+      
+      var self = this;
+      var whenDone = function(sInfo) {
+        self.el.style.background = '';
+        if (sInfo) alert(sInfo);
+      };
+      
+      var sUrl = '/' + sProj + '/?editing=1';
+      var nextStep = function() {
+        frmNode.onerror = function(errMsg) {
+          whenDone(errMsg+'');
+        };
+        frmNode.onload = function(event) {
+          whenDone('');
+          self.wdToolbar.r.editProj('sshow',sProj,sAcl);
+          self.wdResPanel.r.editProj('sshow');
+          self.wdPreviewArea.r.editProj('sshow',sProj);
+          
+          self.data.hasPreview = false;
+          self.data.changed = false;
+          self.data.currAcl = sAcl;
+          self.data.currProj = sProj;
+          self.data.editingCss = 'block';
+          self.update();
+          
+          var iWd = window.innerWidth - 300 - 616 - 4;
+          self.wdProjList.r.resize2Width(iWd,true);
+        };
+        frmNode.src = sUrl;
+      };
+      
+      if (githubSess) {
+        var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
+        aDir.fetchContents( function(err, res) { 
+          if (err) {
+            whenDone('List files (' + sPath_ + ') failed: ' + err.message);
+            return;
+          }
+          var aFile = aDir.getFileByName('$index.txt');
+          if (!aFile) {
+            whenDone('Read file failed: ' + sPath_ + '/$index.txt');
+            return;
+          }
+          
+          githubCfgSha['/' + sAlias + '/' + sPath_ + '/$index.txt'] = aFile.sha;
+          nextStep();
+        });
+        
+        return;
+      }
+    }
+  },
+  
+  startSubmitDoc: function() {
+    var sProj = this.data.currProj;
+    if (this.data.editingCss == 'none' || !sProj) {
+      alert('No project in editing');
+      return;
+    }
+    if (!this.data.changed) {
+      alert('no changes, submition canceled');
+      return;
+    }
+    
+    if (sProj.slice(-5) == '.blog') {
+      var iPos = sProj.indexOf('/');
+      if (iPos <= 0) return;
+      var sAlias=sProj.slice(0,iPos), sPath_=sProj.slice(iPos+1);
+      
+      var txtNode = this.wd.querySelector('textarea.markdown-editor');
+      var sInput = txtNode.value;
+      
+      var restored = false;
+      var toolBtn = this.wdToolbar.querySelector('img[name="SubmitPrj"]');
+      toolBtn.src = 'loading.gif';
+      setTimeout(function(){
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_submit.png';
+        }
+      },20000);
+      
+      var self = this;
+      var whenDone = function(sInfo) {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_submit.png';
+        }
+        if (sInfo) alert(sInfo);
+      };
+      var nextStep = function(s) {
+        whenDone();
+        if (typeof s == 'string' && s) {
+          s = JSON.parse(s);
+          if (typeof s == 'string') {
+            if (s == 'OK') {
+              self.data.changed = false;
+              if (self.data.hasPreview)
+                self.startTransDoc();
+              alert('Submit project successful');
+            }
+            else if (s == 'NOT_LOGIN')
+              self.wdPopDlgForm.r.checkLogin(true,'submit');
+            else alert(s);
+          }
+        }
+      };
+      
+      if (githubSess) {
+        var sMdFile = sPath_ + '/$index.md';
+        var sNowDate = (new Date()).toLocaleDateString();
+        var sSha = githubCfgSha['/' + sAlias + '/' + sMdFile];
+        
+        // step 2: upload md file
+        var saveIndexMd = function() {
+          $.ajax( { type:'PUT',
+            url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + sMdFile + '?access_token=' + githubToken,
+            data: JSON.stringify({ path: sMdFile,
+              message: sNowDate,
+              content: Gh3.Base64.encode(sInput),
+              sha: sSha,
+              branch: 'gh-pages',
+            }),
+            
+            success: function(res) {
+              githubCfgSha['/' + sAlias + '/' + sMdFile] = res.content.sha;
+              nextStep('"OK"');
+            },
+            error: function(res) {
+              githubCfgSha['/' + sAlias + '/' + sMdFile] = '';
+              whenDone('Upload failed: ' + ajaxErrDesc(res,'message'));
+            },
+          });
+        };
+        
+        // step 1: try get sha of md file
+        if (!sSha) {
+          var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
+          aDir.fetchContents( function(err, res) { 
+            if (err) {
+              whenDone('List files (' + sPath_ + ') failed: ' + err.message);
+              return;
+            }
+            var aFile = aDir.getFileByName('$index.md');
+            if (!aFile) {
+              whenDone('Read file failed: ' + sMdFile);
+              return;
+            }
+            sSha = aFile.sha;
+            githubCfgSha['/' + sAlias + '/' + sMdFile] = sSha;
+            saveIndexMd();
+          });
+        }
+        else saveIndexMd();
+        
+        return;
+      }
+    }
+    else if (sProj.slice(sProj.length-6) == '.sshow') {
+      this.postSlideMsg('startSave',[sProj]);
+    }
+  },
+  
+  startTransDoc: function() {
+    var sProj = this.data.currProj;
+    if (this.data.editingCss == 'none' || !sProj) {
+      alert('No project in editing');
+      return;
+    }
+    
+    if (sProj.slice(sProj.length-5) == '.blog') {
+      var self = this;
+      var txtNode = self.wd.querySelector('textarea.markdown-editor');
+      var preNode = self.wdPreviewArea.querySelector('.preview-md');
+      if (preNode) {
+        require(['js/marked.min'], function(marked) {
+          var adjust = false, scrollY = 0, isBtm = false;
+          var sHtml = marked(txtNode.value);
+          
+          preNode.style.height = '580px';
+          var frmNode = preNode.querySelector('iframe');
+          if (frmNode) {
+            frmNode.parentNode.removeChild(frmNode);
+            if (self.data.hasPreview) {
+              adjust = true;
+              scrollY = frmNode.contentWindow.document.body.scrollTop;
+              isBtm = scrollY > 0 && (scrollY + preNode.clientHeight > preNode.scrollHeight - 16);
+            }
+          }
+          
+          frmNode = document.createElement('iframe');
+          frmNode.setAttribute('frameborder','0');
+          frmNode.setAttribute('border','0');
+          frmNode.setAttribute('width',window.innerWidth + ''); // set max width
+          frmNode.setAttribute('height',preNode.clientHeight + '');
+          frmNode.onload = function(event) {
+            frmNode.contentWindow.document.body.innerHTML = sHtml;
+            self.data.hasPreview = true;
+            self.wdProjList.r.fire('resized');
+            
+            if (adjust) {
+              setTimeout( function() {
+                if (isBtm)
+                  frmNode.contentWindow.document.body.scrollTop = frmNode.contentWindow.document.body.scrollHeight;
+                else frmNode.contentWindow.document.body.scrollTop = scrollY;
+              },500);
+            }
+          };
+          preNode.appendChild(frmNode);
+          frmNode.src = '/' + sProj + '/?__EMPTY__';
+        });
+/*        
+        var scrollY = (self.data.hasPreview)? preNode.scrollTop: 0;
+        var isBtm = self.data.hasPreview && preNode.scrollTop > 0 && (preNode.scrollTop + preNode.clientHeight > preNode.scrollHeight - 10);
+        require(['js/marked.min'], function(marked) {
+          var sHtml = marked(txtNode.value);
+          preNode.innerHTML = sHtml;
+          self.data.hasPreview = true;
+          self.wdProjList.r.fire('resized');
+          setTimeout( function() {
+            if (isBtm)
+              preNode.scrollTop = preNode.scrollHeight;
+            else preNode.scrollTop = scrollY;
+          },500);
+        });  */
+      }
+    }
+  },
+  
+  prjInEditing: function(sPath) {
+    var sProj = this.data.currProj;
+    if (this.data.editingCss == 'none' || !sProj)
+      return '';
+    if (!this.data.changed)
+      return '';
+    
+    if (sProj == sPath)
+      return '*';    // full match
+    else if (sProj.indexOf(sPath + '/$$/') == 0)
+      return sProj.slice(sPath.length+4);
+    else return '';
+  },
+  
+  cancelEditing: function() {
+    var sProj = this.data.currProj;
+    if (this.data.editingCss == 'none' || !sProj)
+      return;
+    
+    var beResize = this.data.hasPreview;
+    var node = this.wdPreviewArea.querySelector('.preview-md');
+    if (node) node.innerHTML = '';
+    this.data.hasPreview = false;
+    
+    var txtNode = this.wd.querySelector('textarea.markdown-editor');
+    if (txtNode) txtNode.value = '';
+    this.data.changed = false;
+    this.data.currProj = '';
+    this.data.editingCss = 'none';
+    this.update();
+    
+    this.wdToolbar.r.clearInfo();
+    if (beResize) this.wdProjList.r.fire('resized');
+  },
+  
+  //-----------------
+  projState: function() {
+    var sProj = this.data.currProj;
+    if (this.data.editingCss == 'none' || !sProj)
+      return '';
+    
+    var iLen = sProj.length;
+    if (iLen > 5 && sProj.slice(iLen-5) == '.blog')
+      return 'blog';
+    else if (iLen > 6 && sProj.slice(iLen-6) == '.sshow')
+      return 'sshow';
+    else return '';
+  },
+  
+  postSlideMsg: function(sFunc,bArgs) {
+    var frmNode = this.wd.querySelector('iframe.markdown-frame');
+    if (frmNode) {
+      var s = '[PINPSLIDE_11]' + JSON.stringify({'method':sFunc,'param':bArgs});
+      frmNode.contentWindow.postMessage(s,'*');
+    }
+  },
+  
+  tryUnselectSS: function() {
+    var frmNode = this.wd.querySelector('iframe.markdown-frame');
+    if (frmNode) {
+      var s = '[PINPSLIDE_11]' + JSON.stringify({'method':'tryUnselect','param':[]});
+      frmNode.contentWindow.postMessage(s,'*');
+    }
+  },
+};
+
+var ResImageList_ = [];
+
+var ResPanel = {
+  __base__: R.BaseWidget,
+  __widget__: ['wdProjList','wdMarkdown','wdPopDlgForm'],
+  
+  init: function(cfg) {
+    this._super(cfg);
+    var self = this;
+    
+    var inDesign = (self.get('__debug__') || 0) & 0x01;
+    if (inDesign) return;
+    
+    self.on('rewidth', function(event) {
+      var iWd = self.data.sWidth == '100%'? 300: 1;
+      var targNode = self.wdMarkdown.parentNode;
+      targNode.style.width = (targNode.parentNode.clientWidth - iWd - 1) + 'px';
+      self.wd.parentNode.style.width = iWd + 'px';
+    });
+    
+    self.on('showSyntax', function(event) {
+      if (self.data.pages[0].show != 'block') {
+        self.data.pages[0].show = 'block';
+        self.data.pages[1].show = 'none';
+        self.update();
+      }
+    });
+    
+    self.on('showFolder', function(event) {
+      if (self.data.pages[1].show != 'block') {
+        self.data.pages[1].show = 'block';
+        self.data.pages[0].show = 'none';
+        self.update();
+      }
+    });
+    
+    self.on('ssDropClick', function(event) {
+      var node = self.wd.querySelector('div.res-dropholder > input');
+      node.click();
+    });
+    
+    self.on('ssFileChange', function(event) {
+      var node = event.original.target;
+      if (node && node.files && node.files.length)
+        dropUploadFiles(node.files);
+    });
+    
+    self.on('ssDragStart', function(event) {
+      self.wdMarkdown.r.saveCaretPos();
+      
+      var targ = event.original.target, node = null;
+      while (targ) {
+        if (targ.nodeName == 'DIV') {
+          if (targ.classList.contains('res-imgitem')) {
+            node = targ;
+            break;
+          }
+          else if (targ.classList.contains('res-files'))
+            return;
+        }
+        targ = targ.parentNode;
+      }
+      if (!node) return;
+      
+      var imgNode = node.querySelector('img');
+      if (imgNode && imgNode.complete) {
+        var dCfg = null;
+        var idx = parseInt(node.getAttribute('idx') || '0');
+        for (var i=0,item; item=ResImageList_[i]; i++) {
+          if (item.id === idx) {
+            dCfg = item;
+            break;
+          }
+        }
+        if (!dCfg || !dCfg.realUrl) return;
+        
+        var sWd,sHi, sSize = imgNode.getAttribute('_size');
+        if (sSize) {
+          var bTmp = sSize.split('x');
+          if (bTmp.length != 2) return;
+          sWd = bTmp[0]; sHi = bTmp[1];
+        }
+        else {
+          sWd = imgNode.naturalWidth + '';
+          sHi = imgNode.naturalHeight + '';
+        }
+        
+        setCookie__('drag_task','put_img');
+        var transfer = event.original.dataTransfer;
+        transfer.effectAllowed = 'copy';
+        transfer.setData(window.WEB_IE_BROWSER?'text':'text/args','image,' + sWd + ',' + sHi + ',' + dCfg.realUrl);
+        if (transfer.setDragImage)
+          transfer.setDragImage(imgNode,0,0);
+      }
+    });
+    
+    self.on('ssDragEnd',function(event) {
+      delCookie__('drag_task');
+    });
+    
+    self.on('ssTempDragStart',function(event) {
+      var targ = event.original.target;
+      if (targ && targ.nodeName == 'IMG') {
+        var sPath = targ.getAttribute('src');
+        
+        setCookie__('drag_task','run_js');
+        var transfer = event.original.dataTransfer;
+        transfer.effectAllowed = 'copy';
+        transfer.setData(window.WEB_IE_BROWSER?'text':'text/args','image,0,0,' + sPath);
+        if (transfer.setDragImage)
+          transfer.setDragImage(targ,0,0);
+      }
+    });
+    
+    self.on('ssTempDragEnd',function(event) {
+      delCookie__('drag_task');
+    });
+    
+    var totalAdded_ = 0;
+    var supportedImg_ = '.jpg.jpeg.png.gif.ico.tiff.bmp.svg.svgz.';
+    var quickDownImg_ = '.jpg.jpeg.png.gif.ico.tiff.bmp.';
+    
+    var getQuickDownFunc = function(sPath,sFile,obj) {
+      // do nothing
+    };
+    
+    var newResImgNode = function(obj) {
+      var sCls = 'res-imgitem';
+      if (obj.cls) sCls += ' ' + obj.cls;
+      
+      var node = document.createElement('div');
+      node.className = sCls;
+      node.setAttribute('idx',obj.id + '');
+      
+      var imgNd = document.createElement('img');
+      imgNd.setAttribute('draggable','true');
+      imgNd.setAttribute('title',obj.title);
+      imgNd.onload = function(event) {
+        var imgNode = event.target;
+        if (imgNode.nodeName != 'IMG' || !imgNode.naturalHeight) return;
+        
+        var isUpload = imgNode.parentNode.classList.contains('res-uploading');
+        if (isUpload) return;
+        var sSrc = imgNode.getAttribute('src');
+        if (sSrc == 'warning.jpg' || sSrc == 'uploading.gif') return;
+        
+        var sQuickSize = imgNode.getAttribute('_size');
+        if (sQuickSize) { // from quick down, 'title' already set
+          var iWd = imgNode.naturalWidth, iHi = imgNode.naturalHeight;
+          imgNode.style.marginLeft = Math.floor((90-iWd)/2+0.5) + 'px';
+          imgNode.style.marginTop = Math.floor((80-iHi)/2+0.5) + 'px';
+          imgNode.style.width = iWd + 'px';
+          imgNode.style.height = iHi + 'px';
+          return;
+        }
+        
+        var f = imgNode.naturalWidth / imgNode.naturalHeight;
+        if (f < 1.125) { // too narrow
+          var iWd = Math.floor(80 * f + 0.5);
+          imgNode.style.width = iWd + 'px';
+          imgNode.style.marginLeft = Math.floor((90-iWd)/2+0.5) + 'px';
+        }
+        else {
+          var iHi = Math.floor(90 / f + 0.5);
+          imgNode.style.height =  iHi + 'px';
+          imgNode.style.marginTop = Math.floor((80-iHi)/2+0.5) + 'px';
+        }
+        
+        var sErr = imgNode.getAttribute('_error');
+        if (sErr)
+          imgNode.title = sErr;
+        else imgNode.title = imgNode.naturalWidth + 'x' + imgNode.naturalHeight;
+      };
+      imgNd.src = obj.url;
+      node.appendChild(imgNd);
+      
+      var rmvNd = document.createElement('div');
+      rmvNd.className = 'res-rmvimg';
+      rmvNd.onclick = function(event) {
+        var targ=event.target, node=null;
+        while (targ) {
+          if (targ.nodeName == 'DIV') {
+            if (targ.classList.contains('res-imgitem')) {
+              node = targ;
+              break;
+            }
+            else if (targ.classList.contains('res-files'))
+              break;
+          }
+          targ = targ.parentNode;
+        }
+        if (!node) return;
+        
+        var dCfg=null, idx=parseInt(node.getAttribute('idx') || '0');
+        if (idx > 0) {
+          for (var i=0,item; item=ResImageList_[i]; i++) {
+            if (item.id == idx) {
+              dCfg = item;
+              break;
+            }
+          }
+        }
+        if (!dCfg || !dCfg.realUrl) return;
+        
+        var loc = location__(dCfg.realUrl);
+        var sPath=loc.pathname, sAlias=dCfg.alias;
+        if (sPath[0] != '/') sPath = '/' + sPath;  // avoid bug of IE11
+        if (sPath.indexOf('/' + sAlias + '/') == 0) {
+          sPath = sPath.slice(1);
+          var bareName = sPath.split('/').pop();
+          if (!confirm('Do you want remove file (' + bareName + ')?'))
+            return;
+          
+          var rmvCurrNode = function() {
+            if (!node.parentNode) return; // is invalid
+            
+            node.parentNode.removeChild(node);  // remove image node
+            for (var i=0,item; item=ResImageList_[i]; i++) {
+              if (item.id == idx) {
+                ResImageList_.splice(i,1);
+                break;
+              }
+            }
+          };
+          
+          if (githubSess) {
+            var sPath_ = sPath.slice(sAlias.length+1);
+            var sDir_ = sPath_.slice(0,sPath_.length - bareName.length - 1);
+            var sha = dCfg.sha || '';
+            
+            var nextStep = function() {
+              $.ajax( { type: 'DELETE',
+                url: 'https://api.github.com/repos/' + githubUser.login + '/' + dCfg.alias + '/contents/' + sPath_ + '?access_token=' + githubToken,
+                data: JSON.stringify({ 'path': sPath_,
+                  'message': (new Date()).toLocaleDateString(),
+                  'sha': sha,
+                  'branch': 'gh-pages',
+                }),
+                success: function(res) {
+                  rmvCurrNode();
+                },
+                error: function(res) {
+                  alert('Remove file failed: ' + bareName);
+                },
+              });
+            };
+            
+            if (!sha) {
+              var aDir = new Gh3.Dir({path:sDir_},githubUser,sAlias,'gh-pages');
+              aDir.fetchContent( function(err, res) {
+                var aFile = null;
+                if (!err) aFile = aDir.getFileByName(bareName);
+                if (!aFile) {
+                  alert('Remove file failed: ' + bareName);
+                  return;
+                }
+                sha = aFile.sha;
+                nextStep();
+              });
+            }
+            else nextStep();
+            
+            return;
+          }
+        }
+      };
+      node.appendChild(rmvNd);
+      
+      return node;
+    };
+    
+    var initResImgList = function() {
+      var btmLine = self.wd.querySelector('div.res-btm-line');
+      if (!btmLine) return;
+      
+      var nodes = self.wd.querySelectorAll('div.res-imgitem');
+      for (var i=0,item; item=nodes[i]; i++) {
+        item.parentNode.removeChild(item);
+      }
+      if (!ResImageList_.length) return;
+      
+      var owner = btmLine.parentNode;
+      for (var i=0,obj; obj=ResImageList_[i]; i++) {
+        var node = newResImgNode(obj);
+        owner.insertBefore(node,btmLine);
+      }
+    };
+    
+    var insertOneResImg = function(obj) {
+      var btmLine = self.wd.querySelector('div.res-btm-line');
+      if (!btmLine) return;
+      
+      var node = newResImgNode(obj);
+      btmLine.parentNode.insertBefore(node,btmLine);
+    };
+    
+    self.on('loadRes', function(event) {
+      var sProj = self.data.currProj;
+      if (!sProj) return;
+      var iPos = sProj.indexOf('/');
+      if (iPos <= 0) return;
+      var sAlias=sProj.slice(0,iPos), sPath=sProj.slice(iPos+1);
+      
+      if (githubSess) {
+        var bFound = [];
+        var nextStep = function() {
+          ResImageList_ = [];
+          var sCls = self.data.pages[1].canModifyCss == 'block'? 'res-canrmv': '';
+          _.each(bFound, function(item) {
+            var sName = item[0];
+            totalAdded_ += 1;
+            var oneObj = {realUrl: '//' + githubUser.login + '.github.io/' + sProj + '/' + sName,
+                          cls:sCls, alias:sAlias, title:sName, id:totalAdded_, sha:item[1] };
+            oneObj.url = oneObj.realUrl;  // direct download
+            ResImageList_.push(oneObj);
+          });
+          initResImgList();
+        };
+        
+        var aDir = new Gh3.Dir({path:sPath},githubUser,sAlias,'gh-pages');
+        aDir.fetchContents( function(err, res) {
+          if (err) {
+            self.showMsg('load image resource failed');
+            return;
+          }
+          
+          aDir.eachContent( function(content) {
+            if (content.type == 'file') {
+              var sName=content.name, sExt=sName.split('.').pop();
+              if (supportedImg_.indexOf('.'+sExt+'.') >= 0) {
+                bFound.push([sName,content.sha]);
+              }
+            }
+          });
+          nextStep();
+        });
+        
+        return;
+      }
+    });
+    
+    var newUploadTask = function(f,fType,fBaseName,fExtName,urlData) {
+      // step 1: prepare sAlias, sPath
+      var sFile=self.data.currProj, sAcl=self.data.currAllow;
+      if (!sFile) return false;
+      var iPos = sFile.indexOf('/');
+      if (iPos <= 0) return false;
+      var sAlias=sFile.slice(0,iPos), sPath=sFile.slice(iPos+1);
+      
+      // step 2: prepare sBase, sExt, sFileName
+      var sBase='', sExt='', sEncode='bin', file2Base=false;
+      if (f) {  // f: { name: "somefile.png", lastModified: 1418299398000, lastModifiedDate: Date 2014-12-11T12:03:18.000Z, size: 6605, type: "image/png" }
+   	    var bTmp = f.name.split('.');
+   	    fType = f.type;
+   	    sExt = bTmp.pop();
+   	    sBase = bTmp.join('.');
+   	    if (githubSess) file2Base = true;
+   	  }
+   	  else {
+   	    if (!urlData) return false;
+   	    sBase = fBaseName;
+   	    sExt  = fExtName;
+   	    sEncode = 'base64';
+   	  }
+ 	    if (!fType || !sBase || !sExt) return false;  // sBase must not ''
+   	  
+   	  var sFileName = sBase + '.' + sExt;
+      var iTmp=1, oldOne=_.find(ResImageList_, function(item) {
+        return sFileName == (item.realUrl || '').split('/').pop();
+      });
+      while (oldOne) {
+        iTmp += 1;
+        sFileName = sBase + iTmp + '.' + sExt;
+        oldOne = _.find(ResImageList_, function(item) {
+          return sFileName == (item.realUrl || '').split('/').pop();
+        });
+      }
+   	  
+   	  // step 3: create upload task
+      totalAdded_ += 1;
+      var idx = totalAdded_;
+      var newOne = { id:idx, url:'uploading.gif', cls:'res-uploading', 
+                     title:sFileName, alias:sAlias };
+      ResImageList_.push(newOne);
+      insertOneResImg(newOne);
+      
+      var setResult = function(node,sUrl_,sErr) {
+        if (sUrl_ != 'warning.jpg')
+          newOne.realUrl = sUrl_;
+        newOne.url = sUrl_;
+        newOne.cls = '';
+        
+        node.classList.remove('res-uploading');
+        var imgNode = node.querySelector('img');
+        if (imgNode) {
+          if (sErr)
+            imgNode.setAttribute('_error',sErr);
+          else {
+            if (self.data.pages[1].canModifyCss == 'block')
+              node.classList.add('res-canrmv');
+          }
+          imgNode.setAttribute('src',sUrl_);
+        }
+      };
+   	  
+   	  // step 4: prepare github base64 upload
+      if (githubSess) {
+        var setResult2 = function(node,sUrl_,sBaseHead,sInput) {
+          newOne.realUrl = sUrl_;
+          newOne.url = sUrl_;
+          newOne.cls = '';
+          
+          node.classList.remove('res-uploading');
+          var imgNode = node.querySelector('img');
+          if (imgNode) {
+            if (self.data.pages[1].canModifyCss == 'block')
+              node.classList.add('res-canrmv');
+            imgNode.src = sBaseHead + sInput;
+          }
+        };
+        
+        var uploadBase64 = function(sInput) {
+      	  var ii = sInput.indexOf(';base64,'), sBaseHead='';
+      	  if (ii > 0 && ii < 64) {
+      	    sBaseHead = sInput.slice(0,ii+8);
+      	    sInput = sInput.slice(ii+8);
+      	  }
+      	  
+      	  var sPath_ = sPath + '/' + sFileName;
+          $.ajax( { type: 'PUT',
+            url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + sPath_ + '?access_token=' + githubToken,
+            data: JSON.stringify({ 'path': sPath_,
+              'message': (new Date()).toLocaleDateString(),
+              'content': sInput,
+              'branch': 'gh-pages',
+            }),
+            success: function(res) {
+              var node = self.wd.querySelector('div.res-uploading[idx="' + idx + '"]');
+              if (!node) return;
+              newOne['sha'] = res.content.sha;
+              
+              node.style.backgroundSize = '40px 2px';   // upload 60%
+              setTimeout( function() {
+                node.style.backgroundSize = '70px 2px'; // upload 100%
+                setTimeout( function() {
+                  var sUrl_ = '//' + githubUser.login + '.github.io/' + sAlias + '/' + sPath_;
+                  setResult2(node,sUrl_,sBaseHead,sInput);
+                },500);
+              },500);
+            },
+            error: function(res) {
+              var node = self.wd.querySelector('div.res-uploading[idx="' + idx + '"]');
+              if (!node) return;
+              node.style.backgroundSize = '70px 2px'; // upload 100%
+              setResult(node,'warning.jpg','upload failed: ' + sFileName);
+            },
+          });
+        };
+        
+        if (file2Base) {
+        	var reader = new FileReader();
+        	reader.onload = function(event) {
+        	  uploadBase64(reader.result); // data:image/jpeg;base64,...
+        	};
+        	reader.readAsDataURL(f);
+        }
+        else {
+          if (!urlData || sEncode != 'base64')
+            return false;
+          uploadBase64(urlData);
+        }
+        return true;
+      }
+    };
+    
+    var FileDragHover = function(event) {
+      var sArg;
+      if (window.WEB_IE_BROWSER)
+        sArg = event.dataTransfer.getData('text') || '';
+      else sArg = event.dataTransfer.getData('text/args') || '';
+      if (sArg.indexOf('project,') == 0 || sArg.indexOf('image,') == 0)
+        return;
+      
+      event.stopPropagation();
+      event.preventDefault();
+      var targ = event.target;
+      if (targ && targ.classList.contains('res-dropholder')) {
+        if (event.type == 'dragover')
+          targ.classList.add('res-draghover');
+        else targ.classList.remove('res-draghover');
+      }
+    };
+    
+    var dropUploadFiles = function(files) {
+      var bIgnore=[], iCount=0;
+      for (var i = 0, f; f = files[i]; i++) {
+        var b=f.name.split('.'), ext=b[b.length-1];
+        if (b.length > 1 && ext && supportedImg_.indexOf('.'+ext+'.') >= 0) {
+          if (newUploadTask(f)) {
+            iCount += 1;
+            if (iCount >= 64) break;
+          }
+        }
+        else bIgnore.push(f.name);
+      }
+      if (bIgnore.length)
+        alert('Only image file can upload, following ignored: ' + bIgnore.join(','));
+      if (iCount) self.update();
+    };
+
+    var convertImg2Url = function(url,callback,outFormat) {
+      var img = new Image();
+      img.onload = function() { // CROS, sometimes can work, most not work, why?
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = this.width;
+        canvas.height = this.height;
+        ctx.drawImage(this,0,0);
+        
+        var dataURL = canvas.toDataURL(outFormat); // can work in same domain
+        callback(dataURL);
+        canvas = null;
+      };
+      img.crossOrigin = 'Anonymous';
+      img.src = url;
+    };
+    
+    var FileSelectHandler = function(event) { // on drop
+      FileDragHover(event);  // cancel event and hover styling
+      var files = event.target.files || event.dataTransfer.files; // get FileList object
+      if (files.length)
+        dropUploadFiles(files);
+      else { // drag an image and drop, we try convert it to base64 then upload it
+        var sFile='', sBase='', sExt='', imgUrl=event.dataTransfer.getData('url') || '';
+        if (imgUrl) sFile = imgUrl.split('?')[0].split('/').pop();
+        if (sFile) {
+          var b = sFile.split('.');
+          if (b.length >= 2) {
+            sExt = b.pop();
+            sBase = b.join('.');
+          }
+        }
+        
+        if (sBase && sExt && supportedImg_.indexOf('.'+sExt+'.') >= 0) {
+          var fType = 'image/' + sExt;
+          convertImg2Url(imgUrl, function(sData) {
+            newUploadTask(null,fType,sBase,sExt,sData);
+          },fType);
+        }
+      }
+    };
+    
+    if (window.File && window.FileList && window.FileReader && window.XMLHttpRequest && (new XMLHttpRequest()).upload) {
+      self.set('pages[1].canUpload',true);
+      setTimeout(function() {
+        var fileDrag = document.getElementById('dragndropimage');
+        if (fileDrag) {
+    		  fileDrag.addEventListener("dragover",FileDragHover,false);
+  		    fileDrag.addEventListener("dragleave",FileDragHover,false);
+  		    fileDrag.addEventListener("drop",FileSelectHandler,false);
+        }
+      },0);
+    }
+    
+    self.on('ssTempDbclick',function(event) {
+      var targ = event.original.target, node = null;
+      while (targ) {
+        if (targ.nodeName == 'DIV') {
+          if (targ.classList.contains('res-temp-folder')) {
+            node = targ;
+            break;
+          }
+          else if (targ.classList.contains('res-template'))
+            break;
+        }
+        targ = targ.parentNode;
+      }
+      if (!node) return;
+      
+      var sPath = node.getAttribute('_url');
+      if (sPath)
+        self.loadTemplate(sPath,node.querySelector('img.res-temp-loading'));
+    });
+    
+    self.on('ssTempRefresh', function(event) {
+      var targ = event.original.target, loadingNd = null;
+      if (targ.nodeName == 'IMG') targ = targ.parentNode;
+      if (targ.nodeName == 'DIV' && targ.classList.contains('res-temp-refresh'))
+        loadingNd = targ.querySelector('img.res-temp-loading');
+      self.loadTemplate('software/pages/template',loadingNd);
+    });
+  },
+  
+  switch2Wide: function() {
+    if (this.data.sWidth == '100%') return;
+    
+    this.data.showPage = 'block';
+    this.data.sWidth = '100%';
+    this.update();
+    this.fire('rewidth');
+  },
+  
+  switch2Narrow: function() {
+    if (this.data.sWidth != '100%') return;
+    
+    this.data.showPage = 'none';
+    this.data.sWidth = '1px';
+    this.update();
+    this.fire('rewidth');
+  },
+  
+  pageState: function() {
+    if (this.data.sWidth == '100%') {
+      if (this.data.pages[0].show == 'block')
+        return 'syntax';
+      else return 'files';
+    }
+    else return '';
+  },
+  
+  showMsg: function(sMsg) {
+    var node = this.wd.querySelector('.res-show-info');
+    if (node) {
+      node.innerHTML = htmlEncode(sMsg);
+      node.style.display = 'block';
+      setTimeout( function() {
+        node.style.display = 'none';
+      },5000);
+    }
+  },
+  
+  tryResetAcl: function(sPath,sAcl) {
+    if (this.data.currProj != sPath) return;
+    
+    this.data.currAllow = sAcl;
+    var node = this.wd.querySelector('.res-proj-info');
+    if (node) {
+      var sTitle = node.getAttribute('title') || '';
+      var iPos = sTitle.indexOf(':');
+      if (iPos > 0) {
+        var sId = sTitle.slice(0,iPos).trim()
+        if (sId == 'public' || sId == 'protected' || sId == 'private')
+          node.setAttribute(sAcl + sTitle.slice(iPos));
+      }
+    }
+  },
+  
+  selectProj: function(sProj,sAcl) {
+    if (this.pageState() != 'files') return;
+    var sModiCss = 'none', editingPrj = this.wdMarkdown.r.data.currProj;
+    if (editingPrj == sProj || (editingPrj && sProj.indexOf(editingPrj+'/') == 0))
+      sModiCss = 'block';
+    
+    if (this.data.currProj == sProj && this.data.pages[1].canModifyCss == sModiCss) {
+      if (!confirm('Do you want reload image resource?'))
+        return;
+    }
+    
+    var node = this.wd.querySelector('.res-proj-info');
+    if (node) {
+      var ss, ii = sProj.indexOf('/');
+      if (ii > 0)
+        ss = sProj.slice(ii+1);
+      else ss = sProj;
+      var b = ss.split('/');
+      node.innerHTML = '<p> ' + htmlEncode(ss) + '</p>';
+      node.setAttribute('title',sAcl + ': ' + b[b.length-1]);
+    }
+    
+    ResImageList_ = [];
+    this.data.pages[1].canModifyCss = sModiCss;
+    this.data.currProj = sProj;
+    this.data.currAllow = sAcl;
+    this.update();
+    this.fire('loadRes');
+  },
+  
+  resetFolder: function() {
+    var node = this.wd.querySelector('.res-proj-info');
+    if (node) {
+      node.innerHTML = '';
+      node.removeAttribute('title');
+    }
+    
+    ResImageList_ = [];
+    this.data.pages[1].canModifyCss = 'none';
+    this.data.currProj = '';
+    this.update();
+  },
+  
+  editProj: function(sType) {
+    if (sType == 'blog') {
+      this.data.pages[0].isTemplate = false;
+      this.update();
+    }
+    else if (sType == 'sshow') {
+      this.data.pages[0].isTemplate = true;
+      this.update();
+      
+      var refreshNd = this.wd.querySelector('div.res-temp-refresh');
+      if (refreshNd) { // still in initial state (has refresh button), auto refresh it
+        this.loadTemplate('software/pages/template');
+      }
+    }
+  },
+  
+  loadTemplate: function(sPath,loadingNd) { // sPath: software/pages/template
+    if (!this.data.pages[0].isTemplate) return;
+    if (!sPath) return;
+    if (sPath[sPath.length-1] == '/') sPath = sPath.slice(0,-1);
+    var iPos = sPath.indexOf('/');
+    if (iPos <= 0) return;
+    
+    if (loadingNd)
+      loadingNd.style.visibility = 'visible';
+    
+    var whenDone = function(sErr) {
+      if (sErr) alert(sErr);
+      if (loadingNd) loadingNd.style.visibility = 'hidden';
+    };
+    
+    var self=this, sAlias=sPath.slice(0,iPos), sPath_=sPath.slice(iPos+1);
+    if (githubSess) {
+      var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
+      aDir.fetchContents( function(err,res) { 
+        if (err) {
+          whenDone('load template (' + sPath_ + ') failed: ' + err.message);
+          return;
+        }
+        
+        var bDir=[], dFile={};
+        aDir.eachContent(function(item) {
+          if (item.type == 'dir')
+            bDir.push([item.name,item.path]);
+          else if (item.type == 'file') {
+            var sName=item.path, sExt=sName.slice(-7);
+            if (sExt == '.png.js' || sExt == '.gif.js') {
+              var sName_ = sName.slice(0,-3);
+              var iFlag = dFile[sName_] || 0;
+              if (iFlag)
+                dFile[sName_] = iFlag + 2;
+              else dFile[sName_] = 2;
+            }
+            else {
+              sExt = sName.slice(-4);
+              if (sExt == '.png' || sExt == '.gif') {
+                var iFlag = dFile[sName] || 0;
+                if (iFlag)
+                  dFile[sName] = iFlag + 1;
+                else dFile[sName] = 1;
+              }
+            }
+          }
+        });
+        
+        var bFile = [];
+        _.each(dFile,function(v,k) {
+          if (v == 3) bFile.push(k);
+        });
+        bFile.sort();
+        bDir.sort( function(a,b) {
+          a=a[0]; b=b[0];
+          if (a>b) return 1;
+          else if (a===b) return 0;
+          else return -1;
+        });
+        
+        var bList = [];
+        var sRoot = 'pages/template';
+        if (sPath_.length > sRoot.length) {  // has up folder
+          var bTmp = sPath_.split('/');
+          bTmp.pop();
+          bList.push({isDir:true, name:'..', img:'file_up.png', url:sAlias+'/'+bTmp.join('/')});
+        }
+        _.each(bDir,function(item) {
+          bList.push({isDir:true, name:item[0], img:'file_folder.png', url:sAlias+'/'+item[1]});
+        });
+        _.each(bFile,function(item) {
+          var sBase = item.split('/').pop();
+          bList.push({isDir:false, name:sBase, img:'/'+sAlias+'/'+item});
+        });
+        
+        whenDone();
+        if (bList.length == 0)
+          self.data.pages[0].res = [{isDir:true, name:'', img:'file_refresh.png', url:'software/pages/template'}];
+        else self.data.pages[0].res = bList;
+        self.update();
+      });
+      
+      return;
+    }
+  },
+};
+
+var PreviewArea = {
+  __base__: R.IFrame,
+  __widget__: ['wdMarkdown'],
+  
+  init: function(cfg) {
+    this._super(cfg);
+    var self = this;
+    
+    var inDesign = (self.get('__debug__') || 0) & 0x01;
+    if (inDesign) return;
+    
+    window.setPopContent = function(iID,sHtml,sClass,sFont,sExtern) {
+      var holder = self.wd.querySelector('div.preview-ss');
+      var frm = self.wd.querySelector('div.preview-inst > iframe');
+      if (holder && frm && frm.contentWindow.setContent) {
+        holder.style.display = 'none';
+        frm.parentNode.style.display = 'block';
+        frm.contentWindow.setContent(iID,sHtml,sClass,sFont,sExtern);
+      }
+    };
+    window.getPopContent = function(iID) {
+      var frm = self.wd.querySelector('div.preview-inst > iframe');
+      if (frm && frm.contentWindow.getContent)
+        return frm.contentWindow.getContent(iID);
+    };
+    window.hidePopContent = function() {
+      var holder = self.wd.querySelector('div.preview-ss');
+      var frm = self.wd.querySelector('div.preview-inst > iframe');
+      if (holder && frm && frm.contentWindow.hideContent) {
+        frm.contentWindow.hideContent();
+        holder.style.display = 'block';
+        frm.parentNode.style.display = 'none';
+      }
+    };
+    
+    // APIs from slide
+    var DCF = R.getDCF();
+    DCF.regist('previewPlugLib', function(bArgs) {
+      if (self.data.frameReady) {
+        bArgs.unshift(self.data.pages);
+        bArgs.push(self.wd.clientWidth);
+        DCF.call('frm-preview','setPlugLib',bArgs);
+      }
+    });
+    
+    DCF.regist('previewPageHtml', function(bArgs) {
+      if (self.data.frameReady) {
+        bArgs.unshift(self.data.pages);
+        DCF.call('frm-preview','setPageHtml',bArgs);
+      }
+    });
+    
+    DCF.regist('previewPageModi', function(bArgs) {
+      self.wdMarkdown.r.data.changed = true;
+      if (self.data.frameReady) {
+        bArgs.unshift(null);
+        DCF.call('frm-preview','setPageHtml',bArgs);
+      }
+    });
+    
+    DCF.regist('onSlideLoad', function(bArgs) { // reported from online.js
+      self.data.pages = bArgs;
+      if (bArgs.length && self.data.frameReady)
+        self.initPreviewPg();
+    });
+    
+    DCF.regist('slideDelPage', function(bArgs) { // reported from online.js
+      var iNewSelect = bArgs.shift();
+      self.data.pages = bArgs;
+      self.wdMarkdown.r.data.changed = true;
+      if (self.data.frameReady)
+        DCF.call('frm-preview','setPageHtml',[bArgs,iNewSelect]);
+    });
+    
+    DCF.regist('slideAddPage', function(bArgs) { // reported from online.js
+      var iNewSelect = bArgs.shift();
+      self.data.pages = bArgs;
+      self.wdMarkdown.r.data.changed = true;
+      if (self.data.frameReady)
+        DCF.call('frm-preview','setPageHtml',[bArgs,iNewSelect]);
+    });
+    
+    DCF.regist('slideChangeOrder', function(bArgs) { // reported from online.js
+      var iNewSelect = bArgs.shift();
+      self.data.pages = bArgs;
+      self.wdMarkdown.r.data.changed = true;
+      if (self.data.frameReady)
+        DCF.call('frm-preview','setPageHtml',[bArgs,iNewSelect]);
+    });
+    
+    DCF.regist('nav_shift', function(bArgs) {
+      if (self.data.frameReady)
+        DCF.call('frm-preview','nav_shift',bArgs);
+    });
+    
+    // APIs from preview
+    DCF.regist('turnSlideTo', function(bArgs) {
+      self.wdMarkdown.r.postSlideMsg('turnSlideTo',bArgs);
+    });
+    
+    DCF.regist('delSlidePage', function(bArgs) {
+      self.wdMarkdown.r.postSlideMsg('delSlidePage',bArgs);
+    });
+    
+    DCF.regist('addSlidePage', function(bArgs) {
+      self.wdMarkdown.r.postSlideMsg('addSlidePage',bArgs);
+    });
+    
+    self.on('resized', function(event) {
+      var frmNode = self.wd.querySelector('div.preview-ss > iframe');
+      if (frmNode)
+        DCF.call('frm-preview','setVisibleWidth',[self.wd.clientWidth]);
+      
+      var frmNode2 = self.wd.querySelector('div.preview-inst > iframe');
+      if (frmNode2 && frmNode2.contentWindow.setVisibleWidth)
+        frmNode2.contentWindow.setVisibleWidth(self.wd.clientWidth);
+    });
+  },
+  
+  editProj: function(sType,sProj) {
+    if (sType == 'blog') {
+      this.data.frameReady = false;
+      this.data.isTemplate = false;
+      this.update();
+    }
+    else if (sType == 'sshow') {
+      this.data.isTemplate = true;
+      this.update();
+      
+      var holder = this.wd.querySelector('div.preview-ss');
+      var holder2 = this.wd.querySelector('div.preview-inst');
+      if (holder && holder2) {
+        this.data.frameReady = false;
+        this.data.pages = [];
+        
+        var iHi = Math.max(window.innerHeight - 38 - 480 - 10,100);
+        var iHi2 = Math.max(window.innerHeight - 38 - 480 - 8,100);
+        holder.style.height = iHi + 'px';
+        holder2.style.height = iHi2 + 'px';
+        
+        var frmNode2 = holder2.querySelector('iframe');
+        if (!frmNode2) {
+          frmNode2 = document.createElement('iframe');
+          frmNode2.setAttribute('frameborder','0');
+          frmNode2.setAttribute('width',window.innerWidth+'');
+          frmNode2.setAttribute('height',iHi2+'');
+          holder2.appendChild(frmNode2);
+          
+          var self = this;
+          frmNode2.onload = function(event) {
+            if (frmNode2.contentWindow.setVisibleWidth)
+              frmNode2.contentWindow.setVisibleWidth(self.wd.clientWidth);
+          };
+        }
+        
+        var frmNode = holder.querySelector('iframe');
+        if (!frmNode) {
+          R.getDCF().removeTarget('frm-preview');
+          frmNode = document.createElement('iframe');
+          frmNode.setAttribute('id','frm-preview');
+          frmNode.setAttribute('frameborder','0');
+          frmNode.setAttribute('width',window.innerWidth+'');
+          frmNode.setAttribute('height',iHi+'');
+          holder.appendChild(frmNode);
+          
+          var self = this;
+          frmNode.onload = function(event) {
+            self.data.frameReady = true;
+            if (self.data.pages.length)
+              self.initPreviewPg();
+          };
+        }
+        
+        var sUrl = '/' + sProj + '/?editing=1&preview=1';
+        frmNode.setAttribute('src',sUrl);
+        
+        var sUrl2 = '/' + sProj + '/?editing=1&inline=1';
+        frmNode2.setAttribute('src',sUrl2);
+      }
+    }
+  },
+  
+  initPreviewPg: function() {
+    this.wdMarkdown.r.postSlideMsg('notiGetPlugLib',[]); // prepare plugin lib first
+    
+    var self = this;
+    setTimeout(function() {
+      for (var i=0,item; item=self.data.pages[i]; i++) {
+        self.wdMarkdown.r.postSlideMsg('notiGetPageHtml',[item]);
+      }
+    },1000);
+  },
+};
+
+var PopDlgForm = {
+  __base__: R.IFrame,
+  __widget__: ['wdInfoMask','wdToolbar','wdProjList','wdMarkdown','wdResPanel','wdPreviewArea'],
+  
+  init: function(cfg) {
+    this._super(cfg);
+    var self = this;
+    
+    var inDesign = (self.get('__debug__') || 0) & 0x01;
+    if (inDesign) return;
+    
+    self.wd.style.display = 'none';
+    self.wdInfoMask.style.display = 'none';
+    self.wdInfoMask.onclick = function(event) {
+      if (event.target === self.wdInfoMask && self.wd.style.display == 'block') {
+        if (self.data.finished && self.tryHideDlg())
+          event.stopPropagation();
+      }
+    };
+    
+    var checkLoginId = null, tryEvery30 = 0;
+    var DCF = R.getDCF();
+    DCF.regist('onResetLogin', function(bArgs) {
+      self.data.login.hasLogin = false;
+    });
+    
+    var anyCharIn = function(sInvalid,s) {
+      for (var i=0,ch; ch=sInvalid[i]; i++) {
+        if (s.indexOf(ch) >= 0)
+          return true;
+      }
+      return false;
+    };
+    
+    DCF.regist('closeForm', function(bArgs) {
+      self.data.retData = bArgs;
+      self.data.finished = true;
+      self.wdInfoMask.style.display = 'none';
+      self.wd.style.display = 'none';
+    });
+    
+    // come from toolbar
+    //------------------
+    DCF.regist('shareProject', function(bArgs) {
+      var iAcl=bArgs[0], iGroup=bArgs[1], sPath=bArgs[2];
+      var sTitle=bArgs[3], sDesc=bArgs[4], sKeyword=bArgs[5], sThumb=bArgs[6];
+      var sSha=bArgs[7]||'', sCfgLine=bArgs[8]||'';
+      var bFriend = (githubSess? []: self.wdProjList.r.data.friendGroup);
+      var sAcl = (iAcl==0? 'public': (iAcl==1? 'protected': 'private'));
+      var sGroup = '';  // for author self
+      if (sAcl == 'private') {
+        if (iGroup > 0 && iGroup <= bFriend.length)
+          sGroup = bFriend[iGroup-1] || '';
+      }
+      
+      var iPos = sPath.indexOf('/');
+      if (iPos <= 0) return;
+      var sAlias = sPath.slice(0,iPos), sPath_ = sPath.slice(iPos+1);
+      
+      var restored = false;
+      var toolBtn = self.wdToolbar.querySelector('img[name="SharePrj"]');
+      toolBtn.src = 'loading.gif';
+      setTimeout( function() {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_share.png';
+        }
+      },20000);
+      
+      var whenSuccess = function() {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_share.png';
+        }
+        
+        alert('Share project successful!');
+        self.hideDlg();
+        if (!githubSess) {
+          self.wdMarkdown.r.tryResetAcl(sPath,sAcl);
+          self.wdResPanel.r.tryResetAcl(sPath,sAcl);
+        }
+        self.wdProjList.r.afterSharePrj(sAlias,sPath_,!!sThumb);
+      };
+      var whenError = function(sErr) {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_share.png';
+        }
+        alert(sErr);
+        if (githubSess) self.hideDlg();
+      };
+      
+      if (githubSess) {
+        var sAbsFile = sPath_ + '/$abstract.txt';
+        if (sThumb.slice(0,2) == '$$')
+          sThumb = '/' + sAlias + '/' + sThumb;
+        
+        var dOneDoc=null, dRepoJson=githubGetCfg(sAlias);
+        if (!dRepoJson) {
+          whenError('System error: can not find repository');
+          return;
+        }
+        dOneDoc = _.find(dRepoJson.doc_list,function(item) {
+          return item.path == sPath_;
+        });
+        if (!dOneDoc) {
+          whenError('System error: can not find document: ' + sPath_);
+          return;
+        }
+        
+        var sNowDate = (new Date()).toLocaleDateString();
+        var oldCfgSha = githubCfgSha['/'+sAlias+'/config.json'];
+        
+        // step 3: upload config.json
+        var writeCfgFile = function() {
+          $.ajax( { type: 'PUT',
+            url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/config.json?access_token=' + githubToken,
+            data: JSON.stringify( {
+              path: 'config.json',
+              message: sNowDate,
+              content: Gh3.Base64.encode(JSON.stringify(dRepoJson)),
+              sha: oldCfgSha,
+              branch: 'gh-pages',
+            }),
+            success: function(res) {
+              githubCfgSha['/' + sAlias + '/config.json'] = res.content.sha;
+              whenSuccess();
+            },
+            error: function(res) { // always error if config.json modified at other place
+              githubCfgSha['/' + sAlias + '/config.json'] = '';
+              whenError('Save config.json failed: ' + ajaxErrDesc(res,'message'));
+            },
+          });
+        };
+        
+        // step 2: upload $abstract.txt
+        var writeAbsFile = function() {
+          var sInput = sTitle + '\r\n' + sDesc + '\r\n' + (sKeyword?'<'+sKeyword+'>':'') + '\r\n';
+          if (sCfgLine) sInput += sCfgLine;  // keep dConfig in $abstract.txt
+          var dData = { path:sAbsFile, message:sNowDate,
+                        content:Gh3.Base64.encode(sInput), branch:'gh-pages'};
+          if (sSha) dData.sha = sSha;
+          
+          $.ajax( { type: 'PUT',
+            url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + sAbsFile + '?access_token=' + githubToken,
+            data: JSON.stringify(dData),
+            
+            success: function(res) { // no need record sha of $abstract.txt
+              // save $abstract.txt OK, next save config.json
+              dOneDoc.title = sTitle;
+              dOneDoc.desc = sDesc;
+              dOneDoc.keyword = sKeyword;
+              dOneDoc.thumb = sThumb;
+              dOneDoc.modify_at = parseInt((new Date()).valueOf() / 1000);
+              dOneDoc.flag = (dOneDoc.flag & 0xFF);
+              
+              writeCfgFile();
+            },
+            
+            error: function(res) {
+              whenError('Save $abstract.txt failed: ' + ajaxErrDesc(res,'message'));
+            },
+          });
+        };
+        
+        // step 1: try get sha of config.json
+        if (!oldCfgSha) {
+          var aFile = new Gh3.File({path:'config.json'},githubUser,sAlias,'gh-pages');
+          aFile.fetchContent( function(err, res) {
+            if (err) {
+              whenError('Read config.json failed: ' + ajaxErrDesc(res,'message'));
+              return;
+            }
+            oldCfgSha = aFile.sha;
+            githubCfgSha['/' + sAlias + '/config.json'] = oldCfgSha;
+            writeAbsFile();
+          });
+        }
+        else writeAbsFile();
+        
+        return;
+      }
+    });
+    
+    var newBlogFunc = function(currRepo,sAlias,sPath_,isSubPrj,callback) {
+      var fDate = new Date();
+      var sNowDate = fDate.toLocaleDateString();
+      fDate = Math.floor(fDate.valueOf()/1000);
+      
+      var sCateProj='', bTmp=sPath_.split('/');
+      var sPrjName = bTmp.pop();
+      if (isSubPrj) {
+        bTmp.pop(); // pop '$$'
+        sCateProj = bTmp.join('/');
+      }
+      
+      var oldCfgSha = githubCfgSha['/'+sAlias+'/config.json'];
+      var mdPath  = sPath_ + '/$index.md';
+      var idxPath = sPath_ + '/index.html';
+      
+      var whenDone = function(sErr) {
+        if (typeof callback == 'function')
+          callback(sErr);
+      };
+      
+      // step 7: regist config.json
+      var registNewDoc = function() {
+        if (isSubPrj) {
+          self.wdProjList.r.addSubPrjNode(sAlias,[sCateProj,[sPrjName,false]]);
+          self.hideDlg();
+          whenDone();
+        }
+        else {
+          // insert DOC into repo.doc_list
+          var bTmp=currRepo.doc_list;  // already sorted by name
+          var fileObj = {path:sPath_, title:sPrjName, keyword:'',
+                         desc:'', thumb:'', flag:256+3, create_at:fDate, modify_at:fDate};
+          for (var i2=0,item2; item2=bTmp[i2]; i2++) {
+            if (sPath_ < item2.path) {
+              bTmp.splice(i2,0,fileObj);
+              fileObj = null;
+              break;
+            }
+          }
+          if (fileObj) bTmp.push(fileObj);
+          
+          // insert DOC into project tree
+          var iRetType = 3, isHidden = 1;
+          self.wdProjList.r.addPrjNode([sAlias,sPath_,fDate,iRetType,0,isHidden,'public',0,0]);
+          self.hideDlg();
+          
+          // try upload config.json
+          $.ajax( { type:'PUT',
+            url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/config.json?access_token=' + githubToken,
+            data: JSON.stringify({ path: 'config.json',
+              message: sNowDate,
+              sha: oldCfgSha,
+              content: Gh3.Base64.encode(JSON.stringify(currRepo)),
+              branch: 'gh-pages',
+            }),
+            success: function(res) {
+              githubCfgSha['/' + sAlias + '/config.json'] = res.content.sha;
+              whenDone();
+            },
+            error: function(res) {
+              githubCfgSha['/' + sAlias + '/config.json'] = '';
+              whenDone('Create project successful, but regist it failed, you can publish it later');
+            },
+          });
+        }
+      };
+      
+      // step 6: write index.html
+      var writeIdxFile = function(sHtml,dirObj) {
+        var sSha = '';
+        if (dirObj) {
+          var oldFile = dirObj.getFileByName('index.html');
+          if (oldFile) {
+            if (!confirm(idxPath + ' already exists, do you want overwrite it?')) {
+              registNewDoc();
+              return;
+            }
+            sSha = oldFile.sha;
+          }
+        }
+        var dOp = { path:idxPath, message:sNowDate,
+                    content:Gh3.Base64.encode(sHtml), branch: 'gh-pages' };
+        if (sSha) dOp.sha = sSha;
+        
+        $.ajax( { type:'PUT',
+          url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + idxPath + '?access_token=' + githubToken,
+          data: JSON.stringify(dOp),
+          success: function(res) {
+            registNewDoc();
+          },
+          error: function(res) {
+            whenDone('Write (' + idxPath + ') failed: ' + ajaxErrDesc(res,'message'));
+          },
+        });
+      };
+      
+      // step 5: write md file
+      var writeMdFile = function(sMdInput,sHtml,dirObj) {
+        var sSha = '';
+        if (dirObj) {
+          var oldFile = dirObj.getFileByName('$index.md');
+          if (oldFile) {
+            if (!confirm(mdPath + ' already exists, do you want overwrite it?')) {
+              writeIdxFile(sHtml,dirObj);
+              return;
+            }
+            sSha = oldFile.sha;
+          }
+        }
+        var dOp = { path:mdPath, message:sNowDate,
+                    content:Gh3.Base64.encode(sMdInput), branch: 'gh-pages' };
+        if (sSha) dOp.sha = sSha;
+        
+        $.ajax( { type:'PUT',
+          url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + mdPath + '?access_token=' + githubToken,
+          data: JSON.stringify(dOp),
+          success: function(res) {
+            writeIdxFile(sHtml,dirObj);
+          },
+          error: function(res) {
+            whenDone('Write (' + mdPath + ') failed: ' + ajaxErrDesc(res,'message'));
+          },
+        });
+      };
+      
+      // step 4: read project file tree
+      var readProjTree = function(sMdInput,sHtml) {
+        var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
+        aDir.fetchContents(function(err,res) {
+          if (err) {
+            if (res.status == 404) {
+              writeMdFile(sMdInput,sHtml,null);
+              return;
+            }
+            whenDone('List directory (' + sPath_ + ') failed: ' + ajaxErrDesc(res,'message'));
+            return;
+          }
+          writeMdFile(sMdInput,sHtml,aDir);
+        });
+      };
+      
+      // step 3: read blog.tmpl
+      var readIdxHtml = function(sMdInput) {
+        $.ajax( { type:'GET',
+          url: '//' + githubUser.login + '.github.io/software/blogger10/blog.tmpl',
+          dataType: 'html',
+          success: function(res) {
+            readProjTree(sMdInput,res);
+          },
+          error: function(res) {
+            whenDone('Read file failed: /software/blogger10/blog.tmpl');
+          },
+        });
+      };
+      
+      // step 2: read markdown.md
+      var readDefaultMk = function() {
+        $.ajax( { type:'GET',
+          url: '//' + githubUser.login + '.github.io/software/blogger10/markdown.md',
+          dataType: 'text',
+          success: function(res) {
+            readIdxHtml(res);
+          },
+          error: function(res) {
+            whenDone('Read file failed: /software/blogger10/markdown.md');
+          },
+        });
+      };
+      
+      // step 1: check sha of config.json
+      if (!oldCfgSha) {
+        // try update sha of config.json, maybe config.json be renewed
+        var aFile = new Gh3.File({path:'config.json'},githubUser,sAlias,'gh-pages');
+        aFile.fetchContent( function(err, res) {
+          if (err) {
+            whenDone('Read config.json failed: ' + ajaxErrDesc(res,'message'));
+            return;
+          }
+          oldCfgSha = aFile.sha;
+          githubCfgSha['/' + sAlias + '/config.json'] = oldCfgSha;
+          readDefaultMk();
+        });
+      }
+      else readDefaultMk();
+    };
+    
+    var newSShowFunc = function(currRepo,sAlias,sPath_,isSubPrj,callback) {
+      var fDate = new Date();
+      var sNowDate = fDate.toLocaleDateString();
+      fDate = Math.floor(fDate.valueOf()/1000);
+      
+      var sCateProj='', bTmp=sPath_.split('/');
+      var sPrjName = bTmp.pop();
+      if (isSubPrj) {
+        bTmp.pop(); // pop '$$'
+        sCateProj = bTmp.join('/');
+      }
+      
+      var oldCfgSha = githubCfgSha['/'+sAlias+'/config.json'];
+      var txtPath = sPath_ + '/$index.txt';
+      var idxPath = sPath_ + '/index.html';
+      
+      var whenDone = function(sErr) {
+        if (typeof callback == 'function')
+          callback(sErr);
+      };
+      
+      // step 6: regist config.json
+      var registNewDoc = function() {
+        if (isSubPrj) {
+          self.wdProjList.r.addSubPrjNode(sAlias,[sCateProj,[sPrjName,false]]);
+          self.hideDlg();
+          whenDone();
+        }
+        else {
+          // insert DOC into repo.doc_list
+          var bTmp=currRepo.doc_list;  // already sorted by name
+          var fileObj = {path:sPath_, title:sPrjName, keyword:'',
+                         desc:'', thumb:'', flag:256+3, create_at:fDate, modify_at:fDate};
+          for (var i2=0,item2; item2=bTmp[i2]; i2++) {
+            if (sPath_ < item2.path) {
+              bTmp.splice(i2,0,fileObj);
+              fileObj = null;
+              break;
+            }
+          }
+          if (fileObj) bTmp.push(fileObj);
+          
+          // insert DOC into project tree
+          var iRetType = 3, isHidden = 1;
+          self.wdProjList.r.addPrjNode([sAlias,sPath_,fDate,iRetType,0,isHidden,'public',0,0]);
+          self.hideDlg();
+          
+          // try upload config.json
+          $.ajax( { type:'PUT',
+            url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/config.json?access_token=' + githubToken,
+            data: JSON.stringify({ path: 'config.json',
+              message: sNowDate,
+              sha: oldCfgSha,
+              content: Gh3.Base64.encode(JSON.stringify(currRepo)),
+              branch: 'gh-pages',
+            }),
+            success: function(res) {
+              githubCfgSha['/' + sAlias + '/config.json'] = res.content.sha;
+              whenDone();
+            },
+            error: function(res) {
+              githubCfgSha['/' + sAlias + '/config.json'] = '';
+              whenDone('Create project successful, but regist it failed, you can publish it later');
+            },
+          });
+        }
+      };
+      
+      // step 5: write index.html
+      var writeIdxFile = function(sHtml,dirObj) {
+        var sSha = '';
+        if (dirObj) {
+          var oldFile = dirObj.getFileByName('index.html');
+          if (oldFile) {
+            if (!confirm(idxPath + ' already exists, do you want overwrite it?')) {
+              registNewDoc();
+              return;
+            }
+            sSha = oldFile.sha;
+          }
+        }
+        var dOp = { path:idxPath, message:sNowDate,
+                    content:Gh3.Base64.encode(sHtml), branch: 'gh-pages' };
+        if (sSha) dOp.sha = sSha;
+        
+        $.ajax( { type:'PUT',
+          url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + idxPath + '?access_token=' + githubToken,
+          data: JSON.stringify(dOp),
+          success: function(res) {
+            registNewDoc();
+          },
+          error: function(res) {
+            whenDone('Write (' + idxPath + ') failed: ' + ajaxErrDesc(res,'message'));
+          },
+        });
+      };
+      
+      // step 4: write $index.txt
+      var writeTxtFile = function(sHtml,dirObj) {
+        var sSha = '';
+        if (dirObj) {
+          var oldFile = dirObj.getFileByName('$index.txt');
+          if (oldFile) {
+            if (!confirm(txtPath + ' already exists, do you want overwrite it?')) {
+              writeIdxFile(sHtml,dirObj);
+              return;
+            }
+            sSha = oldFile.sha;
+          }
+        }
+        var sInput = 'COMPONENT_OF_PINP_SLIDE,2,<page/>\nCOMPONENT_OF_PINP_SLIDE,1,<div class="ebook-title" _zindex="1000" _config="default-large-small default-looser-impacted default-hidden" _left="-348" _top="-144" _width="680"><h1>Title Goes Here Up<br>To Two Lines</h1></div>\n<div class="p1-p2-p3-p0" _zindex="1000" _config="default-large-small default-looser-impacted p1-p2-p3-p0" _left="-344" _top="2" _width="500"><p>Your name<br>May 1, 2015</p></div>';
+        var dOp = { path:txtPath, message:sNowDate,
+                    content:Gh3.Base64.encode(sInput), branch: 'gh-pages' };
+        if (sSha) dOp.sha = sSha;
+        
+        $.ajax( { type:'PUT',
+          url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + txtPath + '?access_token=' + githubToken,
+          data: JSON.stringify(dOp),
+          success: function(res) {
+            writeIdxFile(sHtml,dirObj);
+          },
+          error: function(res) {
+            whenDone('Write (' + txtPath + ') failed: ' + ajaxErrDesc(res,'message'));
+          },
+        });
+      };
+      
+      // step 3: read project file tree
+      var readProjTree = function(sHtml) {
+        var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
+        aDir.fetchContents(function(err,res) {
+          if (err) {
+            if (res.status == 404) {
+              writeTxtFile(sHtml,null);
+              return;
+            }
+            whenDone('List directory (' + sPath_ + ') failed: ' + ajaxErrDesc(res,'message'));
+            return;
+          }
+          writeTxtFile(sHtml,aDir);
+        });
+      };
+      
+      // step 2: read index.html
+      var readIdxHtml = function() {
+        $.ajax( { type:'GET',
+          url: '//' + githubUser.login + '.github.io/software/blogger10/slideshow.tmpl',
+          dataType: 'html',
+          success: function(res) {
+            readProjTree(res);
+          },
+          error: function(res) {
+            whenDone('Read file failed: /software/blogger10/slideshow.tmpl');
+          },
+        });
+      };
+      
+      // step 1: check sha of config.json
+      if (!oldCfgSha) {
+        // try update sha of config.json, maybe config.json be renewed
+        var aFile = new Gh3.File({path:'config.json'},githubUser,sAlias,'gh-pages');
+        aFile.fetchContent( function(err, res) {
+          if (err) {
+            whenDone('Read config.json failed: ' + ajaxErrDesc(res,'message'));
+            return;
+          }
+          oldCfgSha = aFile.sha;
+          githubCfgSha['/' + sAlias + '/config.json'] = oldCfgSha;
+          readIdxHtml();
+        });
+      }
+      else readIdxHtml();
+    };
+    
+    DCF.regist('createProject', function(bArgs) {
+      var sOwner = (bArgs[0] || '').trim();
+      var sCate = (bArgs[1] || '').trim();
+      var iPrjType = (bArgs[2]? 1: 2); // 1:blog, 2:slideshow
+      var iFlag = bArgs[4] || 0;       // 0:public 1:protected 2:private
+      
+      var sPrjName = (bArgs[3] || '').trim();
+      if (!sPrjName) {
+        alert('Project name can not empty!');
+        return;
+      }
+      else {
+        if (anyCharIn('?*|:"<>\\/',sPrjName)) {
+          alert('Project name can not contains: ? * | : " < > \\ /');
+          return;
+        }
+      }
+      if (iPrjType == 1 && sPrjName.slice(-5) != '.blog')
+        sPrjName += '.blog';
+      else if (iPrjType == 2 && sPrjName.slice(-6) != '.sshow')
+        sPrjName += '.sshow';
+      
+      if (sCate && sCate[sCate.length-1] == '/')
+        sCate = sCate.slice(0,-1);
+      if (sOwner && sOwner[sOwner.length-1] == '/')
+        sOwner = sOwner.slice(0,-1);
+      var sTmp = sOwner;
+      if (sCate) {
+        if (sTmp)
+          sTmp += '/' + sCate;
+        else sTmp = sCate;
+      }
+      var bCate = sTmp.split('/');
+      if (bCate.length < 2) {
+        if (githubSess)
+          alert("Invalid 'repository/category' name");
+        else alert('Category name lost');
+        return;
+      }
+      
+      var currRepo=null, sAlias=bCate.shift();
+      if (githubSess) {
+        currRepo = githubGetCfg(sAlias);
+        if (!currRepo) {
+          alert('Invalid repository name: ' + sAlias);
+          return;
+        }
+      }
+      else {
+        if (sAlias != self.data.login.alias) {
+          alert('Invalid alias name');
+          return;
+        }
+      }
+      
+      for (var i=bCate.length-1; i >= 0; i--) {
+        var item = bCate[i];
+        if (!item) {
+          alert('Invalid category name');
+          return;
+        }
+        if (anyCharIn('?*|:"<>\\',item)) {
+          alert('Category name can not contains: ? * | : " < > \\');
+          return;
+        }
+        
+        var sTmp = item.slice(0,2);
+        if (sTmp != '$$') {
+          if (sTmp[0] == '$')
+            bCate[i] = '$' + item;
+          else bCate[i] = '$$' + item;
+        }
+      }
+      sCate = bCate.join('/');
+      var sPath_ = sCate + '/' + sPrjName;
+      
+      if (githubSess) {
+        var dExist = _.find(currRepo.doc_list,function(item) {
+          return item.path == sPath_;
+        });
+        if (dExist) {
+          alert('Error: project (' + sPath_ + ') already exists');
+          return;
+        }
+      }
+      
+      var restored = false;
+      var toolBtn = self.wdToolbar.querySelector('img[name="CreatePrj"]');
+      toolBtn.src = 'loading.gif';
+      setTimeout(function(){
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_add.png';
+        }
+      },20000);
+      
+      var whenSuccess = function() {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_add.png';
+        }
+        alert('Add project successful');
+      };
+      var whenError = function(sErr) {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_add.png';
+        }
+        alert(sErr);
+      };
+      
+      if (githubSess) {
+        if (iPrjType == 1) {  // blog
+          newBlogFunc(currRepo,sAlias,sPath_,false, function(sErr) {
+            if (sErr)
+              whenError(sErr);
+            else whenSuccess();
+          });
+        }
+        else { // sshow project
+          newSShowFunc(currRepo,sAlias,sPath_,false, function(sErr) {
+            if (sErr)
+              whenError(sErr);
+            else whenSuccess();
+          });
+        }
+        
+        return;
+      }
+    });
+    
+    DCF.regist('createSubProject', function(bArgs) {
+      var sPath = (bArgs[0] || '').trim();
+      var iPrjType = (bArgs[1]? 1: 2);  // 1:blog, 2:slideshow
+      var sPrjName = (bArgs[2] || '').trim();
+      if (!sPrjName) {
+        alert('Project name can not empty!');
+        return;
+      }
+      else {
+        if (anyCharIn('?*|:"<>\\/',sPrjName)) {
+          alert('Project name can not contains: ? * | : " < > \\ /');
+          return;
+        }
+      }
+      if (iPrjType == 1 && sPrjName.slice(-5) != '.blog')
+        sPrjName += '.blog';
+      else if (iPrjType == 2 && sPrjName.slice(-6) != '.sshow')
+        sPrjName += '.sshow';
+      
+      var iPos = sPath.indexOf('/');
+      if (iPos <= 0) {
+        alert('Invalid project owner name');
+        return;
+      }
+      var sAlias=sPath.slice(0,iPos), sPath_=sPath.slice(iPos+1);
+      
+      var currRepo = null;
+      if (githubSess) {
+        currRepo = githubGetCfg(sAlias);
+        if (!currRepo) {
+          alert('Invalid repository name: ' + sAlias);
+          return;
+        }
+        var existDoc = _.find(currRepo.doc_list,function(item) {
+          return item.path == sPath_;
+        });
+        if (!existDoc) {
+          alert('Error: project (' + sPath_ + ') inexistent');
+          return;
+        }
+      }
+      
+      var restored = false;
+      var toolBtn = self.wdToolbar.querySelector('img[name="CreateSubPrj"]');
+      toolBtn.src = 'loading.gif';
+      setTimeout(function(){
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_addsub.png';
+        }
+      },20000);
+      
+      var whenSuccess = function() {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_addsub.png';
+        }
+        alert('Add sub-project successful');
+      };
+      var whenError = function(sErr) {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_addsub.png';
+        }
+        alert(sErr);
+      };
+      
+      if (githubSess) {
+        if (iPrjType == 1) {  // blog
+          var prjBaseDir = sPath_ + '/$$/' + sPrjName;
+          newBlogFunc(currRepo,sAlias,prjBaseDir,true, function(sErr) {
+            if (sErr)
+              whenError(sErr);
+            else whenSuccess();
+          });
+        }
+        else { // sshow
+          var prjBaseDir = sPath_ + '/$$/' + sPrjName;
+          newSShowFunc(currRepo,sAlias,prjBaseDir,true, function(sErr) {
+            if (sErr)
+              whenError(sErr);
+            else whenSuccess();
+          });
+        }
+        
+        return;
+      }
+    });
+    
+    DCF.regist('removeProject', function(bArgs) {
+      var sEditFlag = bArgs.shift(), editingRmv = false;
+      var sPath=(bArgs[0] || '').trim(), bSubs=[], iLen=bArgs.length;
+      if (!sPath) return;
+      for (var i=1; i < iLen; i++) {
+        var item = bArgs[i];
+        bSubs.push(item);
+        if (i == 1 && item) { // item = '*' means include root project
+          if (sEditFlag) editingRmv = true;
+          break; // means remove this and all-sub
+        }
+        if (i > 1 && item == sEditFlag)
+          editingRmv = true;
+      }
+      if (bSubs.length == 1 && !bSubs[0]) {
+        alert('No project selected, nothing removed!');
+        self.hideDlg();
+        return;
+      }
+      else if (!confirm('Do you want remove selected project?'))
+        return;
+      
+      var iPos=sPath.indexOf('/');
+      if (iPos <= 0) return;
+      var sAlias=sPath.slice(0,iPos), sPath_=sPath.slice(iPos+1);
+      
+      var restored = false;
+      var toolBtn = self.wdToolbar.querySelector('img[name="RemovePrj"]');
+      toolBtn.src = 'loading.gif';
+      setTimeout(function(){
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_rmv.png';
+        }
+      },20000);
+      
+      var whenSuccess = function() {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_rmv.png';
+        }
+        alert('Remove project successful');
+        if (editingRmv)
+          self.wdMarkdown.r.cancelEditing();
+      };
+      var whenError = function(sErr) {
+        if (!restored) {
+          restored = true;
+          toolBtn.src = 'prj_rmv.png';
+        }
+        alert(sErr);
+      };
+      
+      if (githubSess) {
+        var dOneDoc=null, dRepoJson=githubGetCfg(sAlias);
+        if (!dRepoJson) {
+          alert('System error: can not find repository');
+          return;
+        }
+        dOneDoc = _.find(dRepoJson.doc_list,function(item) {
+          return item.path == sPath_;
+        });
+        if (!dOneDoc) {
+          alert('System error: can not find document: ' + sPath_);
+          return;
+        }
+        
+        var fDate = new Date();
+        var sNowDate = fDate.toLocaleDateString();
+        fDate = Math.floor(fDate.valueOf()/1000);
+        
+        var oldCfgSha = githubCfgSha['/' + sAlias + '/config.json'];
+        var isRmvAll = !!bSubs[0], bRmvDir = [];
+        if (isRmvAll)
+          bRmvDir.push(sPath_);
+        else {
+          for (var i=1,item; item=bSubs[i]; i++) {
+            bRmvDir.push(sPath_ + '/$$/' + item);
+          }
+        }
+        
+        // step 3: upload config.json
+        var removeProjFile = null;
+        var writeCfgJson = function(sErr) {
+          removeProjFile = null; // avoid recursive hold
+          
+          if (sErr) {
+            whenError(sErr);
+            return;
+          }
+          
+          self.wdProjList.r.rmvPrjNode(sPath,bSubs,[]);
+          self.hideDlg();
+          
+          if (!isRmvAll)
+            whenSuccess();
+          else {
+            var iPos = dRepoJson.doc_list.indexOf(dOneDoc);
+            if (iPos < 0) {
+              whenSuccess();
+              return;
+            }
+            
+            dRepoJson.doc_list.splice(iPos,1);
+            $.ajax( { type: 'PUT',
+              url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/config.json?access_token=' + githubToken,
+              data: JSON.stringify( {
+                path: 'config.json',
+                message: sNowDate,
+                content: Gh3.Base64.encode(JSON.stringify(dRepoJson)),
+                sha: oldCfgSha,
+                branch: 'gh-pages',
+              }),
+              success: function(res) {
+                githubCfgSha['/' + sAlias + '/config.json'] = res.content.sha;
+                whenSuccess();
+              },
+              error: function(res) { // always error if config.json modified at other place
+                githubCfgSha['/' + sAlias + '/config.json'] = '';
+                whenError('Save config.json failed: ' + ajaxErrDesc(res,'message'));
+              },
+            });
+          }
+        };
+        
+        // step 2: remove project files
+        removeProjFile = function() {
+          var listErr=false, iNum=0, iDirNum=0, iRmv=0, iErr=0;
+          
+          var hasDone_ = false;
+          var allFileDone = function() {
+            if (hasDone_) return;
+            hasDone_ = true;
+            
+            if (listErr || iErr)
+              writeCfgJson('Delete project failed (some files not removed), please try again!');
+            else writeCfgJson('');
+          };
+          
+          var removeOne = function(sPath,sSha) {
+            $.ajax( { type:'DELETE',
+              url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + sPath + '?access_token=' + githubToken,
+              data: JSON.stringify( {path: sPath,
+                message: sNowDate,
+                sha: sSha,
+                branch: 'gh-pages',
+              }),
+              success: function(res) {
+                iRmv += 1;
+                if (iRmv + iErr >= iNum)
+                  allFileDone();
+              },
+              error: function(res) {
+                iErr += 1;
+                if (iRmv + iErr >= iNum)
+                  allFileDone();
+              },
+            });
+          };
+          
+          var recursiveRmv = function(aDir,callback) {
+            iDirNum += 1;
+            aDir.fetchContents( function(err,res) {
+              if (err) {
+                if (res.status != 404)
+                  listErr = true;
+                callback();
+                return;
+              }
+              
+              var bTmp=[], bTmp2=[], iCount=0;
+              
+              aDir.eachContent( function(item) {
+              if (item.type == 'file') {
+                  iCount += 1;
+                  bTmp.push([item.path,item.sha]);
+                }
+                else if (item.type == 'dir') {
+                  iCount += 1;
+                  bTmp2.push(item);
+                }
+              });
+              
+              if (iCount) {
+                iNum += bTmp.length;
+                
+                var gotoNext = function() {
+                  var item = bTmp2.pop();
+                  if (item)
+                    recursiveRmv(item,gotoNext);
+                  else {
+                    item = bTmp.pop();
+                    if (item) {
+                      setTimeout( function() {
+                        removeOne(item[0],item[1]);
+                        gotoNext();
+                      }, 500); // not run too fast to avoid '409 conflict' error
+                    }
+                    else callback(); // finished
+                  }
+                };
+                gotoNext();
+              }
+              else callback(); // finished
+            });
+          };
+          
+          var runNextDir = function() {
+            var item = bRmvDir.shift();
+            if (item) // run one by one, avoid too fast
+              recursiveRmv(new Gh3.Dir({path:item},githubUser,sAlias,'gh-pages'),runNextDir);
+            else { // all dir scan task started
+              if (iNum == 0) // nothing to remove, should manual fire allFileDone
+                allFileDone();
+            }
+          };
+          runNextDir();
+        };
+        
+        // step 1: check sha of config.json
+        if (!oldCfgSha) {
+          // try update sha of config.json, maybe config.json be renewed
+          var aFile = new Gh3.File({path:'config.json'},githubUser,sAlias,'gh-pages');
+          aFile.fetchContent( function(err, res) {
+            if (err) {
+              whenError('Read config.json failed: ' + ajaxErrDesc(res,'message'));
+              return;
+            }
+            oldCfgSha = aFile.sha;
+            githubCfgSha['/' + sAlias + '/config.json'] = oldCfgSha;
+            removeProjFile();
+          });
+        }
+        else removeProjFile();
+        
+        return;
+      }
+    });
+    
+    // from slide ifram
+    //-----------------
+    DCF.regist('editPrepost', function(bArgs) {
+      self.editPrepost(bArgs[0],bArgs[1],bArgs[2]);
+    });
+    DCF.regist('savePrepost', function(bArgs) {
+      self.wdMarkdown.r.postSlideMsg('savePrepost',bArgs);
+      self.hideDlg();
+    });
+    
+    DCF.regist('editSlideTxt', function(bArgs) {
+      if (!self.data.finished) {
+        alert('System error: previous task not finished yet!');
+        self.hideDlg();
+        return;
+      }
+      self.editSlideTxt(bArgs[0],bArgs[1]);
+    });
+    DCF.regist('saveSlideTxt', function(bArgs) {
+      self.wdMarkdown.r.postSlideMsg('saveSlideTxt',bArgs);
+      self.hideDlg();
+    });
+    
+    DCF.regist('editTableData', function(bArgs) {
+      self.editTableData(bArgs[0],bArgs[1],bArgs[2],bArgs[3],bArgs[4],bArgs[5]);
+    });
+    DCF.regist('saveTableData', function(bArgs) {
+      self.wdMarkdown.r.postSlideMsg('saveTableData',bArgs);
+      self.hideDlg();
+    });
+    
+    DCF.regist('editShapeData', function(bArgs) {
+      self.editShapeData(bArgs[0],bArgs[1],bArgs[2],bArgs[3],bArgs[4],bArgs[5]);
+    });
+    DCF.regist('saveShapeData', function(bArgs) {
+      self.wdMarkdown.r.postSlideMsg('saveShapeData',bArgs);
+      self.hideDlg();
+    });
+    
+    DCF.regist('editPaperData', function(bArgs) {
+      self.editPaperData(bArgs[0],[bArgs[1],bArgs[2],bArgs[3],bArgs[4],bArgs[5],bArgs[6],bArgs[7],bArgs[8]]);
+    });
+    window.updatePaperContent = function(isOk,nodeId,sHtml) {
+      self.wdResPanel.style.height = '100%';
+      self.wdPreviewArea.style.display = 'block';
+      self.hideDlg();
+      if (isOk) self.wdMarkdown.r.postSlideMsg('savePaperData',[nodeId,sHtml]);
+    };
+    window.copyToClipboard_ = function(sClip,x,y) {
+      var frm = self.wdMarkdown.querySelector('iframe');
+      if (frm && frm.contentWindow.apiNode)
+        frm.contentWindow.apiNode.copyToClipboard(sClip,x,y);
+    };
+    window.textOfClipboard_ = function() {
+      var frm = self.wdMarkdown.querySelector('iframe');
+      if (frm && frm.contentWindow.apiNode)
+        return frm.contentWindow.apiNode.textOfClipboard();
+      else return '';
+    };
+    
+    self.on('afterLogin', function(event) {
+      self.wdProjList.r.fire('refresh');
+      setTimeout( function() {
+        self.hideDlg();
+        if (self.data.taskAtLogin) {
+          if (self.data.taskAtLogin == 'submit' && self.wdMarkdown.r.data.currProj)
+            self.wdMarkdown.r.startSubmitDoc();
+          self.data.taskAtLogin = '';
+        }
+      },1500);
+    });
+  },
+  
+  showDlg: function(param) {
+    var percentOf = function(f,v) {
+      if (f < 1) {
+        if (f < 0)
+          return 0;
+        else if (f < 0.9999)
+          return Math.floor(f * v + 0.5);
+        else return v;
+      }
+      else return Math.floor(f + 0.5);
+    };
+    
+    var sUrl = param.url;
+    if (!sUrl && (param.bodyHtml || param.jsScript))
+      sUrl = '/software/pages/simple_dialog.html';
+    if (!sUrl) return;
+    
+    var fX = percentOf(param.left || 0,window.innerWidth);
+    var fY = percentOf(param.top || 0,window.innerHeight);
+    var fW = percentOf(param.width || 0.9999,window.innerWidth);
+    var fH = percentOf(param.height || 0.9999,window.innerHeight);
+    
+    var hi = this.wdToolbar.parentNode.clientHeight + Math.max(this.wdProjList.clientHeight,this.wdMarkdown.parentNode.clientHeight + this.wdPreviewArea.clientHeight);
+    this.wdInfoMask.style.width = window.innerWidth + 'px';
+    this.wdInfoMask.style.height = Math.max(window.innerHeight,hi) + 'px';
+    this.wdInfoMask.style.display = 'block';
+    
+    this.wd.style.left = fX + 'px';
+    this.wd.style.top = fY + 'px';
+    this.wd.style.width = fW + 'px';
+    this.wd.style.height = fH + 'px';
+    this.wd.style.display = 'block';
+    
+    var busyImg = this.wd.querySelector('div.dlg-loading');
+    busyImg.style.display = 'block';
+    
+    var wdgt=this, frm=this.wd.querySelector('iframe');
+    frm.onload = function(event) {
+      busyImg.style.display = 'none';
+      if (param.closable)
+        wdgt.data.finished = true;
+      
+      var nextFn = function() {
+        R.getDCF().call('wdPopDlgForm','initGui',[param.bodyHtml || '',param.jsScript || ''],3000,function(ret) {
+          if (param.onReady)
+            param.onReady();
+        },function(dArg) { // check: dArg.isReady, dArg.isTimeout
+          alert('System error');
+        })
+      };
+      
+      if (param.peerName || param.bodyHtml || param.jsScript) {
+        if (param.peerName) {
+          R.getDCF().setPeerName('wdPopDlgForm',param.peerName,3000,function(dRet) {
+            if (dRet.state == 'OK') {
+              if (param.bodyHtml || param.jsScript)
+                nextFn();
+              else {
+                if (param.onReady)
+                  param.onReady();
+              }
+            }
+            else alert('System error');
+          })
+        }
+        else {
+          if (param.bodyHtml || param.jsScript)
+            nextFn();
+          else {
+            if (param.onReady)
+              param.onReady();
+          }
+        }
+      }
+      else {
+        if (param.onReady)
+          param.onReady();
+      }
+    };
+    
+    this.data.finished = false;
+    this.refreshUrl(sUrl);
+  },
+  
+  hideDlg: function() {
+    this.wdInfoMask.style.display = 'none';
+    this.wd.style.display = 'none';
+  },
+  
+  tryHideDlg: function() {
+    if (this.data.finished) {
+      this.wdInfoMask.style.display = 'none';
+      this.wd.style.display = 'none';
+      return true;
+    }
+    return false;
+  },
+  
+  checkLogin: function(isForce,sTask) {
+    if (!isForce && this.data.login.hasLogin && this.data.login.failCount == 0) return;
+    
+    if (sTask) this.data.taskAtLogin = sTask;
+    this.showDlg({
+      left: Math.floor(window.innerWidth/2 - 310),
+      top: Math.floor(window.innerHeight/2 - 180),
+      width: 620,
+      height: 360,
+      url: '//' + PINP_HOST_DOMAIN + '/admin/writer/relay?check=1',
+      closable: false,
+      // peerName:'', bodyHtml:'', jsScript:'', onReady:null,
+    });
+  },
+  
+  startShareDoc: function() {
+    var sPath='', canWrite=true, node=this.wdProjList.querySelector('.prj-item.prj-selected2');
+    if (node && (node.classList.contains('prj-sub-item') || node.classList.contains('prj-curr-item'))) {
+      sPath = node.getAttribute('title');
+      
+      var sName = node.getAttribute('name');
+      if (sName && sName.indexOf('prj-') == 0) {
+        var dCfg = this.wdProjList.r.data.items[parseInt(sName.slice(4))];
+        if (dCfg) canWrite = dCfg.canWrite;
+      }
+    }
+    if (!sPath) {
+      alert('Please select a project first!');
+      return false;
+    }
+    if (!canWrite) {
+      alert('Can not share this project: not online document');
+      return false;
+    }
+    
+    if (sPath == this.wdMarkdown.r.data.currProj && this.wdMarkdown.r.data.changed) {
+      if (!confirm('The project still in editing, do you want continue?'))
+        return false;
+    }
+    var iPos = sPath.indexOf('/');
+    if (iPos <= 0) return;
+    var sAlias=sPath.slice(0,iPos), sPath_=sPath.slice(iPos+1);
+    var sAllow = node.getAttribute('allow') || 'private';
+    var bFriend = githubSess? []: this.wdProjList.r.data.friendGroup;
+    
+    var self = this;
+    var nextStep = function(sTitle,sDesc,sKeyword,sThumb,sha,sCfgLine) {
+      var sJsCode = 'var gitSha = "' + (sha || '') + '";\n' +
+"var gitCfgLine = '" + sCfgLine.replace(/'/gm,"\\'") + "';\n" +
+'var initAclIndex = ' + (sAllow=='public'?'0':(sAllow=='protected'?'1':'2')) + ';\n' +
+'var inputTitle = "' + sTitle + '";\n' +
+'var inputDesc = "' + sDesc + '";\n' +
+'var inputKeyword = "' + sKeyword + '";\n' +
+
+'function location__(href) {\n' +
+'  var location = document.createElement("a");\n' +
+'  location.href = href;\n' +
+'  if (location.host == "")\n' +
+'    location.href = location.href;\n' +
+'  return location;\n' +
+'}\n' +
+
+'function applySharePrj() {\n' +
+'  var sPath = "' + sPath + '";\n' +
+'  var frm = document.querySelector("form");\n' +
+'  var iAcl=0, iGroup=0;\n' +
+'  if (frm.prjAcl) {\n' +
+'    iAcl = frm.prjAcl[0].checked?0:(frm.prjAcl[1].checked?1:2);\n' +
+'    var iGroup = 0; for (var i=0,item; item=frm.aclGroup[i]; i++) {\n' +
+'      if (item.checked) {iGroup = i; break;}\n' +
+'    }\n' +
+'  }\n' +
+
+'  var sTitle = frm.prjTitle.value.trim().slice(0,160);\n' +
+'  var sDesc = frm.prjDesc.value.trim().slice(0,256);\n' +
+'  var sKeyword = frm.prjKeyword.value.trim().slice(0,160);\n' +
+'  sTitle = sTitle.replace(/"/gm,""); sDesc = sDesc.replace(/"/gm,""); sKeyword = sKeyword.replace(/"/gm,"");\n' +
+'  var sThumb = frm.prjThumb.value.trim();\n' +
+'  if (sThumb && frm.prjAcl) sThumb = location__(sThumb).href;\n' +
+'  document.getElementById("btn-apy").disabled = true;\n' +
+'  DCF.call("parent","shareProject",[iAcl,iGroup,sPath,sTitle,sDesc,sKeyword,sThumb,gitSha,gitCfgLine]);\n' +
+'}\n' +
+
+'function cfgModified(event) {\n' +
+'  document.getElementById("btn-apy").disabled = false;\n' +
+'}\n' +
+
+'function checkAcl() {\n' +
+'  document.getElementById("btn-apy").disabled = false;\n' +
+'  var frm = document.querySelector("form");\n' +
+'  var isReadonly = !frm.prjAcl[2].checked;\n' +
+'  document.getElementById("acl-group").style.color = isReadonly?"#ccc":"black";\n' +
+'  for (var i=0,item; item=frm.aclGroup[i]; i++) {\n' +
+'    item.disabled = isReadonly;\n' +
+'  }\n' +
+'}\n' +
+
+'function initInputData(i) {\n' +
+'  var frm = document.querySelector("form");\n' +
+'  frm.prjTitle.value = inputTitle;\n' +
+'  frm.prjDesc.value = inputDesc;\n' +
+'  frm.prjKeyword.value = inputKeyword;\n' +
+'  if (frm.prjAcl) {\n' +
+'    frm.prjAcl[i].setAttribute("checked","checked");\n' +
+'    checkAcl();\n' +
+'  }\n' +
+'}\n' +
+'initInputData(initAclIndex);';
+
+      var sHtml = '<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Share project</div><div style="width:100; height:28px"></div>\n';
+      sHtml += '<p style="font-size:14px; word-break:break-all; color:gray">Owner: ' + htmlEncode(sPath) + '</p>\n<form>\n';
+      if (!githubSess) {
+        sHtml += '<p>Project type<br><input type="radio" name="prjAcl" onclick="checkAcl()" checked>public&nbsp;&nbsp;&nbsp;<input type="radio" name="prjAcl" onclick="checkAcl()">protected&nbsp;&nbsp;&nbsp;<input type="radio" name="prjAcl" onclick="checkAcl()">private</p>\n';
+        sHtml += '<div id="acl-group">&nbsp;&nbsp;&nbsp;<input type="radio" name="aclGroup" onclick="cfgModified(event)" checked>Only for myself\n';
+        for (var i=0,item; item=bFriend[i]; i++) {
+          sHtml += '<br>&nbsp;&nbsp;&nbsp;<input type="radio" name="aclGroup" onclick="cfgModified(event)">' + htmlEncode(item) + '\n';
+        }
+        sHtml += '</div>\n';
+      }
+      sHtml += '<p>Document title<br><input name="prjTitle" type="text" style="width:340px" onchange="cfgModified(event)"><br>\n';
+      sHtml += 'Description <span style="font-size:14px; color:gray">(within 140 characters)</span><br><textarea name="prjDesc" style="width:340px; height:70px" onchange="cfgModified(event)"></textarea><br>\n';
+      sHtml += 'Document Keyword<br><input name="prjKeyword" type="text" placeholder="keyword1,keyword2,..." style="width:340px" onchange="cfgModified(event)"><br>';
+      sHtml += 'Thumbnail picture <span style="font-size:14px; color:gray">(input image URL)</span><br><input name="prjThumb" type="text" style="width:340px" value="' + sThumb + '" onchange="cfgModified(event)"></p>\n';
+      sHtml += '</form>\n<p><button id="btn-apy" onclick="applySharePrj()">Apply</button></p>';
+      
+      var iHi = bFriend.length <= 4? 540: (bFriend.length <= 8? 580: 620);
+      if (githubSess) iHi -= 80;
+      self.showDlg({
+        left: Math.floor((window.innerWidth-400)/2),
+        top: Math.floor((window.innerHeight-iHi)/2),
+        width: 400, height: iHi,
+        url: '/software/pages/simple_dialog.html',
+        closable: true,
+        peerName: 'wdPopDlgForm',
+        bodyHtml: sHtml,
+        jsScript: sJsCode,
+      });
+    };
+    
+    if (githubSess) {
+      var aFile = new Gh3.File({path:sPath_+'/$abstract.txt'},githubUser,sAlias,'gh-pages');
+      aFile.fetchContent( function(err, res) {
+        var sTitle='', sDesc='', sKeyword='', sSha='', sThumb='', sCfgLine='';
+        var dCfg = githubGetCfg(sAlias);
+        var oneDoc = _.find(dCfg.doc_list, function(item) {
+          return item.path == sPath_;
+        });
+        if (oneDoc) sThumb = oneDoc.thumb || '';
+        if (sThumb.slice(0,2) == '$$')
+          sThumb = '/' + sAlias + '/' + sThumb;
+        
+        if (!err) {
+          sSha = aFile.sha;
+          
+          var sTxt=aFile.getRawContent(), b=sTxt.split('\n');
+          sTitle = (b[0] || '').trim().replace(/"/gm,'');
+          sDesc = (b[1] || '').trim().replace(/"/gm,'');
+          sKeyword = (b[2] || '').trim().replace(/"/gm,'');
+          sCfgLine = (b[3] || '').trim();
+          if (sKeyword && sKeyword[0] == '<' && sKeyword[sKeyword.length-1] == '>')
+            sKeyword = sKeyword.slice(1,-1);
+        } // else, maybe no $abstract.txt exists yet
+        nextStep(sTitle,sDesc,sKeyword,sThumb,sSha,sCfgLine);
+      });
+      
+      return;
+    }
+  },
+  
+  createPrj: function() {
+    var sPath='', node=this.wdProjList.querySelector('.prj-item.prj-selected2');
+    if (node && (node.classList.contains('prj-sub-item') || node.classList.contains('prj-curr-item')))
+      sPath = node.getAttribute('title') || '';
+    else {
+      node = this.wdProjList.querySelector('.prj-item.prj-selected');
+      if (node && node.classList.contains('prj-cate-folder'))
+        sPath = node.getAttribute('title') || '';
+      else {
+        if (githubSess)
+          sPath = '';
+        else sPath = this.data.login.alias + '/' + this.wdProjList.r.data.currCate;
+      }
+    }
+    if (!githubSess && !sPath) return false;
+    
+    var b = sPath.split('/');
+    if (b.length > 1) b.pop();
+    var lostAlias=false, isRootPrj=true;
+    if (githubSess) {
+      if (!sPath)
+        lostAlias = true;
+      else {
+        if (b.length >= 2)
+          isRootPrj = false;
+      }
+    }
+    else {
+      if (b.length >= 2)
+        isRootPrj = false;
+    }
+    var sFolder = b.join('/');  // sFolder maybe ''
+    
+    var sJsCode = 'function applyCreatePrj() {\n' +
+'  var sOwner = "' + sFolder + '";\n' +
+'  var frm = document.querySelector("form");\n' +
+'  var sCate = frm.prjPath.value.trim();\n' +
+'  var iFlag = 0; if (frm.prjShare) iFlag = frm.prjShare[0].checked?0:(frm.prjShare[1].checked?1:2);\n' +
+'  var bArgs = [sOwner,sCate,frm.prjType[0].checked,frm.prjName.value,iFlag];\n' +
+'  document.getElementById("btn-apy").disabled = true;\n' +
+'  DCF.call("parent","createProject",bArgs);\n' +
+'}\n' +
+
+'function cfgModified(event) {\n' + 
+'  document.getElementById("btn-apy").disabled = false;\n' +
+'}';
+    
+    var sHtml = '<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Create project</div><div style="width:100; height:28px"></div>\n';
+    if (sFolder)
+      sHtml += '<p style="font-size:14px; word-break:break-all; color:gray">Owner: ' + htmlEncode(sFolder+'/') + '</p>\n';
+    sHtml += '<form><p>Project type<br><input type="radio" name="prjType" onclick="cfgModified(event)" checked>blog&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="prjType" onclick="cfgModified(event)">slideshow</p>\n';
+    if (!githubSess)
+      sHtml += '<p>Sharing<br><input type="radio" name="prjShare" onclick="cfgModified(event)"><span title="for all visitor">public</span>&nbsp;&nbsp;<input type="radio" name="prjShare" onclick="cfgModified(event)"><span title="for all logined visitor">protected</span>&nbsp;&nbsp;<input type="radio" name="prjShare" onclick="cfgModified(event)" checked><span title="only for yourself">private</span></p>\n';
+    sHtml += '<p>Category <span style="font-size:14px; color:gray">(';
+    if (lostAlias)
+      sHtml += 'repository/category';
+    else if (isRootPrj)
+      sHtml += 'category';
+    else sHtml += 'category or leave it empty';
+    sHtml += ')</span><br><input name="prjPath" type="text" style="width:340px" value="" onchange="cfgModified(event)"></p>\n';
+    sHtml += '<p>Project name<br><input type="text" name="prjName" style="width:340px" value="" onchanged="cfgModified(event)"></p></form>\n';
+    sHtml += '<p><button id="btn-apy" onclick="applyCreatePrj()">Apply</button></p>';
+    
+    var hi = 380;
+    if (githubSess) hi -= 36;
+    this.showDlg({
+      left: Math.floor((window.innerWidth-420)/2),
+      top: Math.floor((window.innerHeight-hi)/2),
+      width: 420, height: hi,
+      url: '/software/pages/simple_dialog.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: sHtml,
+      jsScript: sJsCode,
+    });
+    return true;
+  },
+  
+  createSubPrj: function() {
+    var sPath='', node=this.wdProjList.querySelector('.prj-item.prj-selected2');
+    if (node && (node.classList.contains('prj-sub-item') || node.classList.contains('prj-curr-item')))
+      sPath = node.getAttribute('title');
+    if (!sPath) {
+      alert('Please select a project first!');
+      return false;
+    }
+    
+    var sJsCode = 'function applyCreatePrj() {\n' +
+'  var frm = document.querySelector("form");\n' +
+'  var bArgs = ["' + sPath + '",frm.prjType[0].checked,frm.prjName.value];\n' +
+'  document.getElementById("btn-apy").disabled = true;\n' +
+'  DCF.call("parent","createSubProject",bArgs);\n' +
+'}\n' +
+
+'function cfgModified(event) {\n' +
+'  document.getElementById("btn-apy").disabled = false;\n' +
+'}';
+    
+    var sHtml = '<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Create sub-project</div><div style="width:100; height:28px"></div>\n';
+    sHtml += '<p style="font-size:14px; word-break:break-all; color:gray">Owner: ' + htmlEncode(sPath) + '</p>\n';
+    sHtml += '<form><p>Project type<br><input type="radio" name="prjType" onclick="cfgModified(event)" checked>blog&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="prjType" onclick="cfgModified(event)">slideshow</p>\n';
+    sHtml += '<p>Project name<br><input type="text" name="prjName" style="width:340px" value="" onchange="cfgModified(event)"></p></form>\n';
+    sHtml += '<p><button id="btn-apy" onclick="applyCreatePrj()">Apply</button></p>';
+    
+    this.showDlg({
+      left: Math.floor((window.innerWidth-420)/2),
+      top: Math.floor((window.innerHeight-290)/2),
+      width: 420, height: 290,
+      url: '/software/pages/simple_dialog.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: sHtml,
+      jsScript: sJsCode,
+    });
+    return true;
+  },
+  
+  removePrj: function() {
+    var sPath='', bSub=[], node=this.wdProjList.querySelector('.prj-item.prj-selected2');
+    if (node && (node.classList.contains('prj-sub-item') || node.classList.contains('prj-curr-item'))) {
+      sPath = node.getAttribute('title');
+      if (sPath) {
+        var nextNode = node.nextElementSibling;
+        while (nextNode && nextNode.classList.contains('prj-sub2-item')) {
+          var s = nextNode.getAttribute('title');
+          if (s && s.indexOf(sPath) == 0) {
+            var b = s.split('/');
+            bSub.push(b[b.length-1]);
+          }
+          nextNode = nextNode.nextElementSibling;
+        }
+      }
+    }
+    if (!sPath) return false;
+    
+    var editingFlag = this.wdMarkdown.r.prjInEditing(sPath); // '' '*' 'subProjName'
+    if (editingFlag) {
+      var ss = editingFlag == '*'? 'Selected project current in editing,': 'One of sub-project in editing,';
+      if (!confirm(ss + ' continue to remove?'))
+        return false;
+    }
+    
+    var sJsCode = 'var editingFlag = "' + editingFlag + '";\n' +
+'function applyRemovePrj() {\n' +
+'  var bArgs=[editingFlag], nodes=document.querySelectorAll("input[_name]");\n' +
+'  for (var i=0,node; node=nodes[i]; i++) {\n' +
+'    var sName = node.getAttribute("_name");\n' +
+'    if (i == 0) {\n' +
+'      bArgs.push(sName);\n' +
+'      if (node.checked) { bArgs.push("*"); break; }\n' +
+'      else bArgs.push("");\n' +
+'    } else {\n' +
+'      if (node.checked) bArgs.push(sName);\n' +
+'    }\n' +
+'  }\n' +
+'  document.getElementById("btn-apy").disabled = true;\n' +
+'  DCF.call("parent","removeProject",bArgs);\n' +
+'}\n' +
+
+'function rootChanged(event,rootNode) {\n' +
+'  var bRet=[], nodes = document.querySelectorAll("input[_sub]");\n' +
+'  for (var i=0,item; item=nodes[i]; i++) {\n' +
+'    if (rootNode.checked && !item.checked) item.checked = true;\n' +
+'    item.disabled = rootNode.checked? true: false;\n' +
+'  }\n' +
+'  document.getElementById("btn-apy").disabled = false;\n' +
+'}\n' +
+
+'function subChanged(event) {\n' +
+'  document.getElementById("btn-apy").disabled = false;\n' +
+'}';
+
+    var sHtml = '<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Remove project</div><div style="width:100; height:28px"></div>\n';
+    sHtml += '<p style="font-size:14px; word-break:break-all; color:gray">Project: ' + htmlEncode(sPath) + '</p>\n';
+    sHtml += '<p><input _name="' + sPath + '" type="checkbox" onclick="rootChanged(event,this)">Whole project<br>\n';
+    for (var i=0,item; item=bSub[i]; i++) {
+      sHtml += '&nbsp;&nbsp;<input _sub="true" _name="' + item + '" type="checkbox" onclick="subChanged(event)">' + htmlEncode(item) + '<br>\n';
+    }
+    sHtml += '</p>';
+    sHtml += '<p><button id="btn-apy" onclick="applyRemovePrj()">Apply</button></p>';
+    
+    var iHi = (bSub.length >= 10?400:(bSub.length >= 2?320:250));
+    this.showDlg({
+      left: Math.floor((window.innerWidth-400)/2),
+      top: Math.floor((window.innerHeight-iHi)/2),
+      width: 400, height: iHi,
+      url: '/software/pages/simple_dialog.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: sHtml,
+      jsScript: sJsCode,
+    });
+    return true;
+  },
+  
+  addDropPrjFrame: function(sThumb,sFlag,sPath) {
+    var b=sPath.split("/"), sBare=b[b.length-1];
+    var sUrl, sEdProj = this.wdMarkdown.r.data.currProj;
+    if (sEdProj && sPath.indexOf(sEdProj+'/') == 0)
+      sUrl = sPath.slice(sEdProj.length+1) + '/';
+    else {
+      if (githubSess)
+        sUrl = githubUser.login + '.github.io';
+      else sUrl = PINP_HOST_DOMAIN;
+      sUrl = location.protocol + '//' + sUrl + '/' + sPath + '/';
+    }
+    
+    var sJsCode = 'var sPrjUrl = "' + sUrl + '";\n' +
+'var sBareName = "' + sBare + '";\n' +
+'var sThumb = "' + sThumb + '";\n' +
+'var sPrjFlag = "' + sFlag + '";\n' +
+
+'function lnkTypeChanged() {\n' +
+'  var frm = document.querySelector("form");\n' +
+'  var nd = document.getElementById("prj-wdhi");\n' +
+'  var nodes = nd.querySelectorAll("input");\n' +
+'  if (!frm.lnkType[0].checked) {\n' +
+'    nd.style.color = "#222";\n' +
+'    for (var i=0,item; item=nodes[i]; i++) {\n' +
+'      item.removeAttribute("readonly");\n' +
+'      item.style.backgroundColor = "#fff";\n' +
+'    }\n' +
+'  } else {\n' +
+'    nd.style.color = "#ccc";\n' +
+'    for (var i=0,item; item=nodes[i]; i++) {\n' +
+'      item.setAttribute("readonly","readonly");\n' +
+'      item.style.backgroundColor = "#ccc";\n' +
+'    }\n' +
+'  }\n' +
+'}\n' +
+
+'function applyInsertLnk(event) {\n' +
+'  event.preventDefault(); event.stopPropagation();\n' +
+'  var sOut="", frm=document.querySelector("form");\n' +
+'  if (frm.lnkType[0].checked) {\n' +
+'    if (sThumb)\n' +
+'      sOut = \'<a target="_blank" href="\' + sPrjUrl + \'">\' + \'<img alt="\' + sBareName + \'" src="\' + sThumb + \'"></a>\';\n' +
+'    else sOut = "[" + sBareName + "](" + sPrjUrl + ")";\n' +
+'  } else {\n' +
+'    var sWd = document.getElementById("input-wd").value.trim().replace(/px/gi,"") || "100%";\n' +
+'    var sHi = document.getElementById("input-hi").value.trim().replace(/px/gi,"") || "300";\n' +
+'    var pgNode = document.getElementById("input-pg");\n' +
+'    var sPage = (pgNode? pgNode.value.trim(): "");\n' +
+'    if (pgNode) sPrjUrl += "?size=0x0";\n' +
+'    if (sPage) sPrjUrl += "#" + sPage;\n' +
+'    sOut = \'<iframe frameborder="0" width="\' + sWd + \'" height="\' + sHi + \'" src="\' + sPrjUrl + \'"></iframe>\';\n' +
+'  }\n' +
+'  DCF.call("parent","dropTextInfo",[sOut]);\n' +
+'}\n';
+    
+    var hasPgNum = false;
+    var sHtml = '<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Insert project linker</div><div style="width:100; height:28px"></div>\n';
+    sHtml += '<p style="font-size:14px; word-break:break-all; color:gray">Project: ' + htmlEncode(sPath) + '</p>\n';
+    sHtml += '<form><p><input type="radio" name="lnkType" onclick="lnkTypeChanged()" checked>insert a linker</p><p><input type="radio" name="lnkType" onclick="lnkTypeChanged()">embed a frame</p>\n';
+    sHtml += '<div id="prj-wdhi" style="color:#ccc; margin-left:20px; margin-top:-8px">Width <span style="font-size:14px; color:gray">(percent or pixes)</span><br><input id="input-wd" type="text" style="background-color:#ccc; width:220px" value="100%" readonly>\n';
+    sHtml += '<br>Height <span style="font-size:14px; color:gray">(percent or pixes)</span><br><input id="input-hi" type="text" style="background-color:#ccc; width:220px" value="300" readonly>\n';
+    if (sFlag == '1' || sFlag == '2' || sPath.slice(sPath.length-6) == '.sshow') {
+      hasPgNum = true;
+      sHtml += '<br>Show page <span style="font-size:14px; color:gray">(page number)</span><br><input id="input-pg" type="text" style="background-color:#ccc; width:220px" value="1" readonly>\n';
+    }
+    sHtml += '</div></form><p>&nbsp;<button onclick="applyInsertLnk(event)">Apply</button></p>\n';
+    
+    var dlgHi = (hasPgNum? 356: 310);
+    this.showDlg({
+      left: Math.floor((window.innerWidth-340)/2),
+      top: Math.floor((window.innerHeight-dlgHi)/2),
+      width: 340, height: dlgHi,
+      url: '/software/pages/simple_dialog.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: sHtml,
+      jsScript: sJsCode,
+    });
+  },
+  
+  addDropImgFrame: function(wd,hi,sUrl) {
+    var b=sUrl.split('/'), sBare=b[b.length-1];
+    var sJsCode = 'var sImgUrl = "' + sUrl + '";\n' +
+'var sImgBare = "' + sBare + '";\n' +
+'var sNatureWd = "' + wd + '";\n' +
+'var sNatureHi = "' + hi + '";\n' +
+
+'function lnkTypeChanged() {\n' +
+'  var frm = document.querySelector("form");\n' +
+'  var nd = document.getElementById("img-wdhi");\n' +
+'  var nodes = nd.querySelectorAll("input");\n' +
+'  if (!frm.lnkType[0].checked) {\n' +
+'    nd.style.color = "#222";\n' +
+'    for (var i=0,item; item=nodes[i]; i++) {\n' +
+'      item.removeAttribute("readonly");\n' +
+'      item.style.backgroundColor = "#fff";\n' +
+'    }\n' +
+'  } else {\n' +
+'    nd.style.color = "#ccc";\n' +
+'    for (var i=0,item; item=nodes[i]; i++) {\n' +
+'      item.setAttribute("readonly","readonly");\n' +
+'      item.style.backgroundColor = "#ccc";\n' +
+'    }\n' +
+'  }\n' +
+'}\n' +
+
+'function applyInsertLnk(event) {\n' +
+'  event.preventDefault(); event.stopPropagation();\n' +
+'  var sOut="", frm=document.querySelector("form");\n' +
+'  if (frm.lnkType[0].checked) {\n' +
+'    sOut = \'<a target="_blank" href="\' + sImgUrl + \'">\' + sImgBare + \'</a>\';\n' +
+'  } else {\n' +
+'    var sWd = document.getElementById("input-wd").value.trim().replace(/px/gi,"");\n' +
+'    var sHi = document.getElementById("input-hi").value.trim().replace(/px/gi,"");\n' +
+'    if (!sWd || sWd == sNatureWd) {\n' +
+'      if (!sHi || sHi == sNatureHi)\n' +
+'        sOut = "![" + sImgBare + "](" + sImgUrl + ")";\n' +
+'      else {\n' +
+'        sHi += (sHi.indexOf("%") > 0? "": "px");\n' +
+'        sOut = \'<img style="width:\' + sNatureWd + \'px; height:\' + sHi + \'" src="\' + sImgUrl + \'">\';\n' +
+'      }\n' +
+'    } else {\n' +
+'      sWd += (sWd.indexOf("%") > 0? "": "px");\n' +
+'      if (!sHi)\n' +
+'        sOut = \'<img style="width:\' + sWd + \'" src="\' + sImgUrl + \'">\';\n' +
+'      else {\n' +
+'        sHi += (sHi.indexOf("%") > 0? "": "px");\n' +
+'        sOut = \'<img style="width:\' + sWd + \'; height:\' + sHi + \'" src="\' + sImgUrl + \'">\';\n' +
+'      }\n' +
+'    }\n' +
+'  }\n' +
+'  DCF.call("parent","dropTextInfo",[sOut]);\n' +
+'}\n';
+    
+    var sHtml = '<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Insert image</div><div style="width:100; height:28px"></div>\n';
+    sHtml += '<p style="font-size:14px; word-break:break-all; color:gray">File: ' + htmlEncode(sBare) + '</p>\n';
+    sHtml += '<form><p><input type="radio" name="lnkType" onclick="lnkTypeChanged()">insert a linker</p><p><input type="radio" name="lnkType" onclick="lnkTypeChanged()" checked>embed an image</p>\n';
+    sHtml += '<div id="img-wdhi" style="color:#222; margin-left:20px; margin-top:-8px">Width <span style="font-size:14px; color:gray">(percent, pixes or leave it blank)</span><br><input id="input-wd" type="text" style="background-color:#fff; width:270px" value="' + wd + '"><br>\n';
+    sHtml += 'Height <span style="font-size:14px; color:gray">(percent, pixes or leave it blank)</span><br><input id="input-hi" type="text" style="background-color:#fff; width:270px" value="' + hi + '"></div>\n';
+    sHtml += '</form><p>&nbsp;<button onclick="applyInsertLnk(event)">Apply</button></p>\n';
+    
+    this.showDlg({
+      left: Math.floor((window.innerWidth-360)/2),
+      top: Math.floor((window.innerHeight-320)/2),
+      width: 360, height: 320,
+      url: '/software/pages/simple_dialog.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: sHtml,
+      jsScript: sJsCode,
+    });
+  },
+  
+  // pop-editing slide widget
+  //-------------------------
+  editPrepost: function(nodeId,sFlag,canPlay) {
+    var hi = Math.floor(window.innerHeight * 0.99);
+    this.showDlg({
+      left: Math.floor((window.innerWidth-700)/2),
+      top: Math.floor((window.innerHeight-hi)/2),
+      width: 700, height: hi,
+      url: 'prepost_editor.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: '',
+      jsScript: '',
+      
+      onReady: function() {
+        R.getDCF().call('wdPopDlgForm','initPrePost',[nodeId,sFlag,canPlay]);
+      },
+    });
+  },
+  
+  editSlideTxt: function(nodeId,sTxt) {
+    var wd = Math.floor(window.innerWidth * 0.8);
+    var hi = Math.floor(window.innerHeight * 0.8);
+    var sJsCode = 'var iEditNodeId = ' + nodeId + ';\n' +
+'function finishEditing() {\n' +
+'  var txtNode = document.querySelector("textarea");\n' +
+'  var bArgs = [iEditNodeId,txtNode.value];\n' +
+'  DCF.call("parent","saveSlideTxt",bArgs);\n' +
+'}\n' +
+'document.querySelector("textarea").value = ' + JSON.stringify(sTxt) + ';';
+    
+    var sHtml = '<div style="position:absolute; left:0px; top:0px; width:100%; height:28px; font-size:16px; background-color:#408080; color:white; text-align:center; line-height:28px; font-weight:600; cursor:default">Plain text editor</div><div style="width:100; height:28px"></div>\n';
+    sHtml += '<textarea style="width:' + (wd-24) + 'px; height:' + (hi-110) + 'px; resize:none"></textarea>\n';
+    sHtml += '<p><button onclick="finishEditing()">Apply</button></p>';
+    
+    this.showDlg({
+      left: Math.floor((window.innerWidth-wd)/2),
+      top: Math.floor((window.innerHeight-hi)/2),
+      width: wd, height: hi,
+      url: '/software/pages/simple_dialog.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: sHtml,
+      jsScript: sJsCode,
+    });
+  },
+  
+  editTableData: function(nodeId,b,iRow,iCol,sFont,sHint) {
+    var wd = Math.floor(window.innerWidth * 0.9);
+    var hi = Math.floor(window.innerHeight * 0.9);
+    
+    this.showDlg({
+      left: Math.floor((window.innerWidth-wd)/2),
+      top: Math.floor((window.innerHeight-hi)/2),
+      width: wd, height: hi,
+      url: 'table_editor.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: '',
+      jsScript: '',
+      
+      onReady: function() {
+        R.getDCF().call('wdPopDlgForm','initTableData',[nodeId,b,iRow,iCol,sFont,sHint]);
+      },
+    });
+  },
+  
+  editShapeData: function(nodeId,sCls,sImgList,sWidget,sStyle,sStyle2) {
+    var wd = Math.floor(window.innerWidth * 0.8);
+    var hi = Math.floor(window.innerHeight * 0.9);
+    
+    this.showDlg({
+      left: Math.floor((window.innerWidth-wd)/2),
+      top: Math.floor((window.innerHeight-hi)/2),
+      width: wd, height: hi,
+      url: 'pinp_shape_editor.html',
+      closable: true,
+      peerName: 'wdPopDlgForm',
+      bodyHtml: '',
+      jsScript: '',
+      
+      onReady: function() {
+        R.getDCF().call('wdPopDlgForm','initMask',[nodeId,sCls,sImgList,sWidget,sStyle,sStyle2]);
+      },
+    });
+  },
+  
+  setPopupRightWd: function(iRight) {
+    if (this.wdInfoMask.style.display != 'none') {
+      var sWd = (window.innerWidth - iRight) + 'px';
+      this.wdInfoMask.style.width = sWd
+      this.wd.style.width = sWd;
+    }
+  },
+  
+  editPaperData: function(nodeId,bArgs) {
+    var sProj = this.wdMarkdown.r.data.currProj;
+    if (!sProj) return;
+    var sPath = '/' + sProj + '/';
+    
+    var wd = window.innerWidth - 300;
+    var hi = window.innerHeight;
+    
+    var self = this;
+    this.showDlg({
+      left: 0,
+      top: 0,
+      width: wd, height: hi,
+      url: sPath + '?editing=1&paper=1',
+      closable: false,
+      peerName: '',
+      bodyHtml: '',
+      jsScript: '',
+      
+      onReady: function() {
+        var frm = self.wd.querySelector('iframe');
+        if (frm) {
+          frm.contentWindow.setEditingNode(nodeId,sPath);
+          frm.contentWindow.initPaper(bArgs); // bArgs:[sHtml,sCls,sName,sFont,sFont2,sFont3,sStyle,sPath]
+          
+          self.wdPreviewArea.style.display = 'none';
+          self.wdResPanel.style.height = (window.innerHeight - self.wdToolbar.clientHeight - 8) + 'px';
+          self.setPopupRightWd(300);
+        }
+      },
+    });
+  },
+};
+
+return {
+  Toolbar: Toolbar,
+  ProjList: ProjList,
+  SplitterA: SplitterA,
+  Markdown: Markdown,
+  ResPanel: ResPanel,
+  PreviewArea: PreviewArea,
+  PopDlgForm: PopDlgForm,
+};
+
+//=====================
+});  // end of define()
