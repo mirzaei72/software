@@ -1786,19 +1786,17 @@ var Markdown = {
           preNode.style.height = '580px';
           var frmNode = preNode.querySelector('iframe');
           if (frmNode) {
-            frmNode.parentNode.removeChild(frmNode);
             if (self.data.hasPreview) {
               adjust = true;
               scrollY = frmNode.contentWindow.document.body.scrollTop;
               isBtm = scrollY > 0 && (scrollY + preNode.clientHeight > preNode.scrollHeight - 16);
             }
+            frmNode.parentNode.removeChild(frmNode);
           }
           
           frmNode = document.createElement('iframe');
           frmNode.setAttribute('frameborder','0');
           frmNode.setAttribute('border','0');
-          frmNode.setAttribute('width',window.innerWidth + ''); // set max width
-          frmNode.setAttribute('height',preNode.clientHeight + '');
           frmNode.onload = function(event) {
             frmNode.contentWindow.document.body.innerHTML = sHtml;
             self.data.hasPreview = true;
@@ -1815,20 +1813,6 @@ var Markdown = {
           preNode.appendChild(frmNode);
           frmNode.src = '/' + sProj + '/?__EMPTY__';
         });
-/*        
-        var scrollY = (self.data.hasPreview)? preNode.scrollTop: 0;
-        var isBtm = self.data.hasPreview && preNode.scrollTop > 0 && (preNode.scrollTop + preNode.clientHeight > preNode.scrollHeight - 10);
-        require(['js/marked.min'], function(marked) {
-          var sHtml = marked(txtNode.value);
-          preNode.innerHTML = sHtml;
-          self.data.hasPreview = true;
-          self.wdProjList.r.fire('resized');
-          setTimeout( function() {
-            if (isBtm)
-              preNode.scrollTop = preNode.scrollHeight;
-            else preNode.scrollTop = scrollY;
-          },500);
-        });  */
       }
     }
   },
