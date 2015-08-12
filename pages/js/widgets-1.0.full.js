@@ -1412,6 +1412,7 @@ var Markdown = {
             
             success: function(res) {
               githubCfgSha['/' + sAlias + '/' + sTxtFile] = res.content.sha;
+              self.data.changed = false;
               whenDone('Submit project successful');
             },
             error: function(res) {
