@@ -3328,7 +3328,7 @@ var PopDlgForm = {
             sSha = oldFile.sha;
           }
         }
-        var sInput = 'COMPONENT_OF_PINP_SLIDE,2,<page/>\n';
+        var sInput = 'COMPONENT_OF_PINP_SLIDE,2,<page/>\nCOMPONENT_OF_PINP_SLIDE,1,<div class="ebook-title" _zindex="1000" _config="default-large-small default-looser-impacted default-hidden" _left="-348" _top="-144" _width="680"><h1>Title Goes Here Up<br>To Two Lines</h1></div>\n<div class="p1-p2-p3-p0" _zindex="1000" _config="default-large-small default-looser-impacted p1-p2-p3-p0" _left="-344" _top="2" _width="500"><p>Your name<br>May 1, 2015</p></div>';
         var dOp = { path:txtPath, message:sNowDate,
                     content:Gh3.Base64.encode(sInput), branch: 'gh-pages' };
         if (sSha) dOp.sha = sSha;
