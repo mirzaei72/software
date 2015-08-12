@@ -1789,15 +1789,17 @@ var Markdown = {
             if (self.data.hasPreview) {
               adjust = true;
               scrollY = frmNode.contentWindow.document.body.scrollTop;
-              isBtm = scrollY > 0 && (scrollY + preNode.clientHeight > preNode.scrollHeight - 16);
+              isBtm = scrollY > 0 && (scrollY + preNode.clientHeight > frmNode.contentWindow.document.body.scrollHeight - 30);
             }
             frmNode.parentNode.removeChild(frmNode);
           }
           
+          console.log('here',adjust,scrollY,isBtm);
           frmNode = document.createElement('iframe');
           frmNode.setAttribute('frameborder','0');
           frmNode.setAttribute('border','0');
           frmNode.onload = function(event) {
+            frmNode.contentWindow.document.body.style.overflowX = 'hidden'; // default is auto
             frmNode.contentWindow.document.body.innerHTML = sHtml;
             self.data.hasPreview = true;
             self.wdProjList.r.fire('resized');
