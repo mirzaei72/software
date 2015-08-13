@@ -1620,6 +1620,9 @@ var Markdown = {
       
       var sUrl = '/' + sProj + '/?editing=1';
       var nextStep = function() {
+        self.wdPreviewArea.r.data.frameReady = false;  // avoid notify to old preview
+        self.wdPreviewArea.r.data.pages = [];
+        
         frmNode.onerror = function(errMsg) {
           whenDone(errMsg+'');
         };
@@ -2843,9 +2846,6 @@ var PreviewArea = {
       var holder = this.wd.querySelector('div.preview-ss');
       var holder2 = this.wd.querySelector('div.preview-inst');
       if (holder && holder2) {
-        this.data.frameReady = false;
-        this.data.pages = [];
-        
         var iHi = Math.max(window.innerHeight - 38 - 480 - 10,100);
         var iHi2 = Math.max(window.innerHeight - 38 - 480 - 8,100);
         holder.style.height = iHi + 'px';
@@ -2855,6 +2855,7 @@ var PreviewArea = {
         if (!frmNode2) {
           frmNode2 = document.createElement('iframe');
           frmNode2.setAttribute('frameborder','0');
+          frmNode2.setAttribute('border','0');
           frmNode2.setAttribute('width',window.innerWidth+'');
           frmNode2.setAttribute('height',iHi2+'');
           holder2.appendChild(frmNode2);
@@ -2872,6 +2873,7 @@ var PreviewArea = {
           frmNode = document.createElement('iframe');
           frmNode.setAttribute('id','frm-preview');
           frmNode.setAttribute('frameborder','0');
+          frmNode.setAttribute('border','0');
           frmNode.setAttribute('width',window.innerWidth+'');
           frmNode.setAttribute('height',iHi+'');
           holder.appendChild(frmNode);
