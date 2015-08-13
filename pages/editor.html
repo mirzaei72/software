@@ -192,7 +192,7 @@ img.head-rotate {
 }
 </style>
 <div class="head-toolbar" on-click="ssHeadbarClick">
-  <img name="refresh" title="Renew project list or relogin" src="prj_refresh.png"><img name="CreatePrj" title="New project" src="prj_add.png"><img name="RemovePrj" title="Remove project" src="prj_rmv.png"><img name="CreateSubPrj" title="New sub-project" src="prj_addsub.png"><span>&nbsp;&nbsp;</span><img name="EditPrj" title="Edit project" src="prj_edit.png"><img name="SharePrj" title="Share project" src="prj_share.png"><img name="SubmitPrj" title="Submit project" src="prj_submit.png" style="width:{{submitWd}}"><img name="TransPrj" title="Translate markdown (Ctrl+M)" src="prj_trans.png" style="width:{{transWd}}">
+  <img name="refresh" title="Renew project list or relogin" src="prj_refresh.png"><img name="CreatePrj" title="New project" src="prj_add.png"><img name="RemovePrj" title="Remove project" src="prj_rmv.png"><img name="CreateSubPrj" title="New sub-project" src="prj_addsub.png"><span>&nbsp;&nbsp;</span><img name="EditPrj" title="Edit project" src="prj_edit.png"><img name="SharePrj" title="Share project" src="prj_share.png"><img name="SubmitPrj" title="Submit project" src="prj_submit.png" style="width:{{submitWd}}"><img name="TransPrj" title="Translate markdown (Ctrl+M)" src="prj_trans.png" style="width:{{transWd}}"><img name="PageGrid" title="Show/hide page grid" src="prj_grid.png" style="width:{{gridWd}}">
   <span style="max-width:500px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{{infoTitle}}}</span>
   <div style="float:right; width:4px; height:100%"></div>
   {{#tools}}
@@ -205,6 +205,7 @@ img.head-rotate {
   "editingTitle": "",
   "submitWd": "0px",
   "transWd": "0px",
+  "gridWd": "0px",
   
   "tools": [
     {"name":"collapse", "rotateCls":"head-nohover", "title":"Collapse or expanding", "src":"res_collapse.png"},

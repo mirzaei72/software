@@ -154,6 +154,11 @@ var Toolbar = {
           self.wdMarkdown.r.startTransDoc();
         };
       }
+      else if (node.name == 'PageGrid') {
+        node.onclick = function(event) {
+          self.wdMarkdown.r.showPageGrid();
+        };
+      }
     }
     
     var collapseNode = self.wd.querySelector('img.head-nohover');
@@ -219,10 +224,12 @@ var Toolbar = {
     if (sType == 'blog') {
       this.data.submitWd = "32px";
       this.data.transWd = "32px";
+      this.data.gridWd = "0px";
     }
     else if (sType == 'sshow') {
       this.data.submitWd = "32px";
       this.data.transWd = "0px";
+      this.data.gridWd = "32px";
     }
     
     var ss = sAcl + ': ' + sProj;
@@ -1764,6 +1771,28 @@ var Markdown = {
     }
     else if (sProj.slice(sProj.length-6) == '.sshow') {
       this.postSlideMsg('startSave',[sProj]);
+    }
+  },
+  
+  showPageGrid: function() {
+    var frmNode = this.wd.querySelector('iframe.markdown-frame');
+    if (!frmNode) return;
+    var doc = frmNode.contentDocument;
+    if (doc) {
+      var pgNode = doc.querySelector('section.slides');
+      if (pgNode) {
+        if (pgNode.style.backgroundImage && pgNode.style.backgroundImage != 'none') {
+          pgNode.style.backgroundImage = 'none';  // clear background
+          pgNode.classList.remove('no-ground');
+        }
+        else { // set background
+          pgNode.classList.add('no-ground');
+          pgNode.style.backgroundImage = 'url(/software/pages/page_grid.svg)';
+          pgNode.style.backgroundPosition = 'center center';
+          pgNode.style.backgroundSize = '900px 700px';
+          pgNode.style.backgroundRepeat = 'no-repeat';
+        }
+      }
     }
   },
   
