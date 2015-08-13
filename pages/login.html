@@ -6,8 +6,9 @@
 <script src='js/jquery-2.1.0.min.js'></script>
 
 <script type='text/javascript'>
-var sAccSak   = '';
-var sAccTask  = '';
+var sAccSak  = '';
+var sAccTask = '';
+var sAccDesc = '';
 
 var PINP_HOST_DOMAIN = 'www.pinp.me';
 
@@ -58,15 +59,16 @@ function parseParam(sArg) {
   return d;
 }
 
-function gotoEditor(sName) {
+function gotoNextStep(sName) {
   var sUrl = '//' + PINP_HOST_DOMAIN + '/software/pages/blogger/goto_task.action?info=' + sAccSak;
-  sUrl += '&task=editor&login=' + sName;
+  sUrl += '&task=' + sAccTask + '&login=' + sName;  // sAccTask/sName no need encode
   location.replace(sUrl);
 }
 
 window.addEventListener('load', function(event) {
   var param = parseParam(location.search);
   sAccTask = param.task || '';
+  sAccDesc = decodeURIComponent(param.btn || 'Next');
   sAccSak = param.info || '';
   if (!sAccTask || !sAccSak) return;
   
@@ -97,8 +99,8 @@ window.addEventListener('load', function(event) {
       if (currUser) {
         sHtml = '<div class="info-box"><div class="info-header"><h2>Login successful</h2></div>';
         sHtml += '<div class="info-body"><p>Hi ' + htmlEncode(currUser.name || currUser.login) + ',<br><br>You have logined with github account!</p>';
-        if (sAccTask == 'editor') {
-          sHtml += '<p><br><button onclick=\'gotoEditor("' + currUser.login + '")\'>Open Online Editor</button></p>';
+        if (sAccTask) {
+          sHtml += '<p><br><button onclick=\'gotoNextStep("' + currUser.login + '")\'>' + htmlEncode(sAccDesc) + '</button></p>';
         }
         sHtml += '</div></div>';
       }

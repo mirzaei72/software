@@ -1780,24 +1780,26 @@ var Markdown = {
       var preNode = self.wdPreviewArea.querySelector('.preview-md');
       if (preNode) {
         require(['js/marked.min'], function(marked) {
-          var adjust = false, scrollY = 0, isBtm = false;
+          var adjust = false, existOld = true, scrollY = 0, isBtm = false;
           var sHtml = marked(txtNode.value);
           
           preNode.style.height = '580px';
           var frmNode = preNode.querySelector('iframe');
-          if (frmNode) {
+          if (!frmNode) {
+            existOld = false;
+            frmNode = document.createElement('iframe');
+            frmNode.setAttribute('frameborder','0');
+            frmNode.setAttribute('border','0');
+            preNode.appendChild(frmNode);
+          }
+          else {
             if (self.data.hasPreview) {
               adjust = true;
-              scrollY = frmNode.contentWindow.document.body.scrollTop;
-              isBtm = scrollY > 0 && (scrollY + preNode.clientHeight > frmNode.contentWindow.document.body.scrollHeight - 30);
+              scrollY = frmNode.contentDocument.documentElement.scrollTop;
+              isBtm = scrollY > 0 && (scrollY + preNode.clientHeight > frmNode.contentDocument.documentElement.scrollHeight - 30);
             }
-            frmNode.parentNode.removeChild(frmNode);
           }
           
-          console.log('here',adjust,scrollY,isBtm);
-          frmNode = document.createElement('iframe');
-          frmNode.setAttribute('frameborder','0');
-          frmNode.setAttribute('border','0');
           frmNode.onload = function(event) {
             frmNode.contentWindow.document.body.style.overflowX = 'hidden'; // default is auto
             frmNode.contentWindow.document.body.innerHTML = sHtml;
@@ -1807,13 +1809,14 @@ var Markdown = {
             if (adjust) {
               setTimeout( function() {
                 if (isBtm)
-                  frmNode.contentWindow.document.body.scrollTop = frmNode.contentWindow.document.body.scrollHeight;
-                else frmNode.contentWindow.document.body.scrollTop = scrollY;
+                  frmNode.contentDocument.documentElement.scrollTop = frmNode.contentDocument.documentElement.scrollHeight;
+                else frmNode.contentDocument.documentElement.scrollTop = scrollY;
               },500);
             }
           };
-          preNode.appendChild(frmNode);
-          frmNode.src = '/' + sProj + '/?__EMPTY__';
+          if (existOld)
+            frmNode.contentDocument.location.reload();
+          else frmNode.src = '/' + sProj + '/?__EMPTY__';
         });
       }
     }
@@ -4462,7 +4465,7 @@ var PopDlgForm = {
 '    var sPage = (pgNode? pgNode.value.trim(): "");\n' +
 '    if (pgNode) sPrjUrl += "?size=0x0";\n' +
 '    if (sPage) sPrjUrl += "#" + sPage;\n' +
-'    sOut = \'<iframe frameborder="0" width="\' + sWd + \'" height="\' + sHi + \'" src="\' + sPrjUrl + \'"></iframe>\';\n' +
+'    sOut = \'<iframe frameborder="0" border="0" width="\' + sWd + \'" height="\' + sHi + \'" src="\' + sPrjUrl + \'"></iframe>\';\n' +
 '  }\n' +
 '  DCF.call("parent","dropTextInfo",[sOut]);\n' +
 '}\n';
