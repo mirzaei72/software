@@ -256,6 +256,44 @@ var githubRootCfg = {};
 var githubHomeCfg = {};
 var githubCfgList = [];  // hold builtin repo (from config.json)
 
+var PINP_PLUGINS = {};
+
+window.pluginOf = function(sId,onlyGet) {
+  if (!sId) return null;
+  var mod = PINP_PLUGINS[sId];
+  if (mod) {
+    if (!mod.title) return null; // plugin not ready yet
+  }
+  else {
+    mod = {};
+    if (!onlyGet)
+      PINP_PLUGINS[sId] = mod;
+  }
+  return mod;
+};
+
+(function(mod) {
+  mod.title = 'PINP';
+  mod.templateDir = [];
+  mod.getGitUser = function() {
+    return githubUser;
+  };
+  mod.setGitUser = function(usr) {
+    githubUser = usr;
+  };
+  mod.getGitToken = function() {
+    return githubToken;
+  };
+  mod.setGitToken = function(sTok) {
+    githubToken = sTok;
+    if (typeof Gh3 == 'object')
+      Gh3.access_token = sTok;
+  };
+  mod.getDCF = function() {
+    return R.getDCF();
+  };
+})(pluginOf('pinp')); // regist plugin module 'pinp'
+
 function gh3ErrDesc(err,res) {
   if (res.readyState < 4)
     return res.statusText || 'request abort';
@@ -1711,8 +1749,8 @@ var Markdown = {
           if (typeof s == 'string') {
             if (s == 'OK') {
               self.data.changed = false;
-              if (self.data.hasPreview)
-                self.startTransDoc();
+              // if (self.data.hasPreview)
+              //   self.startTransDoc();
               alert('Submit project successful');
             }
             else if (s == 'NOT_LOGIN')
@@ -1815,7 +1853,7 @@ var Markdown = {
           var adjust = false, existOld = true, scrollY = 0, isBtm = false;
           var sHtml = marked(txtNode.value);
           
-          preNode.style.height = '580px';
+          preNode.style.height = '540px';
           var frmNode = preNode.querySelector('iframe');
           if (!frmNode) {
             existOld = false;
@@ -2626,12 +2664,41 @@ var ResPanel = {
     }
   },
   
-  loadTemplate: function(sPath,loadingNd) { // sPath: software/pages/template
+  loadTemplate: function(sPath,loadingNd) { // sPath: software/pages/template, http://..., https://...
     if (!this.data.pages[0].isTemplate) return;
     if (!sPath) return;
     if (sPath[sPath.length-1] == '/') sPath = sPath.slice(0,-1);
-    var iPos = sPath.indexOf('/');
+    
+    var iPos, sPathHead='', sPathLogin='', isTempRoot=false;
+    if (sPath.indexOf('http://') == 0 || sPath.indexOf('https://') == 0) {
+      if (!githubUser) return;  // not login github yet
+      
+      iPos = sPath.indexOf('/',8);
+      if (iPos < 0) return;
+      sPathHead = sPath.slice(0,iPos); // http://xx.github.io  https://xx.github.io
+      if (sPathHead.slice(-10) != '.github.io') return;  // invalid template address
+      
+      sPathLogin = sPathHead.split('//')[1].split('.')[0];
+      sPathHead += '/';
+      sPath = sPath.slice(iPos+1);
+      isTempRoot = true;
+    }
+    else {
+      if (sPath == 'software/pages/template')
+        isTempRoot = true;
+    }
+    iPos = sPath.indexOf('/');
     if (iPos <= 0) return;
+    
+    var addExtendRoot = function(bList,idx) {
+      if (!isTempRoot) return;
+      var plg = window.pluginOf('pinp');
+      if (plg.templateDir) {
+        for (var i=0,item; item=plg.templateDir[i]; i++) {
+          bList.splice(idx,0,item);
+        }
+      }
+    };
     
     if (loadingNd)
       loadingNd.style.visibility = 'visible';
@@ -2642,9 +2709,10 @@ var ResPanel = {
     };
     
     var self=this, sAlias=sPath.slice(0,iPos), sPath_=sPath.slice(iPos+1);
-    if (githubSess) {
-      var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
-      aDir.fetchContents( function(err,res) { 
+    if (githubSess || sPathHead) {
+      var gitUsr = sPathHead? {login:sPathLogin}: githubUser;
+      var aDir = new Gh3.Dir({path:sPath_},gitUsr,sAlias,'gh-pages');
+      aDir.fetchContents( function(err,res) {
         if (err) {
           whenDone('load template (' + sPath_ + ') failed: ' + err.message);
           return;
@@ -2692,14 +2760,17 @@ var ResPanel = {
         if (sPath_.length > sRoot.length) {  // has up folder
           var bTmp = sPath_.split('/');
           bTmp.pop();
-          bList.push({isDir:true, name:'..', img:'file_up.png', url:sAlias+'/'+bTmp.join('/')});
+          bList.push({isDir:true, name:'..', img:'file_up.png', url:sPathHead+sAlias+'/'+bTmp.join('/')});
         }
         _.each(bDir,function(item) {
-          bList.push({isDir:true, name:item[0], img:'file_folder.png', url:sAlias+'/'+item[1]});
+          bList.push({isDir:true, name:item[0], img:'file_folder.png', url:sPathHead+sAlias+'/'+item[1]});
         });
+        if (isTempRoot) addExtendRoot(bList,bList.length);
+        
+        var sTmp = sPathHead? sPathHead+sAlias+'/': '/'+sAlias+'/';
         _.each(bFile,function(item) {
           var sBase = item.split('/').pop();
-          bList.push({isDir:false, name:sBase, img:'/'+sAlias+'/'+item});
+          bList.push({isDir:false, name:sBase, img:sTmp+item});
         });
         
         whenDone();
@@ -2940,6 +3011,10 @@ var PopDlgForm = {
       }
       return false;
     };
+    
+    DCF.regist('onLogin', function(bArgs) {
+      // do nothing
+    });
     
     DCF.regist('closeForm', function(bArgs) {
       self.data.retData = bArgs;
@@ -3292,6 +3367,7 @@ var PopDlgForm = {
       
       var oldCfgSha = githubCfgSha['/'+sAlias+'/config.json'];
       var txtPath = sPath_ + '/$index.txt';
+      var absPath = sPath_ + '/$abstract.txt';
       var idxPath = sPath_ + '/index.html';
       
       var whenDone = function(sErr) {
@@ -3299,7 +3375,7 @@ var PopDlgForm = {
           callback(sErr);
       };
       
-      // step 6: regist config.json
+      // step 7: regist config.json
       var registNewDoc = function() {
         if (isSubPrj) {
           self.wdProjList.r.addSubPrjNode(sAlias,[sCateProj,[sPrjName,false]]);
@@ -3346,7 +3422,7 @@ var PopDlgForm = {
         }
       };
       
-      // step 5: write index.html
+      // step 6: write index.html
       var writeIdxFile = function(sHtml,dirObj) {
         var sSha = '';
         if (dirObj) {
@@ -3375,7 +3451,7 @@ var PopDlgForm = {
         });
       };
       
-      // step 4: write $index.txt
+      // step 5: write $index.txt
       var writeTxtFile = function(sHtml,dirObj) {
         var sSha = '';
         if (dirObj) {
@@ -3405,19 +3481,48 @@ var PopDlgForm = {
         });
       };
       
+      // step 4: write $abstract.txt
+      var writeAbsFile = function(sHtml,dirObj) {
+        var sSha = '';
+        if (dirObj) {
+          var oldFile = dirObj.getFileByName('$abstract.txt');
+          if (oldFile) { // already exist, go to next step
+            writeTxtFile(sHtml,dirObj);
+            return;
+            sSha = oldFile.sha;
+          }
+        }
+        var sInput = sPrjName;
+        if (sInput.slice(-6) == '.sshow') sInput = sInput.slice(0,-6);
+        var dOp = { path:absPath, message:sNowDate,
+                    content:Gh3.Base64.encode(sInput), branch: 'gh-pages' };
+        if (sSha) dOp.sha = sSha;
+        
+        $.ajax( { type:'PUT',
+          url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + absPath + '?access_token=' + githubToken,
+          data: JSON.stringify(dOp),
+          success: function(res) {
+            writeIdxFile(sHtml,dirObj);
+          },
+          error: function(res) {
+            whenDone('Write (' + absPath + ') failed: ' + ajaxErrDesc(res,'message'));
+          },
+        });
+      };
+        
       // step 3: read project file tree
       var readProjTree = function(sHtml) {
         var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
         aDir.fetchContents(function(err,res) {
           if (err) {
             if (res.status == 404) {
-              writeTxtFile(sHtml,null);
+              writeAbsFile(sHtml,null);
               return;
             }
             whenDone('List directory (' + sPath_ + ') failed: ' + ajaxErrDesc(res,'message'));
             return;
           }
-          writeTxtFile(sHtml,aDir);
+          writeAbsFile(sHtml,aDir);
         });
       };
       

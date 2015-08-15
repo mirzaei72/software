@@ -81,6 +81,30 @@ function handleWinLoaded(event) {
     document.body.innerHTML = "<div>\n" + marked(sContent) + "\n</div>\n";
   else document.body.innerHTML = "";
   
+  var frameList = [];
+  var frmNodes = document.querySelectorAll('iframe[src]');
+  for (var i=0,frm; frm=frmNodes[i]; i++) {
+    frameList.push([frm,frm.src]);
+    frm.setAttribute('src','about:blank');
+  }
+  
+  var loadNextFrame = function(event) {
+    if (event) {
+      event.target.onload = null;
+      event.target.onerror = null;
+    }
+    
+    var item = frameList.shift();
+    if (item) {
+      var frm=item[0], sUrl=item[1];
+      frm.onload = loadNextFrame;
+      frm.onerror = loadNextFrame;
+      frm.setAttribute('src',sUrl);
+    }
+    // else, all loaded
+  };
+  loadNextFrame();
+  
   getAsynRequest("$abstract.txt", function(sAbs) {
     if (sAbs) {
       var bTmp = sAbs.split("\n");

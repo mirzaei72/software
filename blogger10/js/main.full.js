@@ -322,7 +322,8 @@ function repoAllListByCate(sCurrCate) {
   }
   if (bCate.length == 0 || bCate.indexOf(sCurrCate) < 0) return;
   
-  // step 4: sort bList
+  // step 4: sort bCate, bList
+  bCate.sort();
   bList.sort(function(a,b){return b[7]-a[7];}); // newest modify is first
   
   // step 5: update cate list
@@ -401,6 +402,7 @@ function queryBodyContent(dCfg) {
   }
   
   // step 2: add category list to div.area-dir
+  bCate.sort();
   var sHtml='<p>', dirNodes=document.querySelector('#top-nav > div.area-dir');
   for (var i=0,item; item=bCate[i]; i++) {
     sHtml += '<span class="btn-dir' + (i==cateIndex?' current':'') + '"';

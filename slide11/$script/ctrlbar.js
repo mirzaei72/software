@@ -1,1 +1,1 @@
-// console.log('barctrl.js loaded');
+// console.log('ctrlbar.js loaded');
