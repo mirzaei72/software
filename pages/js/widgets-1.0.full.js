@@ -274,6 +274,8 @@ window.pluginOf = function(sId,onlyGet) {
 
 (function(mod) {
   mod.title = 'PINP';
+  mod.version = '1.0.0';
+  
   mod.templateDir = [];
   mod.getGitUser = function() {
     return githubUser;
@@ -650,10 +652,8 @@ var ProjList = {
     
     var clickCateNode = function(node) {
       var last = self.wd.querySelector('.prj-item.prj-selected');
-      if (last) {
-        if (last === node) return;
+      if (last)
         last.classList.remove('prj-selected');
-      }
       var nodes = self.wd.querySelectorAll('.prj-item.prj-show');
       for (var i=0,item; item=nodes[i]; i++) {
         item.classList.remove('prj-show');
@@ -666,6 +666,8 @@ var ProjList = {
       for (var i=0,item; item=nodes[i]; i++) {
         item.parentNode.removeChild(item);
       }
+      
+      if (last === node) return;  // selected --> unselected
       
       node.classList.add('prj-selected');
       var sTitle = node.getAttribute('title');
@@ -4416,7 +4418,7 @@ var PopDlgForm = {
       sHtml += 'category';
     else sHtml += 'category or leave it empty';
     sHtml += ')</span><br><input name="prjPath" type="text" style="width:340px" value="" onchange="cfgModified(event)"></p>\n';
-    sHtml += '<p>Project name<br><input type="text" name="prjName" style="width:340px" value="" onchanged="cfgModified(event)"></p></form>\n';
+    sHtml += '<p>Project name<br><input type="text" name="prjName" style="width:340px" value="" onchange="cfgModified(event)"></p></form>\n';
     sHtml += '<p><button id="btn-apy" onclick="applyCreatePrj()">Apply</button></p>';
     
     var hi = 380;

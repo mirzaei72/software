@@ -278,7 +278,9 @@ var myOption = defaultOption;
 
 function performBuild(noReset) {
   if (!myChart) {
-    InitPinpChart();
+    setTimeout(function() {
+      InitPinpChart();
+    },100);
     return;
   }
   

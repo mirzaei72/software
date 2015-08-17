@@ -286,7 +286,9 @@ var XAxisUnit = '';
 
 function performBuild(noReset) {
   if (!myChart) {
-    InitPinpChart();
+    setTimeout(function() {
+      InitPinpChart();
+    },100);
     return;
   }
   
