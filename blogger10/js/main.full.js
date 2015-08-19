@@ -187,7 +187,7 @@ function repoCateDocList(dCfg,sCate) {
   
   for (var i=0,item; item=bDoc[i]; i++) { // bDoc already has sorted
     var iFlag = item.flag || 3;
-    if (item.path.indexOf(sPrefix) == 0 && (iFlag&0x100) == 0) {
+    if (item.path.indexOf(sPrefix) == 0 && (iFlag & 0x100) == 0) {
       var sImgUrl = item.thumb || '';
       if (sImgUrl && sImgUrl[0] == '$' && sImgUrl[1] == '$')
         sImgUrl = repoUrl + sImgUrl;
@@ -300,6 +300,9 @@ function repoAllListByCate(sCurrCate) {
       
       // step 2: count category and unread number
       if (!sCate) continue;
+      var iFlag = item2.flag || 3;
+      if ((iFlag & 0x100) != 0) continue; // the document is hidden
+      
       var iNum = dUnread[sCate];
       if (typeof iNum != 'number') {
         dUnread[sCate] = (item2.isUnread?1:0);
@@ -311,8 +314,7 @@ function repoAllListByCate(sCurrCate) {
       }
       
       // step 3: add item-info if cate matched
-      var iFlag = item2.flag || 3;
-      if (sPath.indexOf(sPrefix) == 0 && (iFlag&0x100) == 0) {
+      if (sPath.indexOf(sPrefix) == 0) {
         var sImgUrl = item2.thumb || '';
         if (sImgUrl && sImgUrl[0] == '$' && sImgUrl[1] == '$')
           sImgUrl = repoUrl + sImgUrl;
@@ -379,6 +381,9 @@ function queryBodyContent(dCfg) {
   for (var i=0,item; item=bDoc[i]; i++) {
     var s = item.path || '';
     if (s.slice(0,2) == '$$') {
+      var iFlag = item.flag || 3;
+      if ((iFlag & 0x100) != 0) continue;
+      
       var sCate, iPos=s.indexOf('/');
       if (iPos > 2)
         sCate = s.slice(2,iPos);
