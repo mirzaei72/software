@@ -1,7 +1,7 @@
 ﻿Blogger Ver 1.0
 ===============
 
-Blog is markdown tool that powered by PINP (PINP Is Not PPT) system,
+Blogger is markdown tool that powered by PINP (PINP Is Not PPT) system,
 Writing markdown file ($index.md) in text editor and preview it in 
 PINP browser, you can embed PINP slide into markdown file in &lt;iframe&gt;
 tag.

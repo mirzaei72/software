@@ -40,7 +40,7 @@ PINP DOC 采用静态页格式组织博客与演示胶片，只须将静态托�
 看起来不错，那我该如何创建一个属于我自己的免费博客系统呢？请按如下步骤操作，就三步。
 
 第一步：创建 github 帐号。  
- > 如果您已在 github 注册账号了，忽略这一步。进入 <a target="_blank" href="https://github.com/">github首页</a>，点 **Sign up** 按钮，按界面提示进行注册即可。
+ > 进入 <a target="_blank" href="https://github.com/">github首页</a>，点 **Sign up** 按钮，按界面提示进行注册即可。如果您已在 github 注册账号了，请忽略这一步。
 
 &nbsp;
 

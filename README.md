@@ -7,7 +7,7 @@ Chinese version: [习惯看中文的朋友请点这里](README_zh.md)
 
 ## Introduce
 
-<a target="_blank" href="http://www.pinp.me/www/www/">PINP</a> (*PINP Is Not PPT*) is PPT-like presentation system which powered by HTML5/CSS3.
+<a target="_blank" href="http://www.pinp.me/www/www/">PINP</a> (*PINP Is Not PPT*) is PPT-like presentation system which is based on HTML5/CSS3.
 
 PINP also supports [Markdown](http://daringfireball.net/projects/markdown/) blog writing, any slide page can embed into blog. So, PINP blog is sample and easy to use that just as *Markdown* looks like, and it enhance blog's representation also, <a target="_blank" href="//best-js.github.io/blog/$$English/1.online_blog.blog/">it is sample</a>.
 
@@ -32,7 +32,7 @@ PINP is mature document system which is released at 2 years ago, it comes with c
 
 The blog system is depend on the feature of [github pages](https://pages.github.com/), in one word, when you create a public repository in github.com and set `gh-pages` as default branch, you can visit your static WEB files (such as html, css, js, etc) by URL `<username>.github.io/<repository>/index.html`, and it is important, github pages is **free**!
 
-So, when static WEB files are organized as PINP DOC required, they would served as PINP blog and slide system.
+So, when static WEB files are organized as PINP DOC required, they would served as PINP blog and slide documents.
 
 &nbsp;
 
@@ -46,20 +46,20 @@ Step 1: Create github account
 &nbsp;
 
 Step 2: Fork PINP supports repository (i.e. pinp/software)   
- > Open github repository: <a target="_blank" href="https://github.com/pinp/software">pinp/software</a>, then click **Fork** button to clone it to your account. Then, select `software/blogger10.json` file and edit it, change the value of `home_repository` to `blog`, as following diagram shown:   
+ > Open github repository: <a target="_blank" href="https://github.com/pinp/software">pinp/software</a>, then click **Fork** button to clone it to your account. Then, select `software/blogger10.json` file and edit it, set the value of `home_repository` to `blog`, as following diagram.   
 ![config blogger10.json](config_root.png)   
-The value "`blog`" is a repository that will be cloned at next step, it is used to denote where is the root of PINP blog, then, click **Commit changes** button to apply modification.
+The value "`blog`" is another repository which will be cloned at next step, it use for denoting which is root blog, then, click **Commit changes** button to apply the modification.
 
 &nbsp;
 
 Step 3: Fork blog repository (i.e. pinp/blog)   
- > Open github repository: <a target="_blank" href="https://github.com/pinp/blog">pinp/blog</a>, click **Fork** button to clone it to your account. Then, select `blog/config.json.json` file and edit it, change the value of `user_name` to your registed username, change the value of `repos_name` to `blog`, as following diagram shown (suppose username is `best-js`):   
+ > Open github repository: <a target="_blank" href="https://github.com/pinp/blog">pinp/blog</a>, click **Fork** button to clone it to your account. Then, select `blog/config.json.json` file and edit it, set the value of `user_name` to your registed username, set the value of `repos_name` to `blog`, as following diagram (suppose username is `best-js`).   
 ![config config.json](config_blog.png)   
-Next, click **Commit changes** button to apply modification.
+Next, click **Commit changes** button to apply the modification.
 
 &nbsp;
 
-Your blog system is ready by now, please visit it by `https://<username>.github.io/blog/` (you should replace `<username>` to your registed name), the new created blog <a target="target" href="//best-js.github.io/blog/">looks like this</a>.
+Your blog system should be ready by now, please visit it by `https://<username>.github.io/blog/` (you should replace `<username>` to your registed name), the new created blog <a target="target" href="//best-js.github.io/blog/">looks like this</a>.
 
 Blog homepage <a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">can be opened directly</a> when you current reading yourself's `README` file.
 
@@ -69,7 +69,7 @@ Blog homepage <a target="_blank" href="https://www.pinp.me/software/pages/blogge
 
 A set of "Online help" documents will be installed into your blog, include such things:
 
- - Online help, introduce how to edit DOC online and offline
+ - Online help, introduce how to edit blog online, or offline
  - Todo list, progress plan
  - News and activity report
 
