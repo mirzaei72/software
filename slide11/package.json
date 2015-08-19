@@ -8,7 +8,7 @@
     "dependencies": {
         "PINP": "1.0.6"
     },
-    "repository": "git://github.com/pinp/slide11",
+    "repository": "git://github.com/pinp/software.git",
     "main": "slide11",
     "homepage": "http://www.pinp.me/"
 }

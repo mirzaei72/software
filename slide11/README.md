@@ -24,15 +24,9 @@ and a set of extensible framework, PinpSlide is one APP which run in PINP
 system. PinpSlide is an opensource project which follow BSD license, 
 whereas PINP is a shareware.
 
-How to use this package?
--------------------------
-You can find PinpSlide folder (<install_dir>/pinp.me/software/slide11) after 
-PINP Client Tool installed, download this package, copy files and overwrite 
-all things that in old folder.
-
 PinpSlide on Github
 -------------------
-https://github.com/pinp/slide11
+https://github.com/pinp
 
 
 Detail information

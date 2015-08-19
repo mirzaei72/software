@@ -975,6 +975,7 @@ window.addEventListener('load', function(event) {
     var param = parseParam(location.search);
     autoOpenURL = decodeURIComponent(param.opendoc || '');
     
+    var rootRepo_ = '//' + docConfig.user_name + '.github.io/' + docConfig.repos_name;
     for (var i=0; i < 2; i++) {
       var b = (i==0?docConfig.builtin_repos:docConfig.imported_repos) || [];
       var sUser = docConfig.user_name;
@@ -989,11 +990,15 @@ window.addEventListener('load', function(event) {
         else continue;
         
         var repoName = sUrl.split('/').pop();
-        if (i == 0)
+        if (i == 0) {
+          if (repoName == docConfig.repos_name)
+            continue;
           sUrl = '/' + repoName; // if builtin repo force use '/repoName'
+        }
         else {
           if (sUrl[sUrl.length-1] == '/')
             sUrl = sUrl.slice(0,sUrl.length-1);
+          if (rootRepo_ == sUrl) continue;
         }
         var sPath = sUrl + '/';
         sUrl += '/config.json';
