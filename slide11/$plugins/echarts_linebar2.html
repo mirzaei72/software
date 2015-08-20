@@ -45,6 +45,8 @@ function GetMouseOffset(object,off) {
 }
 
 function docOnClick(event) {
+  if (event.button != 0) return; // not left mouse button
+  
   var frameNode = getOwnerFrameNode();
   if (frameNode) {
     var compnNode = frameNode.parentNode;
@@ -139,6 +141,24 @@ function docOnMouseUp(event) {
   }
 }
 
+function docOnContextmenu(event) {
+  var frameNode = getOwnerFrameNode();
+  if (frameNode) {
+    var compnNode = frameNode.parentNode;
+    if (compnNode) {
+      var currSlide = compnNode.parentNode;
+      var ownerWin = window.parent.window;
+      if (currSlide && currSlide.nodeName == 'ARTICLE' && ownerWin.handleDomContext) {
+        var off = {x:0, y:0};
+        GetMouseOffset(compnNode,off);
+        event._clientX = off.x + event.clientX;
+        event._clientY = off.y + event.clientY;
+        ownerWin.handleDomContext(event);
+      }
+    }
+  }
+}
+
 // left/up/right/down/enter/esc/space/pgup/pgdn/end/home/del
 var RsvdKeyEventCode_ = [37,38,39,40,13,27,32,33,34,35,36,46];
 
@@ -169,6 +189,7 @@ function docOnLoad() {
     document.addEventListener('mousedown',docOnMouseDn,false);
     document.addEventListener('mousemove',docOnMouseMv,false);
     document.addEventListener('mouseup',docOnMouseUp,false);
+    document.addEventListener('contextmenu',docOnContextmenu,false);
     
     document.body.onresize = function(event) {
       var now = (new Date()).valueOf();

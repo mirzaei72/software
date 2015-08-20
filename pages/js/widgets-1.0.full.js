@@ -2382,13 +2382,13 @@ var ResPanel = {
         };
         
         var uploadBase64 = function(sInput) {
-      	  var ii = sInput.indexOf(';base64,'), sBaseHead='';
-      	  if (ii > 0 && ii < 64) {
-      	    sBaseHead = sInput.slice(0,ii+8);
-      	    sInput = sInput.slice(ii+8);
-      	  }
-      	  
-      	  var sPath_ = sPath + '/' + sFileName;
+          var ii = sInput.indexOf(';base64,'), sBaseHead='';
+          if (ii > 0 && ii < 64) {
+            sBaseHead = sInput.slice(0,ii+8);
+            sInput = sInput.slice(ii+8);
+          }
+          
+          var sPath_ = sPath + '/' + sFileName;
           $.ajax( { type: 'PUT',
             url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + sPath_ + '?access_token=' + githubToken,
             data: JSON.stringify({ 'path': sPath_,
@@ -2420,11 +2420,11 @@ var ResPanel = {
         };
         
         if (file2Base) {
-        	var reader = new FileReader();
-        	reader.onload = function(event) {
-        	  uploadBase64(reader.result); // data:image/jpeg;base64,...
-        	};
-        	reader.readAsDataURL(f);
+          var reader = new FileReader();
+          reader.onload = function(event) {
+            uploadBase64(reader.result); // data:image/jpeg;base64,...
+          };
+          reader.readAsDataURL(f);
         }
         else {
           if (!urlData || sEncode != 'base64')
@@ -2494,7 +2494,11 @@ var ResPanel = {
         dropUploadFiles(files);
       else { // drag an image and drop, we try convert it to base64 then upload it
         var sFile='', sBase='', sExt='', imgUrl=event.dataTransfer.getData('url') || '';
-        if (imgUrl) sFile = imgUrl.split('?')[0].split('/').pop();
+        if (imgUrl) {
+          var iPos = imgUrl.indexOf(';base64,');
+          if (iPos > 0 && iPos < 64) return;  // not URI format
+          sFile = imgUrl.split('?')[0].split('/').pop();
+        }
         if (sFile) {
           var b = sFile.split('.');
           if (b.length >= 2) {
@@ -2517,9 +2521,9 @@ var ResPanel = {
       setTimeout(function() {
         var fileDrag = document.getElementById('dragndropimage');
         if (fileDrag) {
-    		  fileDrag.addEventListener("dragover",FileDragHover,false);
-  		    fileDrag.addEventListener("dragleave",FileDragHover,false);
-  		    fileDrag.addEventListener("drop",FileSelectHandler,false);
+          fileDrag.addEventListener("dragover",FileDragHover,false);
+          fileDrag.addEventListener("dragleave",FileDragHover,false);
+          fileDrag.addEventListener("drop",FileSelectHandler,false);
         }
       },0);
     }
