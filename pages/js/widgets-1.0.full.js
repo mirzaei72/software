@@ -203,10 +203,12 @@ var Toolbar = {
   },
   
   selectProj: function(sProj,sAcl) {
-    var ss = sAcl + ': <a target="_blank" href="/' + sProj + '/">' + sProj + '</a>';
-    if (ss == this.data.infoTitle) return;
-    var infoId = this.data.infoId + 1;
+    var sUrl = '/' + sProj + '/';
+    if (sUrl == this.data.infoUrl) return;
+    this.data.infoUrl = sUrl;
     
+    var ss = sAcl + ': <a target="_blank" href="' + sUrl + '?_=' + (new Date()).valueOf() + '">' + sProj + '</a>';
+    var infoId = this.data.infoId + 1;
     this.data.infoId = infoId;
     this.data.infoTitle = ss;
     this.update();
@@ -1638,7 +1640,9 @@ var Markdown = {
             return;
           }
           githubCfgSha['/' + sAlias + '/' + sPath_ + '/$index.md'] = aFile.sha;
-          nextStep(aFile.getRawContent());
+          var sMdTxt = aFile.getRawContent();
+          if (sMdTxt && sMdTxt.charCodeAt(0) == 0xFEFF) sMdTxt = sMdTxt.slice(1);
+          nextStep(sMdTxt);
         });
         return;
       }
@@ -3261,7 +3265,9 @@ var PopDlgForm = {
           url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + idxPath + '?access_token=' + githubToken,
           data: JSON.stringify(dOp),
           success: function(res) {
-            registNewDoc();
+            setTimeout( function() {
+              registNewDoc();
+            },500);  // avoid write too fast
           },
           error: function(res) {
             whenDone('Write (' + idxPath + ') failed: ' + ajaxErrDesc(res,'message'));
@@ -3290,7 +3296,9 @@ var PopDlgForm = {
           url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + mdPath + '?access_token=' + githubToken,
           data: JSON.stringify(dOp),
           success: function(res) {
-            writeIdxFile(sHtml,dirObj);
+            setTimeout( function() {
+              writeIdxFile(sHtml,dirObj);
+            },500);  // avoid write too fast
           },
           error: function(res) {
             whenDone('Write (' + mdPath + ') failed: ' + ajaxErrDesc(res,'message'));
@@ -3334,6 +3342,7 @@ var PopDlgForm = {
           url: '//' + githubUser.login + '.github.io/software/blogger10/markdown.md',
           dataType: 'text',
           success: function(res) {
+            if (res && res.charCodeAt(0) == 0xFEFF) res = res.slice(1);
             readIdxHtml(res);
           },
           error: function(res) {
@@ -3449,7 +3458,9 @@ var PopDlgForm = {
           url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + idxPath + '?access_token=' + githubToken,
           data: JSON.stringify(dOp),
           success: function(res) {
-            registNewDoc();
+            setTimeout( function() {
+              registNewDoc();
+            },500);  // avoid write too fast
           },
           error: function(res) {
             whenDone('Write (' + idxPath + ') failed: ' + ajaxErrDesc(res,'message'));
@@ -3479,7 +3490,9 @@ var PopDlgForm = {
           url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + txtPath + '?access_token=' + githubToken,
           data: JSON.stringify(dOp),
           success: function(res) {
-            writeIdxFile(sHtml,dirObj);
+            setTimeout( function() {
+              writeIdxFile(sHtml,dirObj);
+            },500); // avoid write too fast
           },
           error: function(res) {
             whenDone('Write (' + txtPath + ') failed: ' + ajaxErrDesc(res,'message'));
@@ -3508,7 +3521,9 @@ var PopDlgForm = {
           url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + absPath + '?access_token=' + githubToken,
           data: JSON.stringify(dOp),
           success: function(res) {
-            writeTxtFile(sHtml,dirObj);
+            setTimeout( function() {
+              writeTxtFile(sHtml,dirObj);
+            },500);  // avoid write too fast
           },
           error: function(res) {
             whenDone('Write (' + absPath + ') failed: ' + ajaxErrDesc(res,'message'));
@@ -4347,7 +4362,9 @@ var PopDlgForm = {
         if (!err) {
           sSha = aFile.sha;
           
-          var sTxt=aFile.getRawContent(), b=sTxt.split('\n');
+          var sTxt = aFile.getRawContent();
+          if (sTxt && sTxt.charCodeAt(0) == 0xFEFF) sTxt = sTxt.slice(1);
+          var b = sTxt.split('\n');
           sTitle = (b[0] || '').trim().replace(/"/gm,'');
           sDesc = (b[1] || '').trim().replace(/"/gm,'');
           sKeyword = (b[2] || '').trim().replace(/"/gm,'');
