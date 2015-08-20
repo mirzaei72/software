@@ -3508,7 +3508,7 @@ var PopDlgForm = {
           url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/' + absPath + '?access_token=' + githubToken,
           data: JSON.stringify(dOp),
           success: function(res) {
-            writeIdxFile(sHtml,dirObj);
+            writeTxtFile(sHtml,dirObj);
           },
           error: function(res) {
             whenDone('Write (' + absPath + ') failed: ' + ajaxErrDesc(res,'message'));
