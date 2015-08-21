@@ -47,21 +47,34 @@ Step 1: Create github account
 
 Step 2: Fork PINP supports repository (i.e. pinp/software)   
  > Open github repository: <a target="_blank" href="https://github.com/pinp/software">pinp/software</a>, then click **Fork** button to clone it to your account. Then, select `software/blogger10.json` file and edit it, set the value of `home_repository` to `blog`, as following diagram.   
-![config blogger10.json](config_root.png)   
+![config blogger10.json](pages/config_root.png)   
 The value "`blog`" is another repository which will be cloned at next step, it use for denoting which is root blog, then, click **Commit changes** button to apply the modification.
 
 &nbsp;
 
 Step 3: Fork blog repository (i.e. pinp/blog)   
  > Open github repository: <a target="_blank" href="https://github.com/pinp/blog">pinp/blog</a>, click **Fork** button to clone it to your account. Then, select `blog/config.json.json` file and edit it, set the value of `user_name` to your registed username, set the value of `repos_name` to `blog`, as following diagram (suppose username is `best-js`).   
-![config config.json](config_blog.png)   
+![config config.json](pages/config_blog.png)   
 Next, click **Commit changes** button to apply the modification.
 
 &nbsp;
 
-Your blog system should be ready by now, please visit it by `https://<username>.github.io/blog/` (you should replace `<username>` to your registed name), the new created blog <a target="target" href="//best-js.github.io/blog/">looks like this</a>.
+Your blog system should be ready by now, please visit it by `https://<username>.github.io/blog/` (you should replace `<username>` to your registed name), the new created blog <a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js%2Fblog%2F%24%24English%2F0.netlog.blog%2F">looks like this</a>.
 
-Blog homepage <a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">can be opened directly</a> when you current reading yourself's `README` file.
+&nbsp;
+
+## Be involved in
+
+Open blog homepage:
+ 1. <a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">Click to open blog page</a> which is related to current repository
+ 2. Or, Input URL: `https://<username>.github.io/blog/`
+ 3. Or, Goto your `blog` repository and click the link `view shared blogs`
+
+If any issue or suggestion please raise an issue or request for this repository, click one of following buttons if you want share it to your friends:   
+ > <a target="_blank" src="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware">![share by facebook](pages/fb.png)</a>&nbsp;&nbsp;
+   <a target="_blank" src="https://plus.google.com/share?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware">![share by facebook](pages/gp.png)</a>&nbsp;&nbsp;
+   <a target="_blank" src="https://twitter.com/home?status=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware">![share by facebook](pages/tw.png)</a>&nbsp;&nbsp;
+   <a target="_blank" src="https://www.pinp.me/admin/login/invite2?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware">![share by e-mail](pages/gm.png)</a>
 
 &nbsp;
 
@@ -69,7 +82,7 @@ Blog homepage <a target="_blank" href="https://www.pinp.me/software/pages/blogge
 
 A set of "Online help" documents will be installed into your blog, include such things:
 
- - Online help, introduce how to edit blog online, or offline
+ - Online help, introduces how to edit blog online or offline, how to extend template system, etc
  - Todo list, progress plan
  - News and activity report
 

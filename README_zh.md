@@ -46,21 +46,34 @@ PINP DOC 采用静态页格式组织博客与演示胶片，只须将静态托�
 
 第二步：Fork 博客支持库（即 pinp/software）   
  > 打开 pinp/software 库（<a target="_blank" href="https://github.com/pinp/software">github.com/pinp/software</a>），点右上角的 **Fork** 按钮，将它克隆到你自己的帐号下。成功后，选择该库根目录下的 blogger10.json 文件编辑它，如下图，把 `home_repository` 的值改为 `blog`   
-![config blogger10.json](config_root.png)   
+![config blogger10.json](pages/config_root.png)   
 这里 `blog` 是我们下一步要 Fork 的库，这一句配置用来指明 PINP 博客的根目录的。接着，我们点 **Commit changes** 提交刚才的修改。
 
 &nbsp;
 
 第三步：Fork 博客库（即 pinp/blog）   
  > 打开 pinp/blog 库（<a target="_blank" href="https://github.com/pinp/blog">github.com/pinp/blog</a>），点右上角的 **Fork** 按钮，将它克隆到你自己的帐号下。成功后，选择该库根目录下的 config.json 文件编辑它，如下图，把 `user_name` 改为您注册的用户名（这里假定用户名为 `best-js`），把 `repos_name` 设为 `blog`   
-![config config.json](config_blog.png)   
+![config config.json](pages/config_blog.png)   
 同样点 **Commit changes** 提交所做的修改。
 
 &nbsp;
 
-至此，您的个人博客已创建好，用 `https://<username>.github.io/blog/` 可以访问了（这里 `<username>` 要替换为您注册的用户名）。刚创建的博客看起来像 <a target="target" href="//best-js.github.io/blog/">这个样子</a>。
+至此，您的个人博客已创建好，用 `https://<username>.github.io/blog/` 可以访问了（这里 `<username>` 要替换为您注册的用户名）。刚创建的博客看起来像 <a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js.github.io%2Fblog%2F%24%24Chinese%E4%B8%AD%E6%96%87%2F0.%E7%BD%91%E5%BF%97.blog%2F">这个样子</a>。
 
-如果在您自己的 `software` 库下查看本 `README` 文件，<a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">点这个链接</a> 可直接打开您自己的博客主页。
+&nbsp;
+
+## 如何参与
+
+打开博客主页的方法：
+ 1. <a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">点此链接</a> 打开与当前库相关的博客主页
+ 2. 或者，手工输入URL：`https://<username>.github.io/blog/`
+ 3. 或者，在 github.com 打开克隆后的 `blog` 库主页，那里有博客库链接
+
+如果您发现 PINP Blog 问题或有新需求，请在本库提交 issue 或 request，如果想邀请好友使用本博客系统，可选点如下按钮：   
+ > <a target="_blank" src="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware">![share by facebook](pages/fb.png)</a>&nbsp;&nbsp;
+   <a target="_blank" src="https://plus.google.com/share?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware">![share by facebook](pages/gp.png)</a>&nbsp;&nbsp;
+   <a target="_blank" src="https://twitter.com/home?status=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware">![share by facebook](pages/tw.png)</a>&nbsp;&nbsp;
+   <a target="_blank" src="https://www.pinp.me/admin/login/invite2?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware">![share by e-mail](pages/gm.png)</a>
 
 &nbsp;
 
@@ -68,7 +81,7 @@ PINP DOC 采用静态页格式组织博客与演示胶片，只须将静态托�
 
 经前面步骤创建的博客，缺省已安装 Online help，该在线帮助自身也是按前面步骤创建的个人博客，包含内容有：
 
- - 在线帮助，介绍如何在线编辑、离线编辑等
+ - 在线帮助，介绍如何进行在线编辑、离线编辑，如何做二次开发等
  - 后续工作（Todo List）
  - 活动与进展报告
 
