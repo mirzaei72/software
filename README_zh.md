@@ -70,10 +70,10 @@ PINP DOC 采用静态页格式组织博客与演示胶片，只须将静态托�
  3. 或在 github.com 打开克隆后的 `blog` 库主页，那里有打开博客的链接
 
 如果您发现 PINP Blog 问题，或对此有新需求，请在本库提交 issue 或 request。如果想邀请好友使用本博客系统，请选点如下按钮：   
- > <a target="_blank" src="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by facebook" src="pages/fb.png"></a>&nbsp;&nbsp;
-   <a target="_blank" src="https://plus.google.com/share?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by google+" src="pages/gp.png"></a>&nbsp;&nbsp;
-   <a target="_blank" src="https://twitter.com/home?status=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by twitter" src="pages/tw.png"></a>&nbsp;&nbsp;
-   <a target="_blank" src="https://www.pinp.me/admin/login/invite2?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by e-mail" src="pages/gm.png"></a>
+ > <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by facebook" src="pages/fb.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://plus.google.com/share?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by google+" src="pages/gp.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://twitter.com/home?status=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by twitter" src="pages/tw.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://www.pinp.me/admin/login/invite2?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by e-mail" src="pages/gm.png"></a>
 
 &nbsp;
 

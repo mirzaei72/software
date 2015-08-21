@@ -66,17 +66,17 @@ Your blog system should be ready by now, please visit it by `https://<username>.
 ## Be involved in
 
 Open your blog:
- 1. <a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">Click to open blog</a> which is related to current repository
- 2. Or, Input URL: `https://<username>.github.io/blog/`
- 3. Or, Goto your `blog` repository and click the link: `view shared blogs`
+ 1. <a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">Click to open the blog</a> which is related to current repository
+ 2. Or, input URL: `https://<username>.github.io/blog/`
+ 3. Or, go to your `blog` repository and click the link: `view shared blogs`
 
-If you find any bug or have a suggestion, please raise an issue or request for the repository.
+If you find any bug or have a suggestion, please raise an issue or request in github.
 
 Click one of following buttons if you want share PINP blog with your friends:   
- > <a target="_blank" src="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by facebook" src="pages/fb.png"></a>&nbsp;&nbsp;
-   <a target="_blank" src="https://plus.google.com/share?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by google+" src="pages/gp.png"></a>&nbsp;&nbsp;
-   <a target="_blank" src="https://twitter.com/home?status=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by twitter" src="pages/tw.png"></a>&nbsp;&nbsp;
-   <a target="_blank" src="https://www.pinp.me/admin/login/invite2?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by e-mail" src="pages/gm.png"></a>
+ > <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by facebook" src="pages/fb.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://plus.google.com/share?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by google+" src="pages/gp.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://twitter.com/home?status=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by twitter" src="pages/tw.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://www.pinp.me/admin/login/invite2?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by e-mail" src="pages/gm.png"></a>
 
 &nbsp;
 
