@@ -67,7 +67,7 @@ Your blog system should be ready by now, please visit it by `https://<username>.
 
 Open your blog:
  1. <a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">Click to open the blog</a> which is related to current repository
- 2. Or, input URL: `https://<username>.github.io/blog/`
+ 2. Or, open URL: `https://<username>.github.io/blog/`
  3. Or, go to your `blog` repository and click the link: `view shared blogs`
 
 If you find any bug or have a suggestion, please raise an issue or a request in github.
