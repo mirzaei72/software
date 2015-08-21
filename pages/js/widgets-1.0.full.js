@@ -296,6 +296,21 @@ window.pluginOf = function(sId,onlyGet) {
   mod.getDCF = function() {
     return R.getDCF();
   };
+  mod.getRootCfg = function() {
+    return githubRootCfg;
+  };
+  mod.getHomeCfg = function() {
+    return githubHomeCfg;
+  };
+  mod.getCfgSha = function() {
+    return githubCfgSha;
+  };
+  mod.hasModified = function() {
+    var node = R.widgetByName('wdMarkdown');
+    if (node && node.r)
+      return node.r.data.changed;
+    else return false;
+  };
 })(pluginOf('pinp')); // regist plugin module 'pinp'
 
 function gh3ErrDesc(err,res) {

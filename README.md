@@ -70,13 +70,13 @@ Open your blog:
  2. Or, input URL: `https://<username>.github.io/blog/`
  3. Or, go to your `blog` repository and click the link: `view shared blogs`
 
-If you find any bug or have a suggestion, please raise an issue or request in github.
+If you find any bug or have a suggestion, please raise an issue or a request in github.
 
-Click one of following buttons if you want share PINP blog with your friends:   
- > <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by facebook" src="pages/fb.png"></a>&nbsp;&nbsp;
-   <a target="_blank" href="https://plus.google.com/share?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by google+" src="pages/gp.png"></a>&nbsp;&nbsp;
-   <a target="_blank" href="https://twitter.com/home?status=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by twitter" src="pages/tw.png"></a>&nbsp;&nbsp;
-   <a target="_blank" href="https://www.pinp.me/admin/login/invite2?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware"><img title="share by e-mail" src="pages/gm.png"></a>
+Click one of following buttons if you want share this project with your friends:   
+ > <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware%2Fblob%2Fgh-pages%2FREADME.md"><img title="share by facebook" src="pages/fb.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://plus.google.com/share?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware%2Fblob%2Fgh-pages%2FREADME.md"><img title="share by google+" src="pages/gp.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://twitter.com/home?status=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware%2Fblob%2Fgh-pages%2FREADME.md"><img title="share by twitter" src="pages/tw.png"></a>&nbsp;&nbsp;
+   <a target="_blank" href="https://www.pinp.me/admin/login/invite2?url=https%3A%2F%2Fgithub.com%2Fpinp%2Fsoftware%2Fblob%2Fgh-pages%2FREADME.md"><img title="share by e-mail" src="pages/gm.png"></a>
 
 &nbsp;
 
