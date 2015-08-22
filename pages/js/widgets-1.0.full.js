@@ -313,6 +313,13 @@ window.pluginOf = function(sId,onlyGet) {
   };
 })(pluginOf('pinp')); // regist plugin module 'pinp'
 
+window.onbeforeunload = function() {
+  var node = R.widgetByName('wdMarkdown');
+  if (node && node.r && node.r.data.changed)
+    return 'You have unsaved changes on this page!';
+  else return null;
+};
+
 function gh3ErrDesc(err,res) {
   if (res.readyState < 4)
     return res.statusText || 'request abort';
@@ -4594,12 +4601,7 @@ var PopDlgForm = {
     var sUrl, sEdProj = this.wdMarkdown.r.data.currProj;
     if (sEdProj && sPath.indexOf(sEdProj+'/') == 0)
       sUrl = sPath.slice(sEdProj.length+1) + '/';
-    else {
-      if (githubSess)
-        sUrl = githubUser.login + '.github.io';
-      else sUrl = PINP_HOST_DOMAIN;
-      sUrl = location.protocol + '//' + sUrl + '/' + sPath + '/';
-    }
+    else sUrl = '/' + sPath + '/';
     
     var sJsCode = 'var sPrjUrl = "' + sUrl + '";\n' +
 'var sBareName = "' + sBare + '";\n' +
@@ -4670,7 +4672,14 @@ var PopDlgForm = {
   },
   
   addDropImgFrame: function(wd,hi,sUrl) {
-    var b=sUrl.split('/'), sBare=b[b.length-1];
+    sUrl = location__(sUrl).pathname;
+    if (sUrl[0] != '/') sUrl = '/' + sUrl;  // avoid bug of IE11
+    
+    var b=sUrl.split("/"), sBare=b[b.length-1];
+    var sEdProj = this.wdMarkdown.r.data.currProj;
+    if (sEdProj && sUrl.indexOf('/'+sEdProj+'/') == 0)
+      sUrl = sUrl.slice(sEdProj.length+2);
+    
     var sJsCode = 'var sImgUrl = "' + sUrl + '";\n' +
 'var sImgBare = "' + sBare + '";\n' +
 'var sNatureWd = "' + wd + '";\n' +

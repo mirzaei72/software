@@ -491,7 +491,7 @@ function setRelatedRepo(userIndex,sUrl_,setRepoDesc,callback) {
       dCfg.unreadNum = bInfo[1];
       dCfg.repoUrl = (sBasePath? sBasePath: '/'+repoName+'/');
       
-      setCookie__('time_' + userName + '_' + repoName,Math.max(iLastRepoTm,dCfg.maxModiTime)+'',30,'/'+docConfig.repos_name);
+      setCookie__('time_' + userName + '_' + repoName,Math.max(iLastRepoTm,dCfg.maxModiTime)+'',100,'/'+docConfig.repos_name);
       if (userIndex == 0) { // show first DOC list
         queryBodyContent(dCfg);
         addUserItem(dCfg.unreadNum,userName,repoName,dCfg.repos_desc || '',dCfg.repoUrl,true,userIndex);
@@ -527,14 +527,14 @@ function cateBtnClick(event) {
     }
     
     if (sRepo == '@ALL') {
-      setCookie__('cate_' + docConfig.user_name + '_@ALL',sCate,30,'/'+docConfig.repos_name);
+      setCookie__('cate_' + docConfig.user_name + '_@ALL',sCate,100,'/'+docConfig.repos_name);
       lastCateHit[docConfig.user_name + '_@ALL'] = sCate;
       repoAllListByCate(sCate);
       return;
     }
 
     if (!sUser || !sRepo) return;
-    setCookie__('cate_' + sUser + '_' + sRepo,sCate,30,'/'+sRepo);
+    setCookie__('cate_' + sUser + '_' + sRepo,sCate,100,'/'+sRepo);
     lastCateHit[sUser + '_' + sRepo] = sCate;
     
     var dCfg = getUserConfig(sUser,sRepo);
