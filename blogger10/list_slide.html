@@ -139,8 +139,11 @@ document.addEventListener('DOMContentLoaded', function(event) {
       if (sTitle)
         sDesc = '<span class="one-title" title="' + sTime + '">' + htmlEncode(sTitle) + '</span><br>' + htmlEncode(sDesc);
       else sDesc = htmlEncode(sDesc);
-      if (!sImgFile)
-        sImgFile = '/' + sRepo + '/' + sProj + '/$thumbnail.png';
+      if (sImgFile) {
+        if (sImgFile.indexOf('/' + sRepo + '/') == 0)
+          sImgFile = '//' + sUser + '.github.io' + sImgFile;
+      }
+      else sImgFile = '//' + sUser + '.github.io/' + sRepo + '/' + sProj + '/$thumbnail.png';
       allDocList.push({'user':sUser, 'repo':sRepo, 'desc':sDesc, 'proj':sProj, 'img':sImgFile, 'isNew':isUnread});
     }
     
