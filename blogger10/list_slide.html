@@ -127,6 +127,8 @@ function onThumbErr(event) {
 document.addEventListener('DOMContentLoaded', function(event) {
   getDCF_().regist('setSlides', function(bArgs) {
     allDocList = [];
+    var atLocal = location.hostname == 'localhost';
+    
     for (var i=0; i < bArgs.length; i++) {
       var item = bArgs[i];
       var sUser=item[0], sRepo=item[1];
@@ -140,10 +142,14 @@ document.addEventListener('DOMContentLoaded', function(event) {
         sDesc = '<span class="one-title" title="' + sTime + '">' + htmlEncode(sTitle) + '</span><br>' + htmlEncode(sDesc);
       else sDesc = htmlEncode(sDesc);
       if (sImgFile) {
-        if (sImgFile.indexOf('/' + sRepo + '/') == 0)
+        if (sImgFile.indexOf('/' + sRepo + '/') == 0 && !atLocal)
           sImgFile = '//' + sUser + '.github.io' + sImgFile;
       }
-      else sImgFile = '//' + sUser + '.github.io/' + sRepo + '/' + sProj + '/$thumbnail.png';
+      else {
+        sImgFile = '/' + sRepo + '/' + sProj + '/$thumbnail.png';
+        if (!atLocal)
+          sImgFile += '//' + sUser + '.github.io' + sImgFile;
+      }
       allDocList.push({'user':sUser, 'repo':sRepo, 'desc':sDesc, 'proj':sProj, 'img':sImgFile, 'isNew':isUnread});
     }
     
