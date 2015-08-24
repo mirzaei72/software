@@ -1628,7 +1628,10 @@ var Markdown = {
         
         var beResize = self.data.hasPreview;
         var node = self.wdPreviewArea.querySelector('.preview-md');
-        if (node) node.innerHTML = '';
+        if (node) {
+          node.innerHTML = '';
+          node.style.height = '';
+        }
         self.data.hasPreview = false;
         
         var txtNode = self.wd.querySelector('textarea.markdown-editor');
@@ -1941,7 +1944,10 @@ var Markdown = {
     
     var beResize = this.data.hasPreview;
     var node = this.wdPreviewArea.querySelector('.preview-md');
-    if (node) node.innerHTML = '';
+    if (node) {
+      node.innerHTML = '';
+      node.style.height = '';
+    }
     this.data.hasPreview = false;
     
     var txtNode = this.wd.querySelector('textarea.markdown-editor');
@@ -3127,7 +3133,7 @@ var PopDlgForm = {
         var sNowDate = (new Date()).toLocaleDateString();
         var oldCfgSha = githubCfgSha['/'+sAlias+'/config.json'];
         
-        // step 3: upload config.json
+        // step 4: upload config.json
         var writeCfgFile = function() {
           $.ajax( { type: 'PUT',
             url: 'https://api.github.com/repos/' + githubUser.login + '/' + sAlias + '/contents/config.json?access_token=' + githubToken,
@@ -3149,7 +3155,7 @@ var PopDlgForm = {
           });
         };
         
-        // step 2: upload $abstract.txt
+        // step 3: upload $abstract.txt
         var writeAbsFile = function() {
           var sInput = sTitle + '\r\n' + sDesc + '\r\n' + (sKeyword?'<'+sKeyword+'>':'') + '\r\n';
           if (sCfgLine) sInput += sCfgLine;  // keep dConfig in $abstract.txt
@@ -3179,6 +3185,24 @@ var PopDlgForm = {
           });
         };
         
+        // step 2: check $thumbnail.png
+        var adjustThumb = function() {
+          if (sThumb)
+            writeAbsFile();
+          else {
+            var aDir = new Gh3.Dir({path:sPath_},githubUser,sAlias,'gh-pages');
+            aDir.fetchContents( function(err, res) { // https://api.github.com/repos/<user>/<repo>/contents/$$doc
+              if (err) {
+                whenError('List project files failed: ' + ajaxErrDesc(res,'message'));
+                return;
+              }
+              if (aDir.getFileByName('$thumbnail.png'))
+                sThumb = '/' + sAlias + '/' + sPath_ + '/$thumbnail.png';
+              writeAbsFile();
+            });
+          }
+        };
+        
         // step 1: try get sha of config.json
         if (!oldCfgSha) {
           var aFile = new Gh3.File({path:'config.json'},githubUser,sAlias,'gh-pages');
@@ -3189,10 +3213,10 @@ var PopDlgForm = {
             }
             oldCfgSha = aFile.sha;
             githubCfgSha['/' + sAlias + '/config.json'] = oldCfgSha;
-            writeAbsFile();
+            adjustThumb();
           });
         }
-        else writeAbsFile();
+        else adjustThumb();
         
         return;
       }
