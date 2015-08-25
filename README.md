@@ -59,7 +59,7 @@ Next, click **Commit changes** button to apply the modification.
 
 &nbsp;
 
-Your blog system should be ready by now, please visit it by `https://<username>.github.io/blog/` (you should replace `<username>` to your registed name), the new created blog <a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js%2Fblog%2F%24%24English%2F0.netlog.blog%2F">looks like this</a>.
+Your blog system should be ready by now, please visit it by `https://<username>.github.io/blog/` (you should replace `<username>` to your registed name), the new created blog <a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js.github.io%2Fblog%2F%24%24English%2F0.netlog.blog%2F">looks like this</a>.
 
 &nbsp;
 

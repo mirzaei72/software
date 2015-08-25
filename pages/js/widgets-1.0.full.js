@@ -1623,7 +1623,7 @@ var Markdown = {
       
       var nextStep = function(sRet) {
         self.wdToolbar.r.editProj('blog',sProj,sAcl);
-        self.wdResPanel.r.editProj('blog');
+        self.wdResPanel.r.editProj('blog',sProj);
         self.wdPreviewArea.r.editProj('blog',sProj);
         
         var beResize = self.data.hasPreview;
@@ -1698,7 +1698,7 @@ var Markdown = {
         frmNode.onload = function(event) {
           whenDone('');
           self.wdToolbar.r.editProj('sshow',sProj,sAcl);
-          self.wdResPanel.r.editProj('sshow');
+          self.wdResPanel.r.editProj('sshow',sProj);
           self.wdPreviewArea.r.editProj('sshow',sProj);
           
           self.data.hasPreview = false;
@@ -2472,7 +2472,7 @@ var ResPanel = {
       if (window.WEB_IE_BROWSER)
         sArg = event.dataTransfer.getData('text') || '';
       else sArg = event.dataTransfer.getData('text/args') || '';
-      if (sArg.indexOf('project,') == 0 || sArg.indexOf('image,') == 0)
+      if (sArg.indexOf('project,') == 0) // sArg.indexOf('image,') == 0 can pass
         return;
       
       event.stopPropagation();
@@ -2686,7 +2686,12 @@ var ResPanel = {
     this.update();
   },
   
-  editProj: function(sType) {
+  editProj: function(sType,sProj) {
+    var sModiCss = 'none', editingPrj = this.wdMarkdown.r.data.currProj;
+    if (editingPrj == sProj || (editingPrj && sProj.indexOf(editingPrj+'/') == 0))
+      sModiCss = 'block';
+    this.data.pages[1].canModifyCss = sModiCss;
+    
     if (sType == 'blog') {
       this.data.pages[0].isTemplate = false;
       this.update();
