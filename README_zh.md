@@ -1,5 +1,5 @@
 ﻿PINP博客：搭建在 github 上的免费博客系统
-=======================================
+========================================
 Version 1.0
 
 &nbsp;
@@ -8,30 +8,15 @@ Version 1.0
 
 PINP 是 *PINP Is Not PPT* 的缩写，中文名为 **拼文**，它是一种借助 HTML5 与 CSS3 技术实现文档系统，支持 Markdown 格式的博客编写，以及类似PPT的演示胶片制作，详情请参考：<a target="_blank" href="//www.pinp.me/www/www/">PINP 网站</a>。
 
-与常规 Markdown 博客相比，PINP博客可将演示胶片嵌入到博客正文中来，由此，既保持 Markdown 简单便捷的特色，又延伸了它的表现力，<a target="_blank" href="//best-js.github.io/blog/$$Chinese中文/1.在线拼文样例.blog/">这里有一个简单样例</a>。
-
-&nbsp;
-
-## 目录与功能
-
-PINP 文档是一个已发布2年的成熟系统，它建立在一个商用网盘系统之上，由网盘提供存贮，支持在线编辑、在线访问。本项目的主要工作是将它的网盘存贮改用 github 公共库实现。
-
- >  /source/slide11
- > >  PINP 的 slide 软件，支持胶片展示，从 <a target="_blank" href="//www.pinp.me/www/www/?page=pinp_down.html">PINP客户端工具</a> 提取，未作修改。
-
- >  /source/blogger10
- > >  博客主界面用到资源，包括模板、图片、Javascript文件等保存在这里。
-
- >  /source/pages
- > >  提供在线编辑器。
+与常规 Markdown 博客相比，PINP博客可将演示胶片嵌入到博客正文中来，由此，既保持 Markdown 简单便捷的特色，又延伸了它的表现力，<a target="_blank" href="//best-js.github.io/blog/$$Chinese中文/1.在线拼文样例.blog/">这里有份简单样例</a>。
 
 &nbsp;
 
 ## 实现原理
 
-本系统借助 [github pages](https://pages.github.com/) 实现，概括而言，您在 github 上创建一个 public repository，然后将静态网页文件（`html/css/js`）提交到这个库，并把该库的缺省分支设为 `gh-pages`，之后就能用 `<username>.github.io/<repository>/index.html` 访问网页了。github pages 已提供静态网站托管功能，而且，它是**免费**的！
+本系统借助 [github pages](https://pages.github.com/) 实现，概括而言，您在 github 上创建一个 public repository，然后将静态网页文件（`html/css/js`）提交到这个库，并把该库的缺省分支设为 `gh-pages`，之后就能用 `<username>.github.io/<repository>/index.html` 访问网页了。这相当于 github pages 提供免费的静态网站托管，只须将静态 Web 页按 PINP 文档格式组织起来，就支持 PINP **博客及胶片** 系统了。
 
-PINP DOC 采用静态页格式组织博客与演示胶片，只须将静态托管的Web页按 PINP 要求的格式组织起来，就实现了 PINP **博客及胶片** 文档系统。
+将托管在 github 上的拼文在 homepage 主页分类展示，我们再配套提供 **在线编辑器** 与 **离线编辑器**，形成一个简单易用的博客系统，<a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js.github.io%2Fblog%2F%24%24Chinese%E4%B8%AD%E6%96%87%2F0.%E7%BD%91%E5%BF%97.blog%2F">参见这个样例</a>。
 
 &nbsp;
 
@@ -58,13 +43,14 @@ PINP DOC 采用静态页格式组织博客与演示胶片，只须将静态托�
 
 &nbsp;
 
-至此，您的个人博客已创建好，用 `https://<username>.github.io/blog/` 可以访问了（这里 `<username>` 要替换为您注册的用户名）。刚创建的博客看起来像 <a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js.github.io%2Fblog%2F%24%24Chinese%E4%B8%AD%E6%96%87%2F0.%E7%BD%91%E5%BF%97.blog%2F">这个样子</a>。
+至此，您的个人博客已创建好，用 `https://<username>.github.io/blog/` 可以访问了（这里 `<username>` 要替换为您注册的用户名）。
 
 &nbsp;
 
-## 如何参与
+## 试用 PINP 博客
 
-打开博客主页的方法：
+在 github 创建您个人博客后，可按如下方式访问博客主页：
+
  1. <a target="_blank" href="https://www.pinp.me/software/pages/blogger/gh_jump.action">点此链接</a> 打开与当前库相关的博客主页
  2. 或者，手工输入URL：`https://<username>.github.io/blog/`
  3. 或在 github.com 打开克隆后的 `blog` 库主页，那里有打开博客的链接

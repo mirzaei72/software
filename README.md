@@ -9,30 +9,17 @@ Chinese version: [习惯看中文的朋友请点这里](README_zh.md)
 
 <a target="_blank" href="http://www.pinp.me/www/www/">PINP</a> (*PINP Is Not PPT*) is PPT-like presentation system which is based on HTML5/CSS3.
 
-PINP also supports [Markdown](http://daringfireball.net/projects/markdown/) blog writing, any slide page can embed into blog. So, PINP blog is sample and easy to use that just as *Markdown* looks like, and it enhance blog's representation also, <a target="_blank" href="//best-js.github.io/blog/$$English/1.online_blog.blog/">it is sample</a>.
-
-&nbsp;
-
-## Directory
-
-PINP is mature document system which is released at 2 years ago, it comes with cloud storage service (so called PINP DISK) that supports PINP DOC's online editing and online visiting. Mainly work of this project is: changing storage mechanism from PINP DISK to github public repository.
-
- >  /source/slide11
- > >  PINP slide, it comes from <a target="_blank" href="//www.pinp.me/www/www/?page=pinp_down.html">PINP Client Tool</a>, we change nothing.
-
- >  /source/blogger10
- > >  GUI resources for blog that include template, picture, javascript files.
-
- >  /source/pages
- > >  Provides online editor
+PINP also supports [Markdown](http://daringfireball.net/projects/markdown/) blog writing, any slide page can embed into blog. So, PINP blog is sample and easy to use that just as *Markdown* looks like, and it enhance blog's representation also, <a target="_blank" href="//best-js.github.io/blog/$$English/1.online_blog.blog/">it is a sample</a>.
 
 &nbsp;
 
 ## How it works?
 
-The blog system is depend on the feature of [github pages](https://pages.github.com/), in one word, when you create a public repository in github.com and set `gh-pages` as default branch, you can visit your static WEB files (such as html, css, js, etc) by URL `<username>.github.io/<repository>/index.html`, and it is important, github pages is **free**!
+The blog system is depend on the feature of [github pages](https://pages.github.com/), in one word, when you create a public repository in github.com and set `gh-pages` as default branch, you can visit your static web files (such as html, css, js, etc) by URL `<username>.github.io/<repository>/index.html`, and it is important, github pages is **free**!
 
-So, when static WEB files are organized as PINP DOC required, they would served as PINP blog and slide documents.
+So, when static web files are organized as PINP DOC required, they would served as PINP blog and slide documents. PINP blog system list published documents in `homepage`, and it come with **online editor** and **offline editor**, the blog system is quite easy for everyone.
+
+The homepage of PINP blog <a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js.github.io%2Fblog%2F%24%24English%2F0.netlog.blog%2F">look like this</a>.
 
 &nbsp;
 
@@ -59,7 +46,7 @@ Next, click **Commit changes** button to apply the modification.
 
 &nbsp;
 
-Your blog system should be ready by now, please visit it by `https://<username>.github.io/blog/` (you should replace `<username>` to your registed name), the new created blog <a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js.github.io%2Fblog%2F%24%24English%2F0.netlog.blog%2F">looks like this</a>.
+Your blog system should be ready by now, please visit it by `https://<username>.github.io/blog/` (you should replace `<username>` to your registed name).
 
 &nbsp;
 
