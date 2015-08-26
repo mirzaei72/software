@@ -14,7 +14,7 @@ PINP 是 *PINP Is Not PPT* 的缩写，中文名为 **拼文**，它是一种借
 
 ## 实现原理
 
-本系统借助 [github pages](https://pages.github.com/) 实现，概括而言，您在 github 上创建一个 public repository，然后将静态网页文件（`html/css/js`）提交到这个库，并把该库的缺省分支设为 `gh-pages`，之后就能用 `<username>.github.io/<repository>/index.html` 访问网页了。这相当于 github pages 提供免费的静态网站托管，只须将静态 Web 页按 PINP 文档格式组织起来，就支持 PINP **博客及胶片** 系统了。
+本系统借助 <a target="_blank" href="https://pages.github.com/">github pages</a> 实现，概括而言，您在 github 上创建一个 public repository，然后将静态网页文件（`html/css/js`）提交到这个库，并把该库的缺省分支设为 `gh-pages`，之后就能用 `https://<username>.github.io/<repository>/index.html` 访问网页了。这相当于 github pages 提供免费的静态网站托管，只须将静态 Web 页按 PINP 文档格式组织起来，就支持 PINP **博客及胶片** 系统了。
 
 将托管在 github 上的拼文在 homepage 主页分类展示，我们再配套提供 **在线编辑器** 与 **离线编辑器**，形成一个简单易用的博客系统，<a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js.github.io%2Fblog%2F%24%24Chinese%E4%B8%AD%E6%96%87%2F0.%E7%BD%91%E5%BF%97.blog%2F">参见这个样例</a>。
 

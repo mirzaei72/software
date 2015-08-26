@@ -9,15 +9,15 @@ Chinese version: [习惯看中文的朋友请点这里](README_zh.md)
 
 <a target="_blank" href="http://www.pinp.me/www/www/">PINP</a> (*PINP Is Not PPT*) is PPT-like presentation system which is based on HTML5/CSS3.
 
-PINP also supports [markdown](http://daringfireball.net/projects/markdown/) blog writing, any slide page can embed into a blog. So, PINP blog is simple since *markdown* syntax is simple, on the other hand, it is powerful for embedding of slide page, <a target="_blank" href="//best-js.github.io/blog/$$English/1.online_blog.blog/">see sample document</a>.
+PINP also supports <a target="_blank" href="http://daringfireball.net/projects/markdown/">markdown</a> blog writing, any slide page can embed into a blog. So, PINP blog is simple since *markdown* syntax is simple, on the other hand, it is powerful for embedding of slide page, <a target="_blank" href="//best-js.github.io/blog/$$English/1.online_blog.blog/">see sample document</a>.
 
 &nbsp;
 
 ## How it works?
 
-PINP blog system is depend on the features of <a target="_blank" href="https://pages.github.com/">github pages</a>, in one word, when you create a public repository in github.com and set `gh-pages` as default branch, you can visit your static web files (such as html, css, js, etc) by URL `<username>.github.io/<repository>/index.html`, there is one thing important, github pages is **free**!
+PINP blog system is depend on the features of <a target="_blank" href="https://pages.github.com/">github pages</a>, in one word, when you create a public repository in github.com and set `gh-pages` as default branch, you can visit your static web files (such as html, css, js, etc) by URL `https://<username>.github.io/<repository>/index.html`, there is one thing important, github pages is **free**!
 
-When static web files are organized as PINP DOC required, they would served as PINP blog and PINP slide document. The blog homepage will list all published documents, it come with **online editor** and **offline editor** also, it is quite easy to learn for everyone.
+When static web files are organized as PINP DOC required, they would served as PINP blog and PINP slide. The blog homepage will list all published PINP documents, it come with **online editor** and **offline editor** also.
 
 The homepage of PINP blog <a target="target" href="//best-js.github.io/blog/?opendoc=%2F%2Fbest-js.github.io%2Fblog%2F%24%24English%2F0.netlog.blog%2F">looks like this</a>.
 
