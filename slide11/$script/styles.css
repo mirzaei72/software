@@ -281,6 +281,13 @@ body.cke_editable p { /* for CKEditor */
 .slides.no-ground > article {
   background-color: rgba(0,0,0,0);
 }
+.slides.showgrid > article {
+  background-color: rgba(0,0,0,0);
+  background-image: url("/software/slide11/$images/page_grid.svg");
+  background-position: center center;
+  background-size: 900px 700px;
+  background-repeat: no-repeat;
+}
 .slides > article.wide-screen {
   width: 1100px;
   margin-left: -550px;
