@@ -42,7 +42,7 @@ Warning: you should modify yourself's `blogger10.json` which is forked from `pin
 &nbsp;
 
 Step 3: Fork blog repository (i.e. pinp/blog)   
- > Open github repository: <a target="_blank" href="https://github.com/pinp/blog">pinp/blog</a>, click **Fork** button to clone it to your account. Then, select `blog/config.json` file and edit it, set the value of `user_name` to your registed username, set the value of `repos_name` to `blog`, as following diagram (suppose username is `best-js`).   
+ > Open github repository: <a target="_blank" href="https://github.com/pinp/blog">pinp/blog</a>, click **Fork** button to clone it to your account. Then, select `blog/config.json` file and edit it, set the value of `user_name` to your registed username, set the value of `repos_name` to `blog`, as following diagram (suppose your username is `best-js`).   
 ![config config.json](pages/config_blog.png)   
 Next, click **Commit changes** button to apply the modification.
 
