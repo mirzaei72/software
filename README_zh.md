@@ -34,12 +34,16 @@ PINP 是 *PINP Is Not PPT* 的缩写，中文名为 **拼文**，它是一种借
 ![config blogger10.json](pages/config_root.png)   
 这里 `blog` 是我们下一步要 Fork 的库，这一句配置用来指明 PINP 博客的根目录的。接着，我们点 **Commit changes** 提交刚才的修改。
 
+注意：请修改 fork 后那个库（`<username>/software/`）中的 `blogger10.json`，而不是 `pinp/software/` 下的文件。
+
 &nbsp;
 
 第三步：Fork 博客库（即 pinp/blog）   
  > 打开 pinp/blog 库（<a target="_blank" href="https://github.com/pinp/blog">github.com/pinp/blog</a>），点右上角的 **Fork** 按钮，将它克隆到你自己的帐号下。成功后，选择该库根目录下的 config.json 文件编辑它，如下图，把 `user_name` 改为您注册的用户名（这里假定用户名为 `best-js`），把 `repos_name` 设为 `blog`   
 ![config config.json](pages/config_blog.png)   
 同样点 **Commit changes** 提交所做的修改。
+
+注意：请修改 fork 后那个库（`<username>/blog/`）中的 `config.json`，而不是 `pinp/blog/` 下的文件。
 
 &nbsp;
 
